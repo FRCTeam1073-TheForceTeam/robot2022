@@ -14,4 +14,10 @@ public class FrontSonar extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  // sensorNumber determines which sensor to read from
+  // If invalid, return -1, otherwise range in meters
+  public double getRange(int sensorNumber) {
+    return 0.0;
+  }
 }
