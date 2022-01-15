@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Bling extends SubsystemBase {
   public AddressableLED m_led;
   public AddressableLEDBuffer m_ledBuffer;
-  public static final ledStringLength = 8;
+  public static final int ledStringLength = 8;
 
   public int ledR = 0;
   public int ledG = 0;
