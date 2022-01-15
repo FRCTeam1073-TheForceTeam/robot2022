@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Scheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -12,25 +13,54 @@ import edu.wpi.first.wpilibj.TimedRobot;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends TimedRobot 
+{
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
-  @Override
-  public void robotInit() {}
+
+  private RobotContainer robotContainer;
+  private Command autonomousCommand;
+  private Command teleopCommand;
+  private Command testCommand;
 
   @Override
-  public void robotPeriodic() {}
+  public void robotInit() 
+  {
+    robotContainer = new RobotContainer();
+  }
 
   @Override
-  public void autonomousInit() {}
+  public void robotPeriodic() 
+  {
+    Scheduler.getInstance().run();
+  }
+
+  @Override
+  public void autonomousInit() 
+  {
+    autonomousCommand = robotContainer.getAutonomousCommand();
+
+    if (autonomousCommand != null)
+    {
+      autonomousCommand.schedule();
+    }
+  }
 
   @Override
   public void autonomousPeriodic() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() 
+  {
+    teleopCommand = robotContainer.getTeleopCommand();
+
+    if (teleopCommand != null)
+    {
+      teleopCommand.schedule();
+    }
+  }
 
   @Override
   public void teleopPeriodic() {}
@@ -42,7 +72,15 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {}
 
   @Override
-  public void testInit() {}
+  public void testInit() 
+  {
+    testCommand = robotContainer.getTestCommand();
+
+    if (testCommand != null)
+    {
+      testCommand.schedule();
+    }
+  }
 
   @Override
   public void testPeriodic() {}

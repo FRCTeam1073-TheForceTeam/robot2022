@@ -9,40 +9,51 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Drive extends SubsystemBase {
+public class Drivetrain extends SubsystemBase 
+{
   /** Creates a new Drive. */
-  public Drive() {}
+  public Drivetrain() 
+  {
+    
+  }
 
   @Override
-  public void periodic() {
+  public void periodic() 
+  {
     // This method will be called once per scheduler run
   }
 
-  public void setChassisSpeeds(ChassisSpeeds speeds) {
-
+  public void setChassisSpeeds(ChassisSpeeds speeds) 
+  {
+    
   }
 
   // Fills in actual speeds
-  public void getChassisSpeeds(ChassisSpeeds speeds) {
+  public void getChassisSpeeds(ChassisSpeeds speeds) 
+  {
     speeds.vxMetersPerSecond = 0.0;
     // vy is always 0
     speeds.vyMetersPerSecond = 0.0;
     speeds.omegaRadiansPerSecond = 0.0;
   }
 
-  public Pose2d getPoseMeters() {
+  public Pose2d getPoseMeters() 
+  {
     return new Pose2d();
   }
 
-  public void resetOdometry(Pose2d newPose) {
+  public void resetOdometry(Pose2d newPose) 
+  {
 
   }
 
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() 
+  {
     return new DifferentialDriveWheelSpeeds();
   }
 
-  public void enableBraking(boolean braking) {
+  public void setBrakeMode(boolean braking) 
+  {
     
   }
 }

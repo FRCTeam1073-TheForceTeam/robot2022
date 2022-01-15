@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Bling extends SubsystemBase {
   public AddressableLED m_led;
   public AddressableLEDBuffer m_ledBuffer;
+  public static final ledStringLength = 8;
 
   public int ledR = 0;
   public int ledG = 0;
@@ -19,7 +20,7 @@ public class Bling extends SubsystemBase {
 
   public Bling() {
     m_led = new AddressableLED(0);
-    m_ledBuffer = new AddressableLEDBuffer(8);
+    m_ledBuffer = new AddressableLEDBuffer(ledStringLength);
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
