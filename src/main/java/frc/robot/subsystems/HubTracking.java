@@ -7,6 +7,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HubTracking extends SubsystemBase {
+  // Resources:
+  // CANifier - https://docs.ctre-phoenix.com/en/stable/ch12_BringUpCANifier.html
+  // setLEDOutput() - https://store.ctr-electronics.com/content/api/java/html/classcom_1_1ctre_1_1phoenix_1_1_c_a_nifier.html
+
+
   public static class HubData {
     public int cx = 0;
     public int cy = 0;
