@@ -6,5 +6,5 @@ Team 1073 2022 competition robot code
 | Device | CAN ID |
 | ------ | ------ |
 | PDP | 0 |
-| CANifier 1 | 8 |
+| CANifier | 8 |
 | IMU (Pigeon IMU) | 9 |
