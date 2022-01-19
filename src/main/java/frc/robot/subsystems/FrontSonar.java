@@ -7,12 +7,18 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FrontSonar extends SubsystemBase {
+  // https://www.maxbotix.com/ultrasonic_sensors/mb1043.htm
+  // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/sensors/analog-inputs-software.html
+
   /** Creates a new FrontSonar. */
   public FrontSonar() {}
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // TODO: Read the sensor and save to a variable
+    // TODO: Look into filtering
   }
 
   // sensorNumber determines which sensor to read from
