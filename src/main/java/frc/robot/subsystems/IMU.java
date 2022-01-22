@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU;
 
 public class IMU extends SubsystemBase 
 {
@@ -15,14 +15,14 @@ public class IMU extends SubsystemBase
   // reference: store.ctr-electronics.com/content/api/java/html/index.html
   // reference: 2021 robot drivetrain subsystem (github)
 
-  private WPI_PigeonIMU pigeonIMU;
+  private PigeonIMU pigeonIMU;
   private double heading;
   private double[] accelAngles;
 
   /** Creates a new IMU. */
   public IMU() 
   {
-    pigeonIMU = new WPI_PigeonIMU(9);
+    pigeonIMU = new PigeonIMU(9);
     pigeonIMU.setFusedHeading(0);
     accelAngles = new double[3];
   }
@@ -34,7 +34,6 @@ public class IMU extends SubsystemBase
     heading = pigeonIMU.getFusedHeading();
     pigeonIMU.getAccelerometerAngles(accelAngles);
 
-    System.out.println("testing");
     SmartDashboard.putNumber("pigeon/fusedHeading", heading); 
     SmartDashboard.putNumber("pigeon/roll", accelAngles[0]);
     SmartDashboard.putNumber("pigeon/pitch", accelAngles[1]);
