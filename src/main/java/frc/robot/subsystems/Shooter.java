@@ -19,7 +19,7 @@ public class Shooter extends SubsystemBase {
     prototypeMotor = new WPI_TalonFX(20);
     prototypeMotor.configFactoryDefault();
     prototypeMotor.setSafetyEnabled(false);
-    prototypeMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
+    //prototypeMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
     prototypeMotor.setNeutralMode(NeutralMode.Brake);
     SmartDashboard.putNumber("Prototype Motor Velocity", 0);
   }
@@ -48,12 +48,12 @@ public class Shooter extends SubsystemBase {
     supplyCurrent = prototypeMotor.getSupplyCurrent();
     temperature = prototypeMotor.getTemperature();
     sensorVelocity = prototypeMotor.getSelectedSensorVelocity();
-    SmartDashboard.putNumber("Output Percentage", 0);
-    SmartDashboard.putNumber("Output Voltage", 0);
-    SmartDashboard.putNumber("Stator Current", 0);
-    SmartDashboard.putNumber("Supply Current", 0);
-    SmartDashboard.putNumber("Temperature", 0);
-    SmartDashboard.putNumber("Sensor Velocity", 0);
+    SmartDashboard.putNumber("Output Percentage", outputPercent);
+    SmartDashboard.putNumber("Output Voltage", outputVoltage);
+    SmartDashboard.putNumber("Stator Current", statorCurrent);
+    SmartDashboard.putNumber("Supply Current", supplyCurrent);
+    SmartDashboard.putNumber("Temperature", temperature);
+    SmartDashboard.putNumber("Sensor Velocity", sensorVelocity);
   }
 
   @Override
