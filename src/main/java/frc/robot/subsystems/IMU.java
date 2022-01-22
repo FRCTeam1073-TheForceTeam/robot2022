@@ -17,12 +17,14 @@ public class IMU extends SubsystemBase
 
   private WPI_PigeonIMU pigeonIMU;
   private double heading;
+  private double[] accelAngles;
 
   /** Creates a new IMU. */
   public IMU() 
   {
     pigeonIMU = new WPI_PigeonIMU(9);
     pigeonIMU.setFusedHeading(0);
+    accelAngles = new double[3];
   }
 
   @Override
@@ -30,8 +32,12 @@ public class IMU extends SubsystemBase
   {
     // This method will be called once per scheduler run
     heading = pigeonIMU.getFusedHeading();
+    pigeonIMU.getAccelerometerAngles(accelAngles);
 
-    SmartDashboard.putNumber("pigeonIMUData", heading); 
+    System.out.println("testing");
+    SmartDashboard.putNumber("pigeon/fusedHeading", heading); 
+    SmartDashboard.putNumber("pigeon/roll", accelAngles[0]);
+    SmartDashboard.putNumber("pigeon/pitch", accelAngles[1]);
   }
 
   // Access gyro data read in periodic
@@ -43,6 +49,16 @@ public class IMU extends SubsystemBase
   public double getAngleRadians() 
   {
     return Math.toRadians(heading);
+  }
+
+  public double getPitch()
+  {
+    return accelAngles[1];
+  }
+
+  public double getRoll()
+  {
+    return accelAngles[0];
   }
 
   public void resetHeading() 
