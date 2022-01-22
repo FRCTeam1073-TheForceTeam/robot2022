@@ -15,8 +15,8 @@ public class Indexer extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  /*  TODO: Does this launch the cargo,
-      is it position based or velocity based,
-      how many motors
+  /*  TODO: Does this launch the cargo?
+      Is it position based or velocity based?
+      How many motors?
   */
 }

@@ -29,7 +29,7 @@ public class RobotContainer
 {
 
   // Subsystems: Add subsystems here
-  
+  private static final Shooter shooter = new Shooter();
 
   // Controls: Add controls here.
   
