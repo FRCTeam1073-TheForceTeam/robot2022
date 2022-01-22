@@ -26,6 +26,34 @@ public class Shooter extends SubsystemBase {
 
   public void setPrototypePower(double power) {
     prototypeMotor.set(ControlMode.PercentOutput, power);
+    prototypeMotor.getMotorOutputPercent();
+    prototypeMotor.getMotorOutputVoltage();
+    prototypeMotor.getStatorCurrent();
+    prototypeMotor.getSupplyCurrent();
+    prototypeMotor.getTemperature();
+    prototypeMotor.getSelectedSensorVelocity();
+
+  }
+
+  public void PrintMotorTelemetry(){
+    double outputPercent;
+    double outputVoltage;
+    double statorCurrent;
+    double supplyCurrent;
+    double temperature;
+    double sensorVelocity;
+    outputPercent = prototypeMotor.getMotorOutputPercent();
+    outputVoltage = prototypeMotor.getMotorOutputVoltage();
+    statorCurrent = prototypeMotor.getStatorCurrent();
+    supplyCurrent = prototypeMotor.getSupplyCurrent();
+    temperature = prototypeMotor.getTemperature();
+    sensorVelocity = prototypeMotor.getSelectedSensorVelocity();
+    SmartDashboard.putNumber("Output Percentage", 0);
+    SmartDashboard.putNumber("Output Voltage", 0);
+    SmartDashboard.putNumber("Stator Current", 0);
+    SmartDashboard.putNumber("Supply Current", 0);
+    SmartDashboard.putNumber("Temperature", 0);
+    SmartDashboard.putNumber("Sensor Velocity", 0);
   }
 
   @Override
@@ -41,7 +69,10 @@ public class Shooter extends SubsystemBase {
     }
     System.out.println(output);
     setPrototypePower(output);
+
+    PrintMotorTelemetry();
   }
+
 
   /*  TODO: Is this just flywheel control
       Is there an adjustable hood
