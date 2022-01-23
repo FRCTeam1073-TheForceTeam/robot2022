@@ -16,7 +16,7 @@ public class Shooter extends SubsystemBase {
   private WPI_TalonFX  prototypeMotor;
   /** Creates a new Shooter. */
   public Shooter() {
-    prototypeMotor = new WPI_TalonFX(20);
+    prototypeMotor = new WPI_TalonFX(30);
     prototypeMotor.configFactoryDefault();
     prototypeMotor.setSafetyEnabled(false);
     //prototypeMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
