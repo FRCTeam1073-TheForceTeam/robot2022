@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -11,16 +16,28 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase 
 {
+  private WPI_TalonFX leftMotorLeader;
+  private WPI_TalonFX rightMotorLeader;
+
   /** Creates a new Drive. */
   public Drivetrain() 
   {
-    
+    leftMotorLeader = new WPI_TalonFX(20);
+    rightMotorLeader = new WPI_TalonFX(46);
+    setUpDrivetrainMotors();
   }
 
   @Override
-  public void periodic() 
+  public void periodic()
   {
     // This method will be called once per scheduler run
+    setPower(OI.driverController.getLeftY()*0.5,OI.driverController.getRightY()*0.5);
+  }
+
+  public void setPower(double leftPower, double rightPower)
+  {
+    leftMotorLeader.set(ControlMode.PercentOutput, leftPower);
+    rightMotorLeader.set(ControlMode.PercentOutput, rightPower);
   }
 
   public void setChassisSpeeds(ChassisSpeeds speeds) 
@@ -54,6 +71,38 @@ public class Drivetrain extends SubsystemBase
 
   public void setBrakeMode(boolean braking) 
   {
-    
+    if (braking) {
+      leftMotorLeader.setNeutralMode(NeutralMode.Brake);
+      rightMotorLeader.setNeutralMode(NeutralMode.Brake);
+    } else {
+      leftMotorLeader.setNeutralMode(NeutralMode.Coast);
+      rightMotorLeader.setNeutralMode(NeutralMode.Coast);
+    }
+  }
+
+  public void setUpDrivetrainMotors(){
+    leftMotorLeader.configFactoryDefault();
+    leftMotorLeader.setSafetyEnabled(false);
+    leftMotorLeader.setNeutralMode(NeutralMode.Brake);
+    leftMotorLeader.setInverted(true);
+    leftMotorLeader.configPeakOutputForward(1.0);
+    leftMotorLeader.configPeakOutputReverse(-1.0);
+    // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
+    leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    leftMotorLeader.setSensorPhase(true);
+    leftMotorLeader.setSelectedSensorPosition(0);
+    // Add PID constants
+
+    rightMotorLeader.configFactoryDefault();
+    rightMotorLeader.setSafetyEnabled(false);
+    rightMotorLeader.setNeutralMode(NeutralMode.Brake);
+    rightMotorLeader.setInverted(false);
+    rightMotorLeader.configPeakOutputForward(1.0);
+    rightMotorLeader.configPeakOutputReverse(-1.0);
+    // rightMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
+    rightMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    rightMotorLeader.setSensorPhase(true);
+    rightMotorLeader.setSelectedSensorPosition(0);
+    // Add PID constants
   }
 }

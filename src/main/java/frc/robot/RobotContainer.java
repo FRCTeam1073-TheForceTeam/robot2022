@@ -29,7 +29,7 @@ public class RobotContainer
 {
 
   // Subsystems: Add subsystems here
-  
+  Drivetrain drivetrain = new Drivetrain();
 
   // Controls: Add controls here.
   
@@ -39,7 +39,7 @@ public class RobotContainer
   public RobotContainer() 
   {
     // Initialize static OI class:
-    
+    OI.init();
   }
 
   /**
