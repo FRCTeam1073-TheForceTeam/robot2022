@@ -13,18 +13,22 @@ public class FrontSonar extends SubsystemBase {
   // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/sensors/analog-inputs-software.html
 
   AnalogInput analog = new AnalogInput(0);
-  double inputVol = -1;
+  double inputMeters = -1;
 
   /** Creates a new FrontSonar. */
   public FrontSonar() {
-    
+    analog.setAverageBits(4);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    inputVol = analog.getVoltage();
-    SmartDashboard.putNumber("Sonar Range", inputVol);
+    inputMeters = analog.getAverageVoltage()*2.8/2.6;
+    if (inputMeters > 4) {
+      inputMeters = -1;
+    } else {
+      SmartDashboard.putNumber("Sonar Range", inputMeters);
+    }
 
     // TODO: Read the sensor and save to a variable
     // TODO: Look into filtering
@@ -33,6 +37,6 @@ public class FrontSonar extends SubsystemBase {
   // sensorNumber determines which sensor to read from
   // If invalid, return -1, otherwise range in meters
   public double getRange(int sensorNumber) {
-    return inputVol;
+    return inputMeters;
   }
 }
