@@ -28,7 +28,9 @@ import frc.robot.subsystems.*;
 public class RobotContainer 
 {
 
-  // Subsystems: Add subsystems here
+  // Subsystems: Add subsystems.
+  HubTracking hubTracking;
+
   
 
   // Controls: Add controls here.
@@ -39,6 +41,9 @@ public class RobotContainer
   public RobotContainer() 
   {
     // Initialize static OI class:
+    OI.init();
+    
+    hubTracking = new HubTracking();
     
   }
 
