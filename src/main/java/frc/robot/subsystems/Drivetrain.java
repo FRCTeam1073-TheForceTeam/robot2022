@@ -41,6 +41,14 @@ public class Drivetrain extends SubsystemBase
     SmartDashboard.putBoolean("[7] Start button", OI.driverController.getStartButton());
     SmartDashboard.putBoolean("[8] Back button", OI.driverController.getBackButton());
 
+    SmartDashboard.putNumber("[LX] Left X", OI.driverController.getLeftX());
+    SmartDashboard.putNumber("[LY] Left Y", OI.driverController.getLeftY());
+    SmartDashboard.putNumber("[LY] Left Trigger", OI.driverController.getLeftTriggerAxis());
+
+    SmartDashboard.putNumber("[RX] Right X", OI.driverController.getRightX());
+    SmartDashboard.putNumber("[RY] Right Y", OI.driverController.getRightY());
+    SmartDashboard.putNumber("[RY] Right Trigger", OI.driverController.getRightTriggerAxis());
+
     setPower(OI.driverController.getLeftY()*0.5,OI.driverController.getRightY()*0.5);
   }
 
