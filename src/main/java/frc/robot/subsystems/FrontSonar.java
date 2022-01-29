@@ -4,26 +4,39 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FrontSonar extends SubsystemBase {
   // https://www.maxbotix.com/ultrasonic_sensors/mb1043.htm
   // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/sensors/analog-inputs-software.html
 
+  AnalogInput analog = new AnalogInput(0);
+  double inputMeters = -1;
+  final double voltageRatio = 0.005/0.00488;
+
   /** Creates a new FrontSonar. */
-  public FrontSonar() {}
+  public FrontSonar() {
+    //This will return an average voltage sampled over 2^4 readings
+    analog.setAverageBits(4);
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
-    // TODO: Read the sensor and save to a variable
-    // TODO: Look into filtering
+    inputMeters = analog.getAverageVoltage()*voltageRatio;
+    // The sensor doesn't measure beyond five meters
+    if (inputMeters > 5) {
+      inputMeters = -1;
+    } else {
+      SmartDashboard.putNumber("Sonar Range", inputMeters);
+    }
   }
 
   // sensorNumber determines which sensor to read from
   // If invalid, return -1, otherwise range in meters
   public double getRange(int sensorNumber) {
-    return 0.0;
+    return inputMeters;
   }
 }
