@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase 
@@ -30,7 +31,16 @@ public class Drivetrain extends SubsystemBase
   @Override
   public void periodic()
   {
-    // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("[1] A button", OI.driverController.getAButton());
+    SmartDashboard.putBoolean("[2] B button", OI.driverController.getBButton());
+    SmartDashboard.putBoolean("[3] X button", OI.driverController.getXButton());
+    SmartDashboard.putBoolean("[4] Y button", OI.driverController.getYButton());
+
+    SmartDashboard.putBoolean("[5] Left bumper", OI.driverController.getLeftBumper());
+    SmartDashboard.putBoolean("[6] Right bumper", OI.driverController.getRightBumper());
+    SmartDashboard.putBoolean("[7] Start button", OI.driverController.getStartButton());
+    SmartDashboard.putBoolean("[8] Back button", OI.driverController.getBackButton());
+
     setPower(OI.driverController.getLeftY()*0.5,OI.driverController.getRightY()*0.5);
   }
 
