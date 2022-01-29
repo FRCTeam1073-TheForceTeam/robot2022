@@ -39,6 +39,10 @@ public class Indexer extends SubsystemBase {
     SmartDashboard.putNumber("TOF Range", tofRange);
   }
 
+  public double getRange() {
+    return tofRange;
+  }
+
   /*
    * TODO: Does this launch the cargo,
    * is it position based or velocity based,
