@@ -14,24 +14,24 @@ public class FrontSonar extends SubsystemBase {
 
   AnalogInput analog = new AnalogInput(0);
   double inputMeters = -1;
+  final double voltageRatio = 0.005/0.00488;
 
   /** Creates a new FrontSonar. */
   public FrontSonar() {
+    //This will return an average voltage sampled over 2^4 readings
     analog.setAverageBits(4);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    inputMeters = analog.getAverageVoltage()*2.8/2.6;
-    if (inputMeters > 4) {
+    inputMeters = analog.getAverageVoltage()*voltageRatio;
+    // The sensor doesn't measure beyond five meters
+    if (inputMeters > 5) {
       inputMeters = -1;
     } else {
       SmartDashboard.putNumber("Sonar Range", inputMeters);
     }
-
-    // TODO: Read the sensor and save to a variable
-    // TODO: Look into filtering
   }
 
   // sensorNumber determines which sensor to read from
