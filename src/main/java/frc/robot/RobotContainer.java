@@ -25,26 +25,24 @@ import frc.robot.subsystems.*;
  * scheduler calls). Instead, the structure of the robot (including subsystems,
  * commands, and button mappings) should be declared here.
  */
-public class RobotContainer 
-{
+public class RobotContainer {
 
   // Subsystems: Add subsystems.
   HubTracking hubTracking;
 
-  
+  Indexer indexer = new Indexer();
 
   // Controls: Add controls here.
-  
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer() 
-  {
+  public RobotContainer() {
     // Initialize static OI class:
     OI.init();
-    
+
     hubTracking = new HubTracking();
-    
+
   }
 
   /**
@@ -53,8 +51,7 @@ public class RobotContainer
    * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() 
-  {
+  private void configureButtonBindings() {
 
   }
 
@@ -63,24 +60,22 @@ public class RobotContainer
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() 
-  {
+  public Command getAutonomousCommand() {
     /*
-      1. Set bling lights to blue and wait 5 seconds
-      2. Set bling lights to green and turn wheel at 0.25 power for 3 seconds
-      3. Once done set bling lights to red 
-    */
+     * 1. Set bling lights to blue and wait 5 seconds
+     * 2. Set bling lights to green and turn wheel at 0.25 power for 3 seconds
+     * 3. Once done set bling lights to red
+     */
     return null;
   }
 
-  public Command getTeleopCommand() 
-  {
-    // Return the command that will run during teleop ('return null' means no command will be run)
+  public Command getTeleopCommand() {
+    // Return the command that will run during teleop ('return null' means no
+    // command will be run)
     return null;
   }
 
-  public Command getTestCommand() 
-  {
+  public Command getTestCommand() {
     // Return the command that will run during test mode (it's not that important)
     // ('return null' means no command will be run)
     return null;
