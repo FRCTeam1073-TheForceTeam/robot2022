@@ -33,7 +33,10 @@ public class RobotContainer {
 
   Indexer indexer = new Indexer();
 
+  Drivetrain drivetrain = new Drivetrain();
+
   // Controls: Add controls here.
+  TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -44,6 +47,7 @@ public class RobotContainer {
 
     hubTracking = new HubTracking();
 
+    drivetrain.setDefaultCommand(teleopDrivetrain);
   }
 
   /**
