@@ -19,8 +19,9 @@ public class TeleopDrivetrain extends CommandBase {
   /** Creates a new TeleopDrivetrain. */
   public TeleopDrivetrain(Drivetrain drivetrain) {
     this.drivetrain = drivetrain;
-    addRequirements(drivetrain);
+    
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
