@@ -17,11 +17,13 @@ public class Collector extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public void setTargetPosition(int pos) {
+  public void setTargetPosition(double pos) 
+  {
 
   }
 
-  public int getActualPosition() {
+  public double getActualPosition() 
+  {
     return 0;
   }
 
