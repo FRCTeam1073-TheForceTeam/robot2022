@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class Indexer extends SubsystemBase {
 
@@ -17,6 +18,8 @@ public class Indexer extends SubsystemBase {
   private double tofFreq;
   private double tofDutyCycle;
   private double tofRange;
+  private boolean ballHeld;
+  private double motorVelocity;
 
   private final double tofScaleFactor = 0.004 / (1e-6);
 
@@ -26,6 +29,8 @@ public class Indexer extends SubsystemBase {
     tofDutyCycleInput = new DutyCycle(tofInput);
     tofFreq = 0;
     tofRange = 0;
+    ballHeld = false;
+    motorVelocity = 0.0;
   }
 
   @Override
@@ -37,10 +42,29 @@ public class Indexer extends SubsystemBase {
     SmartDashboard.putNumber("TOF Duty Cycle", tofDutyCycle);
     SmartDashboard.putNumber("TOF Time", tofDutyCycle / tofFreq);
     SmartDashboard.putNumber("TOF Range", tofRange);
+
+    if (motorVelocity > 0.0) {
+      Robot.getBling().setSlot(1, 60, 168, 50);
+    } else {
+      Robot.getBling().setSlot(1, 168, 50, 50);
+    }
   }
 
   public double getRange() {
     return tofRange;
+  }
+
+  public boolean isBallHeld() {
+    return ballHeld;
+    // ^ This returns true if the time of flight sensor detects that the ball is in the wheels.
+  }
+
+  public void setWheelVelocity(double velocity) {
+    motorVelocity = velocity;
+  }
+
+  public double getWheelVelocity() {
+    return 0.0;
   }
 
   /*

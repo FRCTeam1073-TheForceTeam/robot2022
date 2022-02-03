@@ -26,11 +26,13 @@ public class Robot extends TimedRobot
   private Command autonomousCommand;
   private Command teleopCommand;
   private Command testCommand;
+  private static Bling bling;
 
   @Override
   public void robotInit() 
   {
     robotContainer = new RobotContainer();
+    bling = robotContainer.bling;
   }
 
   @Override
@@ -87,7 +89,7 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic() {}
 
-  public Bling getBling() {
-    return robotContainer.bling;
+  public static Bling getBling() {
+    return bling;
   }
 }

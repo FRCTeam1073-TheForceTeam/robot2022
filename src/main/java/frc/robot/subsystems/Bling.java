@@ -69,7 +69,7 @@ public class Bling extends SubsystemBase {
     if (!cleared) {
       // LEDRainbow(15, 25, 20000);
 
-      batteryBling(0, 2, 8.0, 12.5);
+      // batteryBling(0, 2, 8.0, 12.5);
 
       // setSlot(2, 255, 0, 0);
 
