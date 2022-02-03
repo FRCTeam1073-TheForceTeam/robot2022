@@ -6,7 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.commands.*;
+import frc.robot.commands.*;
 
 // Import subsystems: Add subsystems here.
 
@@ -33,7 +33,10 @@ public class RobotContainer {
 
   Indexer indexer = new Indexer();
 
+  Drivetrain drivetrain = new Drivetrain();
+
   // Controls: Add controls here.
+  TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -44,6 +47,7 @@ public class RobotContainer {
 
     hubTracking = new HubTracking();
 
+    drivetrain.setDefaultCommand(teleopDrivetrain);
   }
 
   /**
