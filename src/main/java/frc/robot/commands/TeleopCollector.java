@@ -7,13 +7,17 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.OI;
+import frc.robot.subsystems.Bling;
 
 public class TeleopCollector extends CommandBase 
 {
   Collector collector;
-  private double collectorVelocity;
-  private double collectorPosition;
-
+  Bling bling;
+  private double collectorVelocity; 
+  private double collectorPosition; 
+  private double loweredCollectorPosition = 1.0; 
+  private double raisedCollectorPosition = 0.5; 
+ 
   /** Creates a new TeleopCollector. */
   public TeleopCollector(Collector collector) 
   {
@@ -32,14 +36,32 @@ public class TeleopCollector extends CommandBase
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() 
-  {
+  { 
+    // moves collector up and down
     if (OI.driverController.getAButtonPressed())
     {
-      collectorPosition = 0.5;
+      collectorPosition = raisedCollectorPosition;
+      bling.setArray("green");
     }
     else if (OI.driverController.getBButtonPressed())
     {
-      collectorPosition = 1;
+      collectorPosition = loweredCollectorPosition;
+      bling.setArray("red");
+    }
+
+    // spins the collector
+    if (OI.driverController.getLeftBumper())
+    {
+      collector.setIntakeVelocity(collectorVelocity);
+      bling.setArray("blue");
+    }
+    else if (OI.driverController.getRightBumper())
+    {
+      collector.setIntakeVelocity(-collectorVelocity);
+    }
+    else 
+    {
+      collector.setIntakeVelocity(0);
     }
   }
 
@@ -47,7 +69,10 @@ public class TeleopCollector extends CommandBase
   @Override
   public void end(boolean interrupted) 
   {
-
+    if (!interrupted)
+    {
+      collector.setIntakeVelocity(0);
+    }
   }
 
   // Returns true when the command should end.
