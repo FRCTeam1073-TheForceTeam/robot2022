@@ -35,6 +35,8 @@ public class RobotContainer {
 
   Drivetrain drivetrain = new Drivetrain();
 
+  Bling bling = new Bling();
+
   // Controls: Add controls here.
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
 
