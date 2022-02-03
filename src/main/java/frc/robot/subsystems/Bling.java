@@ -71,9 +71,9 @@ public class Bling extends SubsystemBase {
 
       batteryBling(0, 2, 8.0, 12.5);
 
-      setSlot(2, 255, 0, 0);
+      // setSlot(2, 255, 0, 0);
 
-      reverseRange(0, 40, 40);
+      // reverseRange(0, 40, 40);
 
       m_led.setData(m_ledBuffer);
 
