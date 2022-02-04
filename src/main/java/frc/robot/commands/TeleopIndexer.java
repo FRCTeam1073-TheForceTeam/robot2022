@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.OI;
 
 public class TeleopIndexer extends CommandBase {
 
@@ -21,15 +22,22 @@ public class TeleopIndexer extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    indexer.setWheelVelocity(0.0);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    indexer.setWheelVelocity(OI.operatorController.getLeftY()*0.5);
+    System.out.println(OI.operatorController.getLeftY()*0.5);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    indexer.setWheelVelocity(0.0);
+  }
 
   // Returns true when the command should end.
   @Override
