@@ -8,17 +8,47 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
+  //ToF sensors
+  private DigitalInput tof1Input;
+  private DutyCycle tof1DutyCycleInput;
+  private double tof1Freq;
+  private double tof1DutyCycle;
+  private double tof1Range;
+  private boolean ball1Held;
+  private final double tof1ScaleFactor = 0.004 / (1e-6);
+
+  private DigitalInput tof2Input;
+  private DutyCycle tof2DutyCycleInput;
+  private double tof2Freq;
+  private double tof2DutyCycle;
+  private double tof2Range;
+  private boolean ball2Held;
+  private final double tof2ScaleFactor = 0.004 / (1e-6);
+  
   private WPI_TalonFX  flywheelMotor;
   private WPI_TalonFX loaderMotor;
   // private WPI_TalonFX hoodMotor;
 
   /** Creates a new Shooter. */
   public Shooter() {
+    tof1Input = new DigitalInput(0);
+    tof1DutyCycleInput = new DutyCycle(tof1Input);
+    tof1Freq = 0;
+    tof1Range = 0;
+    ball1Held = false;
+
+    tof2Input = new DigitalInput(0);
+    tof2DutyCycleInput = new DutyCycle(tof2Input);
+    tof2Freq = 0;
+    tof2Range = 0;
+    ball2Held = false;
+
     flywheelMotor = new WPI_TalonFX(20);
     flywheelMotor.configFactoryDefault();
     flywheelMotor.setSafetyEnabled(false);
@@ -33,15 +63,55 @@ public class Shooter extends SubsystemBase {
     loaderMotor.setNeutralMode(NeutralMode.Brake);
     SmartDashboard.putNumber("Loader Motor Velocity", 0);
 
-    //hood will be position controlled
+    //hood will be position controlled, may need to be set up differently (currently commented out for roadkill)
     /*
-    hoodMotor = new WPI_TalonFX(32);
+    hoodMotor = new WPI_TalonFX(1);
     hoodMotor.configFactoryDefault();
     hoodMotor.setSafetyEnabled(false);
     //hoodMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
     hoodMotor.setNeutralMode(NeutralMode.Brake);
     SmartDashboard.putNumber("Hood Motor Velocity", 0);
     */
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    tof1Freq = tof1DutyCycleInput.getFrequency();
+    tof1DutyCycle = tof1DutyCycleInput.getOutput();
+    tof1Range = tof1ScaleFactor * (tof1DutyCycle / tof1Freq - 0.001);
+    SmartDashboard.putNumber("TOF 1 Frequency", tof1Freq);
+    SmartDashboard.putNumber("TOF 1 Duty Cycle", tof1DutyCycle);
+    SmartDashboard.putNumber("TOF 1 Time", tof1DutyCycle / tof1Freq);
+    SmartDashboard.putNumber("TOF 1 Range", tof1Range);
+
+    tof2Freq = tof2DutyCycleInput.getFrequency();
+    tof2DutyCycle = tof2DutyCycleInput.getOutput();
+    tof2Range = tof2ScaleFactor * (tof2DutyCycle / tof2Freq - 0.001);
+    SmartDashboard.putNumber("TOF 2 Frequency", tof2Freq);
+    SmartDashboard.putNumber("TOF 2 Duty Cycle", tof2DutyCycle);
+    SmartDashboard.putNumber("TOF 2 Time", tof2DutyCycle / tof2Freq);
+    SmartDashboard.putNumber("TOF 2 Range", tof2Range);
+
+
+    // PrintMotorTelemetry();
+  }
+
+  public double getRange1() {
+    return tof1Range;
+  }
+
+  public double getRange2() {
+    return tof2Range;
+  }
+
+  public boolean isBallInShooter() {
+    return ball1Held;
+    // ^ This returns true if the time of flight sensor detects that the ball is in the wheels.
+  }
+
+  public boolean isBallInIndexer() {
+    return ball2Held;
   }
 
   public void setFlywheelVelocity(double power){
@@ -102,12 +172,4 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Sensor Velocity", sensorVelocity);
   }
   */
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-
-
-    // PrintMotorTelemetry();
-  }
 }
