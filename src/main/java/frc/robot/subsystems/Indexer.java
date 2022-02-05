@@ -7,12 +7,32 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
+
 public class Indexer extends SubsystemBase {
   private double motorVelocity;
+  private NetworkTableInstance nti;
+  private NetworkTable indexerCargoTable;
+  private NetworkTableEntry isCurrentCargoThere;
+  private NetworkTableEntry isNextCargoThere;
+  private NetworkTableEntry isCurrentCargoRed;
+  private NetworkTableEntry isNextCargoRed;
 
   /** Creates a new Indexer. */
-  public Indexer() {
+  public Indexer(NetworkTableInstance ntinst) {
     motorVelocity = 0.0;
+    nti = ntinst;
+    indexerCargoTable = nti.getTable("INDEXER CARGO");
+    isCurrentCargoThere = indexerCargoTable.getEntry("Is Current Cargo There");
+    isCurrentCargoThere.setBoolean(false);
+    isNextCargoThere = indexerCargoTable.getEntry("Is Next Cargo There");
+    isNextCargoThere.setBoolean(false);
+    isCurrentCargoRed = indexerCargoTable.getEntry("Is Current Cargo Red");
+    isCurrentCargoRed.setBoolean(false);
+    isNextCargoRed = indexerCargoTable.getEntry("Is Next Cargo Red");
+    isNextCargoRed.setBoolean(false);
   }
 
   @Override
