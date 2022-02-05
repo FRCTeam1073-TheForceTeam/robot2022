@@ -33,7 +33,15 @@ public class Shooter extends SubsystemBase {
   
   private WPI_TalonFX  flywheelMotor;
   private WPI_TalonFX loaderMotor;
-  // private WPI_TalonFX hoodMotor;
+  private WPI_TalonFX hoodMotor;
+
+  private final double flywheelTicksPerRadian = 1;
+  private final double loaderTicksPerRadian =1;
+  private final double hoodTicksPerRadian =1;
+
+  private double flywheelTargetVelocity;
+  private double loaderTargetVelocity;
+  private double hoodTargetPosition;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -49,6 +57,7 @@ public class Shooter extends SubsystemBase {
     tof2Range = 0;
     ball2Held = false;
 
+    // CAN IDs currently for roadkill
     flywheelMotor = new WPI_TalonFX(20);
     flywheelMotor.configFactoryDefault();
     flywheelMotor.setSafetyEnabled(false);
@@ -63,15 +72,12 @@ public class Shooter extends SubsystemBase {
     loaderMotor.setNeutralMode(NeutralMode.Brake);
     SmartDashboard.putNumber("Loader Motor Velocity", 0);
 
-    //hood will be position controlled, may need to be set up differently (currently commented out for roadkill)
-    /*
     hoodMotor = new WPI_TalonFX(1);
     hoodMotor.configFactoryDefault();
     hoodMotor.setSafetyEnabled(false);
     //hoodMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
     hoodMotor.setNeutralMode(NeutralMode.Brake);
     SmartDashboard.putNumber("Hood Motor Velocity", 0);
-    */
   }
 
   @Override
@@ -93,7 +99,6 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 2 Time", tof2DutyCycle / tof2Freq);
     SmartDashboard.putNumber("TOF 2 Range", tof2Range);
 
-
     // PrintMotorTelemetry();
   }
 
@@ -114,28 +119,31 @@ public class Shooter extends SubsystemBase {
     return ball2Held;
   }
 
-  public void setFlywheelVelocity(double power){
-    flywheelMotor.set(ControlMode.PercentOutput, power);
+  public void setFlywheelVelocity(double velocity){
+    flywheelTargetVelocity = velocity;
+    flywheelMotor.set(ControlMode.Velocity, velocity * 0.1 * flywheelTicksPerRadian);
   }
 
-  public void setLoaderVelocity(double power){
-    loaderMotor.set(ControlMode.PercentOutput, power);
+  public void setLoaderVelocity(double velocity){
+    loaderTargetVelocity = velocity;
+    loaderMotor.set(ControlMode.Velocity, velocity * 0.1 * loaderTicksPerRadian);
   }
 
-  public void setHoodPosition(){
-
+  public void setHoodPosition(double hoodPosition){
+    hoodTargetPosition = hoodPosition;
+    hoodMotor.set(ControlMode.Position, hoodPosition * hoodTicksPerRadian);
   }
 
-  public void getFlywheelVelocity(){
-
+  public double getFlywheelVelocity(){
+    return flywheelMotor.getSelectedSensorVelocity() * 10.0 / flywheelTicksPerRadian;
   }
 
-  public void getLoaderVelocity(){
-
+  public double getLoaderVelocity(){
+    return loaderMotor.getSelectedSensorVelocity() * 10.0 / loaderTicksPerRadian;
   }
 
-  public void getHoodPosition(){
-
+  public double getHoodPosition(){
+    return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
   }
 
   /*
