@@ -37,9 +37,12 @@ public class RobotContainer {
 
   Bling bling = new Bling();
 
+  HubTracking hubTracker = new HubTracking();
+
   // Controls: Add controls here.
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
+  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -48,7 +51,7 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracking = new HubTracking();
+    hubTracker.setDefaultCommand(teleopHubTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
