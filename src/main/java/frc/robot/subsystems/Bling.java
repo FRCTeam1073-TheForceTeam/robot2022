@@ -20,6 +20,8 @@ public class Bling extends SubsystemBase {
 
   private double brightness = 0.5;
 
+  public int slotLength;
+
   int burst_done;
   int burstCount;
 
@@ -46,6 +48,7 @@ public class Bling extends SubsystemBase {
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
+    slotLength = m_ledBuffer.getLength()/8;
   }
 
   public void initialize() {
@@ -256,7 +259,6 @@ public class Bling extends SubsystemBase {
 
 
   public void setSlot(int slotNum, int r, int g, int b) {
-    int slotLength = m_ledBuffer.getLength() / 8;
     if (slotNum <= 7 && slotNum > 0) {
       if (slotLength == 1) {
         m_ledBuffer.setRGB(slotNum, r, g, b);
