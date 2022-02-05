@@ -17,6 +17,14 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
+    tofFreq = tofDutyCycleInput.getFrequency();
+    tofDutyCycle = tofDutyCycleInput.getOutput();
+    tofRange = tofScaleFactor * (tofDutyCycle / tofFreq - 0.001);
+    SmartDashboard.putNumber("TOF Frequency", tofFreq);
+    SmartDashboard.putNumber("TOF Duty Cycle", tofDutyCycle);
+    SmartDashboard.putNumber("TOF Time", tofDutyCycle / tofFreq);
+    SmartDashboard.putNumber("TOF Range", tofRange);
+
     if (motorVelocity > 0.0) {
       Robot.getBling().setSlot(1, 60, 168, 50);
     } else {
