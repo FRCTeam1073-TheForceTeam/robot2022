@@ -33,6 +33,8 @@ public class RobotContainer {
 
   Indexer indexer = new Indexer();
 
+  Climber climber = new Climber();
+
   Drivetrain drivetrain = new Drivetrain();
 
   Bling bling = new Bling();
@@ -44,6 +46,7 @@ public class RobotContainer {
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
+  TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
 
   /**
@@ -58,6 +61,7 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
+    climber.setDefaultCommand(teleopClimber);
   }
 
   /**
