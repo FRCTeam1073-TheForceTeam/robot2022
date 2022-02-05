@@ -25,33 +25,16 @@ public class Drivetrain extends SubsystemBase
   /** Creates a new Drive. */
   public Drivetrain() 
   {
-    leftMotorLeader = new WPI_TalonFX(18);
-    leftMotorFollower = new WPI_TalonFX(31);
-    rightMotorLeader = new WPI_TalonFX(31);
-    rightMotorFollower = new WPI_TalonFX(27);
+    leftMotorLeader = new WPI_TalonFX(31);
+    leftMotorFollower = new WPI_TalonFX(27);
+    rightMotorLeader = new WPI_TalonFX(30);
+    rightMotorFollower = new WPI_TalonFX(50);
     setUpDrivetrainMotors();
   }
 
   @Override
   public void periodic()
   {
-    SmartDashboard.putBoolean("[1] A button", OI.driverController.getAButton());
-    SmartDashboard.putBoolean("[2] B button", OI.driverController.getBButton());
-    SmartDashboard.putBoolean("[3] X button", OI.driverController.getXButton());
-    SmartDashboard.putBoolean("[4] Y button", OI.driverController.getYButton());
-
-    SmartDashboard.putBoolean("[5] Left bumper", OI.driverController.getLeftBumper());
-    SmartDashboard.putBoolean("[6] Right bumper", OI.driverController.getRightBumper());
-    SmartDashboard.putBoolean("[7] Start button", OI.driverController.getStartButton());
-    SmartDashboard.putBoolean("[8] Back button", OI.driverController.getBackButton());
-
-    SmartDashboard.putNumber("[LX] Left X", OI.driverController.getLeftX());
-    SmartDashboard.putNumber("[LY] Left Y", OI.driverController.getLeftY());
-    SmartDashboard.putNumber("[LY] Left Trigger", OI.driverController.getLeftTriggerAxis());
-
-    SmartDashboard.putNumber("[RX] Right X", OI.driverController.getRightX());
-    SmartDashboard.putNumber("[RY] Right Y", OI.driverController.getRightY());
-    SmartDashboard.putNumber("[RY] Right Trigger", OI.driverController.getRightTriggerAxis());
 
     setPower(OI.driverController.getLeftY()*0.5,OI.driverController.getRightY()*0.5);
   }
