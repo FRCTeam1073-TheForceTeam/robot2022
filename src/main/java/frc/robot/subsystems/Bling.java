@@ -69,11 +69,11 @@ public class Bling extends SubsystemBase {
     if (!cleared) {
       // LEDRainbow(15, 25, 20000);
 
-      batteryBling(0, 2, 8.0, 12.5);
+      // batteryBling(0, 2, 8.0, 12.5);
 
-      setSlot(2, 255, 0, 0);
+      // setSlot(2, 255, 0, 0);
 
-      reverseRange(0, 40, 40);
+      // reverseRange(0, 40, 40);
 
       m_led.setData(m_ledBuffer);
 
@@ -230,11 +230,14 @@ public class Bling extends SubsystemBase {
 
   // rangeRGB() sets a range of LEDs to one color
   public void rangeRGB(int min, int number, int r, int g, int b) {
-    int max = min + number;
-    for (int i = min; i < (max); i++) {
-      m_ledBuffer.setRGB(i, r, g, b);
+    if (number != 1) {
+      int max = min + number;
+      for (int i = min; i < (max); i++) {
+        m_ledBuffer.setRGB(i, r, g, b);
+      }
+    } else {
+      m_ledBuffer.setRGB(min, r, g, b);
     }
-    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -253,8 +256,14 @@ public class Bling extends SubsystemBase {
 
 
   public void setSlot(int slotNum, int r, int g, int b) {
-    if (slotNum <= 4 && slotNum > 0) {
-      rangeRGB(slotNum * 2, 2, r, g, b);
+    int slotLength = m_ledBuffer.getLength() / 8;
+    if (slotNum <= 7 && slotNum > 0) {
+      if (slotLength == 1) {
+        m_ledBuffer.setRGB(slotNum, r, g, b);
+      } else {
+        rangeRGB((slotNum * slotLength), slotLength, r, g, b);
+      }
+      
     }
   }
 
