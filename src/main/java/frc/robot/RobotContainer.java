@@ -29,7 +29,8 @@ public class RobotContainer
 {
 
   // Subsystems: Add subsystems here
-  Drivetrain drivetrain = new Drivetrain();
+  IMU imu = new IMU();
+  Drivetrain drivetrain = new Drivetrain(imu);
 
   // Controls: Add controls here.
   

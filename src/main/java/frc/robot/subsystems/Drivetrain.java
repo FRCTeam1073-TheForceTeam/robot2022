@@ -10,46 +10,52 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Drivetrain extends SubsystemBase 
-{
+public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX leftMotorLeader;
   private WPI_TalonFX rightMotorLeader;
 
+  private final double kP = 0.0;
+  private final double kI = 0.0;
+  private final double kD = 0.0;
+  private final double kF = 0.0;
+
+  private final double ticksPerMeter = 1;
+  private final double drivetrainWidth = 1;
+
+  private Pose2d robotPose;
+
+  private DifferentialDriveOdometry odometry;
+  private DifferentialDriveKinematics kinematics;
+
+  private IMU imu;
+
+  double heading = 0;
+
   /** Creates a new Drive. */
-  public Drivetrain() 
-  {
+  public Drivetrain(IMU imu) {
+    this.imu=imu;
     leftMotorLeader = new WPI_TalonFX(20);
     rightMotorLeader = new WPI_TalonFX(46);
-    setUpDrivetrainMotors();
+    robotPose = new Pose2d();
+    kinematics = new DifferentialDriveKinematics(drivetrainWidth);
+    heading = imu.getAngleRadians();
+    odometry = new DifferentialDriveOdometry(new Rotation2d(heading));
+    setupDrivetrainMotors();
   }
 
   @Override
-  public void periodic()
-  {
-    SmartDashboard.putBoolean("[1] A button", OI.driverController.getAButton());
-    SmartDashboard.putBoolean("[2] B button", OI.driverController.getBButton());
-    SmartDashboard.putBoolean("[3] X button", OI.driverController.getXButton());
-    SmartDashboard.putBoolean("[4] Y button", OI.driverController.getYButton());
-
-    SmartDashboard.putBoolean("[5] Left bumper", OI.driverController.getLeftBumper());
-    SmartDashboard.putBoolean("[6] Right bumper", OI.driverController.getRightBumper());
-    SmartDashboard.putBoolean("[7] Start button", OI.driverController.getStartButton());
-    SmartDashboard.putBoolean("[8] Back button", OI.driverController.getBackButton());
-
-    SmartDashboard.putNumber("[LX] Left X", OI.driverController.getLeftX());
-    SmartDashboard.putNumber("[LY] Left Y", OI.driverController.getLeftY());
-    SmartDashboard.putNumber("[LY] Left Trigger", OI.driverController.getLeftTriggerAxis());
-
-    SmartDashboard.putNumber("[RX] Right X", OI.driverController.getRightX());
-    SmartDashboard.putNumber("[RY] Right Y", OI.driverController.getRightY());
-    SmartDashboard.putNumber("[RY] Right Trigger", OI.driverController.getRightTriggerAxis());
-
-    setPower(OI.driverController.getLeftY()*0.5,OI.driverController.getRightY()*0.5);
+  public void periodic() {
+    heading = imu.getAngleRadians();
+    robotPose= odometry.update(new Rotation2d(imu.getAngleRadians()),
+    leftMotorLeader.getSelectedSensorPosition()/ticksPerMeter,
+    rightMotorLeader.getSelectedSensorPosition()/ticksPerMeter);
   }
 
   public void setPower(double leftPower, double rightPower)
@@ -58,37 +64,33 @@ public class Drivetrain extends SubsystemBase
     rightMotorLeader.set(ControlMode.PercentOutput, rightPower);
   }
 
-  public void setChassisSpeeds(ChassisSpeeds speeds) 
-  {
-    
+  public void setChassisSpeeds(ChassisSpeeds speeds) {
+    DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+    leftMotorLeader.set(ControlMode.Velocity, wheelSpeeds.leftMetersPerSecond * ticksPerMeter * 0.1);
+    rightMotorLeader.set(ControlMode.Velocity, wheelSpeeds.rightMetersPerSecond * ticksPerMeter * 0.1);
   }
 
   // Fills in actual speeds
-  public void getChassisSpeeds(ChassisSpeeds speeds) 
-  {
-    speeds.vxMetersPerSecond = 0.0;
-    // vy is always 0
-    speeds.vyMetersPerSecond = 0.0;
-    speeds.omegaRadiansPerSecond = 0.0;
+  public void getChassisSpeeds(ChassisSpeeds speeds) {
+    speeds = kinematics.toChassisSpeeds(getWheelSpeeds());
   }
 
-  public Pose2d getPoseMeters() 
-  {
-    return new Pose2d();
+  public Pose2d getPoseMeters() {
+    return robotPose;
   }
 
-  public void resetOdometry(Pose2d newPose) 
-  {
-
+  public void resetOdometry(Pose2d newPose) {
+    robotPose = new Pose2d(newPose.getTranslation(), newPose.getRotation());
   }
 
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() 
-  {
-    return new DifferentialDriveWheelSpeeds();
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(
+      leftMotorLeader.getSelectedSensorVelocity(),
+      rightMotorLeader.getSelectedSensorVelocity()
+    );
   }
 
-  public void setBrakeMode(boolean braking) 
-  {
+  public void setBrakeMode(boolean braking) {
     if (braking) {
       leftMotorLeader.setNeutralMode(NeutralMode.Brake);
       rightMotorLeader.setNeutralMode(NeutralMode.Brake);
@@ -98,29 +100,51 @@ public class Drivetrain extends SubsystemBase
     }
   }
 
-  public void setUpDrivetrainMotors(){
+  public void setupDrivetrainMotors() {
     leftMotorLeader.configFactoryDefault();
-    leftMotorLeader.setSafetyEnabled(false);
-    leftMotorLeader.setNeutralMode(NeutralMode.Brake);
-    leftMotorLeader.setInverted(true);
-    leftMotorLeader.configPeakOutputForward(1.0);
-    leftMotorLeader.configPeakOutputReverse(-1.0);
-    // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
-    leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-    leftMotorLeader.setSensorPhase(true);
-    leftMotorLeader.setSelectedSensorPosition(0);
-    // Add PID constants
-
     rightMotorLeader.configFactoryDefault();
+ 
+    leftMotorLeader.setSafetyEnabled(false);
     rightMotorLeader.setSafetyEnabled(false);
+ 
+    leftMotorLeader.setNeutralMode(NeutralMode.Brake);
     rightMotorLeader.setNeutralMode(NeutralMode.Brake);
+ 
+    leftMotorLeader.setInverted(true);
     rightMotorLeader.setInverted(false);
+ 
+    leftMotorLeader.configPeakOutputForward(1.0);
     rightMotorLeader.configPeakOutputForward(1.0);
+ 
+    leftMotorLeader.configPeakOutputReverse(-1.0);
     rightMotorLeader.configPeakOutputReverse(-1.0);
+ 
+    // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
     // rightMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
+
+    leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     rightMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+ 
+    leftMotorLeader.setSensorPhase(true);
     rightMotorLeader.setSensorPhase(true);
+ 
+    leftMotorLeader.setSelectedSensorPosition(0);
     rightMotorLeader.setSelectedSensorPosition(0);
+
     // Add PID constants
+    leftMotorLeader.config_kP(0, kP);
+    leftMotorLeader.config_kI(0, kI);
+    leftMotorLeader.config_kD(0, kD);
+    leftMotorLeader.config_kF(0, kF);
+    leftMotorLeader.configMaxIntegralAccumulator(0, 400);
+
+    rightMotorLeader.config_kP(0, kP);
+    rightMotorLeader.config_kI(0, kI);
+    rightMotorLeader.config_kD(0, kD);
+    rightMotorLeader.config_kF(0, kF);
+    rightMotorLeader.configMaxIntegralAccumulator(0, 400);
+ 
+    leftMotorLeader.setIntegralAccumulator(0);
+    rightMotorLeader.setIntegralAccumulator(0);
   }
 }
