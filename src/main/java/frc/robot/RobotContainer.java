@@ -29,7 +29,8 @@ public class RobotContainer {
 
   // Subsystems: Add subsystems here.
   HubTracking hubTracking;
-  private static final FrontSonar frontSonar = new FrontSonar();
+
+  FrontSonar frontSonar = new FrontSonar();
 
   Indexer indexer = new Indexer();
 
@@ -37,9 +38,12 @@ public class RobotContainer {
 
   Bling bling = new Bling();
 
+  Shooter shooter = new Shooter();
+
   // Controls: Add controls here.
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
+  TeleopShooter teleopShooter = new TeleopShooter(shooter);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -52,6 +56,7 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
+    shooter.setDefaultCommand(teleopShooter);
   }
 
   /**
