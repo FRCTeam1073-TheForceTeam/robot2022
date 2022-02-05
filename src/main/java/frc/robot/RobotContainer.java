@@ -33,6 +33,8 @@ public class RobotContainer {
 
   Indexer indexer = new Indexer();
 
+  Climber climber = new Climber();
+
   Drivetrain drivetrain = new Drivetrain();
 
   Bling bling = new Bling();
@@ -43,6 +45,7 @@ public class RobotContainer {
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
+  TeleopClimber teleopClimber = new TeleopClimber(climber);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -55,6 +58,7 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
+    climber.setDefaultCommand(teleopClimber);
   }
 
   /**
