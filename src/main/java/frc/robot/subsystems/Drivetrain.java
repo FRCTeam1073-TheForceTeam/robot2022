@@ -18,13 +18,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Drivetrain extends SubsystemBase 
 {
   private WPI_TalonFX leftMotorLeader;
+  private WPI_TalonFX leftMotorFollower;
   private WPI_TalonFX rightMotorLeader;
+  private WPI_TalonFX rightMotorFollower;
 
   /** Creates a new Drive. */
   public Drivetrain() 
   {
-    leftMotorLeader = new WPI_TalonFX(20);
-    rightMotorLeader = new WPI_TalonFX(46);
+    leftMotorLeader = new WPI_TalonFX(18);
+    leftMotorFollower = new WPI_TalonFX(31);
+    rightMotorLeader = new WPI_TalonFX(31);
+    rightMotorFollower = new WPI_TalonFX(27);
     setUpDrivetrainMotors();
   }
 
@@ -100,26 +104,44 @@ public class Drivetrain extends SubsystemBase
 
   public void setUpDrivetrainMotors(){
     leftMotorLeader.configFactoryDefault();
+    rightMotorLeader.configFactoryDefault();
+    leftMotorFollower.configFactoryDefault();
+    rightMotorFollower.configFactoryDefault();
+
     leftMotorLeader.setSafetyEnabled(false);
+    rightMotorLeader.setSafetyEnabled(false);
+    leftMotorFollower.setSafetyEnabled(false);
+    rightMotorFollower.setSafetyEnabled(false);
+
     leftMotorLeader.setNeutralMode(NeutralMode.Brake);
+    rightMotorLeader.setNeutralMode(NeutralMode.Brake);
+    leftMotorFollower.setNeutralMode(NeutralMode.Brake);
+    rightMotorFollower.setNeutralMode(NeutralMode.Brake);
+
     leftMotorLeader.setInverted(true);
+    leftMotorFollower.setInverted(true);
+
+    rightMotorLeader.setInverted(false);
+    rightMotorFollower.setInverted(false);
+
+    leftMotorFollower.follow(leftMotorLeader);
+    rightMotorFollower.follow(rightMotorLeader);
+
     leftMotorLeader.configPeakOutputForward(1.0);
     leftMotorLeader.configPeakOutputReverse(-1.0);
-    // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
-    leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-    leftMotorLeader.setSensorPhase(true);
-    leftMotorLeader.setSelectedSensorPosition(0);
-    // Add PID constants
 
-    rightMotorLeader.configFactoryDefault();
-    rightMotorLeader.setSafetyEnabled(false);
-    rightMotorLeader.setNeutralMode(NeutralMode.Brake);
-    rightMotorLeader.setInverted(false);
     rightMotorLeader.configPeakOutputForward(1.0);
     rightMotorLeader.configPeakOutputReverse(-1.0);
+
+    // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
     // rightMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
+    leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     rightMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+
+    leftMotorLeader.setSensorPhase(true);
     rightMotorLeader.setSensorPhase(true);
+
+    leftMotorLeader.setSelectedSensorPosition(0);
     rightMotorLeader.setSelectedSensorPosition(0);
     // Add PID constants
   }
