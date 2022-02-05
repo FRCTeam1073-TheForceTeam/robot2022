@@ -43,11 +43,11 @@ public class Indexer extends SubsystemBase {
     SmartDashboard.putNumber("TOF Time", tofDutyCycle / tofFreq);
     SmartDashboard.putNumber("TOF Range", tofRange);
 
-    if (motorVelocity > 0.0) {
-      Robot.getBling().setSlot(1, 60, 168, 50);
-    } else {
-      Robot.getBling().setSlot(1, 168, 50, 50);
-    }
+    // if (motorVelocity > 0.0) {
+    //   Robot.getBling().setSlot(1, 60, 168, 50);
+    // } else {
+    //   Robot.getBling().setSlot(1, 168, 50, 50);
+    // }
   }
 
   public double getRange() {
