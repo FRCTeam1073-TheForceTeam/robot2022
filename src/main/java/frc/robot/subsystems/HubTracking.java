@@ -51,8 +51,6 @@ public class HubTracking extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //Update hubVisible
-    setLEDIntensity(OI.driverController.getLeftTriggerAxis());
   }
 
   public void sampleHubData(HubData data){
