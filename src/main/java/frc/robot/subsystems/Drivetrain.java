@@ -7,14 +7,20 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -23,13 +29,21 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX rightMotorLeader;
   private WPI_TalonFX rightMotorFollower;
 
-  private final double kP = 0.0;
-  private final double kI = 0.0;
-  private final double kD = 0.0;
-  private final double kF = 0.0;
+  private double kP = 0.0;
+  private double kI = 0.0;
+  private double kD = 0.0;
+  private double kF = 0.0;
 
-  private final double ticksPerMeter = 1000.0;
-  private final double drivetrainWidth = 0.7;
+
+  private final double currentLimit=28;
+  private final double currentThreshold=30; 
+  private final double currentThresholdTime=0.25;
+
+  private final double wheelRadius = Units.inchesToMeters(4.0);
+  private final double gearRatio = (12.0 / 44.0) * (24.0 / 50.0);
+  //(ticks/output meters) = (ticks/motor rotation)*(gearRatio output rotations/motor rotation)*(2pi*wheelRadius meters/output rotation)
+  private final double ticksPerMeter = 2048.0 / gearRatio * (2.0 * Math.PI * wheelRadius);
+  private final double drivetrainWidth = Units.inchesToMeters(24.660);
 
   private Pose2d robotPose;
 
@@ -41,8 +55,35 @@ public class Drivetrain extends SubsystemBase {
 
   double heading = 0;
 
+  NetworkTable drivetrainTable;
+  NetworkTableEntry pEntry;
+  NetworkTableEntry iEntry;
+  NetworkTableEntry dEntry;
+  NetworkTableEntry fEntry;
+  NetworkTableEntry updateButton;
+
+  SlewRateLimiter leftMotorLimiter;
+  SlewRateLimiter rightMotorLimiter;
+
+  private final double rateLimit = 2000;
+  private DifferentialDriveWheelSpeeds targetWheelSpeeds;
+
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {
+    drivetrainTable=NetworkTableInstance.getDefault().getTable("Drivetrain");
+    pEntry = drivetrainTable.getEntry("P");
+    iEntry = drivetrainTable.getEntry("I");
+    dEntry = drivetrainTable.getEntry("D");
+    fEntry = drivetrainTable.getEntry("F");
+
+    updateButton = drivetrainTable.getEntry("Update");
+    updateButton.setBoolean(false);
+
+    pEntry.setDouble(kP);
+    iEntry.setDouble(kI);
+    dEntry.setDouble(kD);
+    fEntry.setDouble(kF);
+
     this.imu=imu;
     leftMotorLeader = new WPI_TalonFX(31);
     leftMotorFollower = new WPI_TalonFX(27);
@@ -53,6 +94,12 @@ public class Drivetrain extends SubsystemBase {
     heading = imu.getAngleRadians();
     odometry = new DifferentialDriveOdometry(new Rotation2d(heading));
     wheelSpeeds = new DifferentialDriveWheelSpeeds(0, 0);
+
+    leftMotorLimiter = new SlewRateLimiter(rateLimit);
+    rightMotorLimiter = new SlewRateLimiter(rateLimit);
+
+    targetWheelSpeeds = new DifferentialDriveWheelSpeeds();
+
     setupDrivetrainMotors();
   }
 
@@ -66,6 +113,25 @@ public class Drivetrain extends SubsystemBase {
     );
     wheelSpeeds.leftMetersPerSecond = leftMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
     wheelSpeeds.rightMetersPerSecond = rightMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
+
+    if (updateButton.getBoolean(false)) {
+      kP = pEntry.getDouble(0);
+      kI = iEntry.getDouble(0);
+      kD = dEntry.getDouble(0);
+      kF = fEntry.getDouble(0);
+
+      leftMotorLeader.config_kP(0, kP);
+      leftMotorLeader.config_kI(0, kI);
+      leftMotorLeader.config_kD(0, kD);
+      leftMotorLeader.config_kF(0, kF);
+  
+      rightMotorLeader.config_kP(0, kP);
+      rightMotorLeader.config_kI(0, kI);
+      rightMotorLeader.config_kD(0, kD);
+      rightMotorLeader.config_kF(0, kF);
+
+      updateButton.setBoolean(false);
+    }
   }
 
   public void setPower(double leftPower, double rightPower)
@@ -75,9 +141,9 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setChassisSpeeds(ChassisSpeeds speeds) {
-    DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
-    leftMotorLeader.set(ControlMode.Velocity, wheelSpeeds.leftMetersPerSecond * ticksPerMeter * 0.1);
-    rightMotorLeader.set(ControlMode.Velocity, wheelSpeeds.rightMetersPerSecond * ticksPerMeter * 0.1);
+    targetWheelSpeeds = kinematics.toWheelSpeeds(speeds);
+    leftMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.leftMetersPerSecond) * ticksPerMeter * 0.1);
+    rightMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.rightMetersPerSecond) * ticksPerMeter * 0.1);
   }
 
   // Fills in actual speeds
@@ -138,8 +204,8 @@ public class Drivetrain extends SubsystemBase {
     rightMotorLeader.configPeakOutputForward(1.0);
     rightMotorLeader.configPeakOutputReverse(-1.0);
 
-    // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
-    // rightMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
+    leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentThreshold, currentThresholdTime));
+    rightMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentThreshold, currentThresholdTime));
     leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     rightMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
 

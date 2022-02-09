@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.OI;
@@ -22,12 +23,18 @@ public class DriveControls extends CommandBase {
     drivetrain.setPower(0, 0);
   }
 
+
+  ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     double forward = OI.driverController.getLeftY();
     double rotate = OI.driverController.getRightX();
-    drivetrain.setPower(0.5 * (forward + rotate), 0.5 * (forward - rotate));
+    chassisSpeeds.vxMetersPerSecond = forward * 2.0;
+    chassisSpeeds.omegaRadiansPerSecond = rotate * 2.0;
+    drivetrain.setChassisSpeeds(chassisSpeeds);
+    // drivetrain.setPower(0.5 * (forward + rotate), 0.5 * (forward - rotate));
   }
 
   // Called once the command ends or is interrupted.
