@@ -19,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX leftMotorLeader;
+  private WPI_TalonFX leftMotorFollower;
   private WPI_TalonFX rightMotorLeader;
+  private WPI_TalonFX rightMotorFollower;
 
   private final double kP = 0.0;
   private final double kI = 0.0;
@@ -41,8 +43,10 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {
     this.imu=imu;
-    leftMotorLeader = new WPI_TalonFX(20);
-    rightMotorLeader = new WPI_TalonFX(46);
+    leftMotorLeader = new WPI_TalonFX(31);
+    leftMotorFollower = new WPI_TalonFX(27);
+    rightMotorLeader = new WPI_TalonFX(30);
+    rightMotorFollower = new WPI_TalonFX(50);
     robotPose = new Pose2d();
     kinematics = new DifferentialDriveKinematics(drivetrainWidth);
     heading = imu.getAngleRadians();
@@ -53,9 +57,9 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     heading = imu.getAngleRadians();
-    robotPose= odometry.update(new Rotation2d(imu.getAngleRadians()),
-    leftMotorLeader.getSelectedSensorPosition()/ticksPerMeter,
-    rightMotorLeader.getSelectedSensorPosition()/ticksPerMeter);
+    robotPose = odometry.update(new Rotation2d(imu.getAngleRadians()),
+        leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter,
+        rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter);
   }
 
   public void setPower(double leftPower, double rightPower)
@@ -103,31 +107,44 @@ public class Drivetrain extends SubsystemBase {
   public void setupDrivetrainMotors() {
     leftMotorLeader.configFactoryDefault();
     rightMotorLeader.configFactoryDefault();
- 
+    leftMotorFollower.configFactoryDefault();
+    rightMotorFollower.configFactoryDefault();
+
     leftMotorLeader.setSafetyEnabled(false);
     rightMotorLeader.setSafetyEnabled(false);
- 
+    leftMotorFollower.setSafetyEnabled(false);
+    rightMotorFollower.setSafetyEnabled(false);
+
     leftMotorLeader.setNeutralMode(NeutralMode.Brake);
     rightMotorLeader.setNeutralMode(NeutralMode.Brake);
- 
+    leftMotorFollower.setNeutralMode(NeutralMode.Brake);
+    rightMotorFollower.setNeutralMode(NeutralMode.Brake);
+
     leftMotorLeader.setInverted(true);
+    leftMotorFollower.setInverted(true);
+
     rightMotorLeader.setInverted(false);
- 
+    rightMotorFollower.setInverted(false);
+
+    leftMotorFollower.follow(leftMotorLeader);
+    rightMotorFollower.follow(rightMotorLeader);
+
     leftMotorLeader.configPeakOutputForward(1.0);
+    leftMotorLeader.configPeakOutputReverse(-1.0);
+
     rightMotorLeader.configPeakOutputForward(1.0);
  
     leftMotorLeader.configPeakOutputReverse(-1.0);
     rightMotorLeader.configPeakOutputReverse(-1.0);
- 
+
     // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
     // rightMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
-
     leftMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     rightMotorLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
- 
+
     leftMotorLeader.setSensorPhase(true);
     rightMotorLeader.setSensorPhase(true);
- 
+
     leftMotorLeader.setSelectedSensorPosition(0);
     rightMotorLeader.setSelectedSensorPosition(0);
 
