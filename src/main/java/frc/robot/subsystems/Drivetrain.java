@@ -28,13 +28,14 @@ public class Drivetrain extends SubsystemBase {
   private final double kD = 0.0;
   private final double kF = 0.0;
 
-  private final double ticksPerMeter = 1;
-  private final double drivetrainWidth = 1;
+  private final double ticksPerMeter = 1000.0;
+  private final double drivetrainWidth = 0.7;
 
   private Pose2d robotPose;
 
   private DifferentialDriveOdometry odometry;
   private DifferentialDriveKinematics kinematics;
+  private DifferentialDriveWheelSpeeds wheelSpeeds;
 
   private IMU imu;
 
@@ -51,15 +52,20 @@ public class Drivetrain extends SubsystemBase {
     kinematics = new DifferentialDriveKinematics(drivetrainWidth);
     heading = imu.getAngleRadians();
     odometry = new DifferentialDriveOdometry(new Rotation2d(heading));
+    wheelSpeeds = new DifferentialDriveWheelSpeeds(0, 0);
     setupDrivetrainMotors();
   }
 
   @Override
   public void periodic() {
     heading = imu.getAngleRadians();
-    robotPose = odometry.update(new Rotation2d(imu.getAngleRadians()),
-        leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter,
-        rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter);
+    robotPose = odometry.update(
+      new Rotation2d(imu.getAngleRadians()),
+      leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter,
+      rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter
+    );
+    wheelSpeeds.leftMetersPerSecond = leftMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
+    wheelSpeeds.rightMetersPerSecond = rightMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
   }
 
   public void setPower(double leftPower, double rightPower)
@@ -76,7 +82,7 @@ public class Drivetrain extends SubsystemBase {
 
   // Fills in actual speeds
   public void getChassisSpeeds(ChassisSpeeds speeds) {
-    speeds = kinematics.toChassisSpeeds(getWheelSpeeds());
+    speeds = kinematics.toChassisSpeeds(wheelSpeeds);
   }
 
   public Pose2d getPoseMeters() {
@@ -88,10 +94,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(
-      leftMotorLeader.getSelectedSensorVelocity(),
-      rightMotorLeader.getSelectedSensorVelocity()
-    );
+    return new DifferentialDriveWheelSpeeds(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
   }
 
   public void setBrakeMode(boolean braking) {
@@ -120,11 +123,11 @@ public class Drivetrain extends SubsystemBase {
     leftMotorFollower.setNeutralMode(NeutralMode.Brake);
     rightMotorFollower.setNeutralMode(NeutralMode.Brake);
 
-    leftMotorLeader.setInverted(true);
-    leftMotorFollower.setInverted(true);
+    leftMotorLeader.setInverted(false);
+    leftMotorFollower.setInverted(false);
 
-    rightMotorLeader.setInverted(false);
-    rightMotorFollower.setInverted(false);
+    rightMotorLeader.setInverted(true);
+    rightMotorFollower.setInverted(true);
 
     leftMotorFollower.follow(leftMotorLeader);
     rightMotorFollower.follow(rightMotorLeader);
@@ -133,8 +136,6 @@ public class Drivetrain extends SubsystemBase {
     leftMotorLeader.configPeakOutputReverse(-1.0);
 
     rightMotorLeader.configPeakOutputForward(1.0);
- 
-    leftMotorLeader.configPeakOutputReverse(-1.0);
     rightMotorLeader.configPeakOutputReverse(-1.0);
 
     // leftMotorLeader.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 33, 0.25));
