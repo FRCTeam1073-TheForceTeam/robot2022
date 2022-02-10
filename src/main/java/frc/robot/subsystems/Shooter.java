@@ -8,6 +8,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 // import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,19 +34,44 @@ public class Shooter extends SubsystemBase {
   private boolean ball2Held;
   private final double tof2ScaleFactor = 0.004 / (1e-6);
   
-  private WPI_TalonFX  flywheelMotor;
-  private WPI_TalonFX loaderMotor;
+  //motors
+  // private WPI_TalonFX  flywheelMotor;
+  // private WPI_TalonFX loaderMotor;
   private WPI_TalonFX hoodMotor;
 
-  private final double flywheelTicksPerRadian = 1;
-  private final double loaderTicksPerRadian =1;
-  private final double hoodTicksPerRadian =1;
+  private double hood_kP;
+  private double hood_kI;
+  private double hood_kD;
+  private double hood_kF;
 
-  private double flywheelTargetVelocity;
-  private double loaderTargetVelocity;
-  private double hoodTargetPosition;
+  // private double loader_kP;
+  // private double loader_kI;
+  // private double loader_kD;
+  // private double loader_kF;
+  
+  // private double flywheel_kP;
+  // private double flywheel_kI;
+  // private double flywheel_kD;
+  // private double flywheel_kF;
 
-  /** Creates a new Shooter. */
+  // private double flywheelTargetVelocity;
+  // private double loaderTargetVelocity;
+  // private double hoodTargetPosition;
+
+  private TrapezoidProfile hoodProfile;
+  private TrapezoidProfile.State previousState;
+  private double hoodProfileStartTime;
+
+  private double targetHoodPosition;
+  private final double maxHoodVelocity = 1.0; //Units :radians/s
+  private final double maxHoodAcceleration = 3.0; //Units: radians/s^2
+  
+  // private final double flywheelTicksPerRadian = 1;
+  // private final double loaderTicksPerRadian =1;
+  private final double hoodTicksPerRadian = 2048.1;
+
+  private double maxHoodHeight = 1.0;
+
   public Shooter() {
     tof1Input = new DigitalInput(0);
     tof1DutyCycleInput = new DutyCycle(tof1Input);
@@ -51,33 +79,35 @@ public class Shooter extends SubsystemBase {
     tof1Range = 0;
     ball1Held = false;
 
-    tof2Input = new DigitalInput(0);
+    tof2Input = new DigitalInput(1);
     tof2DutyCycleInput = new DutyCycle(tof2Input);
     tof2Freq = 0;
     tof2Range = 0;
     ball2Held = false;
 
     // CAN IDs currently for roadkill
-    flywheelMotor = new WPI_TalonFX(20);
-    flywheelMotor.configFactoryDefault();
-    flywheelMotor.setSafetyEnabled(false);
-    //flywheelMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
-    flywheelMotor.setNeutralMode(NeutralMode.Brake);
-    SmartDashboard.putNumber("Flywheel Motor Velocity", 0);
+    // flywheelMotor = new WPI_TalonFX(20);
+    // loaderMotor = new WPI_TalonFX(46);
+    hoodMotor = new WPI_TalonFX(20);
 
-    loaderMotor = new WPI_TalonFX(46);
-    loaderMotor.configFactoryDefault();
-    loaderMotor.setSafetyEnabled(false);
-    //loaderMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
-    loaderMotor.setNeutralMode(NeutralMode.Brake);
-    SmartDashboard.putNumber("Loader Motor Velocity", 0);
+    previousState = new TrapezoidProfile.State(0,0);
+    targetHoodPosition = 0;
+    hoodProfile = new TrapezoidProfile(
+      new TrapezoidProfile.Constraints(
+        maxHoodVelocity,maxHoodAcceleration
+      ),
+      previousState,
+      previousState
+    );
+    hoodProfileStartTime = System.currentTimeMillis() / 1000.0;
 
-    hoodMotor = new WPI_TalonFX(1);
-    hoodMotor.configFactoryDefault();
-    hoodMotor.setSafetyEnabled(false);
-    //hoodMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
-    hoodMotor.setNeutralMode(NeutralMode.Brake);
+    // SmartDashboard.putNumber("Flywheel Motor Velocity", 0);
+    // SmartDashboard.putNumber("Loader Motor Velocity", 0);
     SmartDashboard.putNumber("Hood Motor Velocity", 0);
+
+    // resetMotors(flywheelMotor);
+    // resetMotors(loaderMotor);
+    resetMotors(hoodMotor);
   }
 
   @Override
@@ -100,6 +130,43 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 2 Range", tof2Range);
 
     // PrintMotorTelemetry();
+
+    updatePID(hoodMotor, hood_kP, hood_kI, hood_kD, hood_kF);
+    // updatePID(flywheelMotor, flywheel_kP, flywheel_kI, flywheel_kD, flywheel_kF);
+    // updatePID(loaderMotor, loader_kP, loader_kI, loader_kD, loader_kF);
+
+    previousState = hoodProfile.calculate(
+      ((double)System.currentTimeMillis())/1000.0 - hoodProfileStartTime
+    );
+    hoodMotor.set(
+      ControlMode.Position,
+      MathUtil.clamp(previousState.position, 0, maxHoodHeight)*hoodTicksPerRadian
+      );
+    SmartDashboard.putNumber("Hood position", getHoodPosition());
+    SmartDashboard.putNumber("Hood target position", targetHoodPosition);
+    SmartDashboard.putNumber("Hood closed loop error", hoodMotor.getClosedLoopError());
+    SmartDashboard.putNumber("Trapezoid position", previousState.position);
+    SmartDashboard.putNumber("Trapezoid velocity", previousState.velocity);
+  }
+
+  public void setHoodPosition(double targetPosition){
+    targetHoodPosition = targetPosition;
+    hoodProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
+    hoodProfile = new TrapezoidProfile(
+      new TrapezoidProfile.Constraints(
+        maxHoodVelocity,
+        maxHoodAcceleration
+      ),
+      previousState,
+      new TrapezoidProfile.State(
+        targetHoodPosition,
+        0
+      )
+    );
+  }
+
+  public double getHoodPosition(){
+    return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
   }
 
   public double getRange1() {
@@ -119,31 +186,45 @@ public class Shooter extends SubsystemBase {
     return ball2Held;
   }
 
-  public void setFlywheelVelocity(double velocity){
-    flywheelTargetVelocity = velocity;
-    flywheelMotor.set(ControlMode.Velocity, velocity * 0.1 * flywheelTicksPerRadian);
+  // public void setFlywheelVelocity(double velocity){
+  //   flywheelTargetVelocity = velocity;
+  //   flywheelMotor.set(ControlMode.Velocity, velocity * 0.1 * flywheelTicksPerRadian);
+  // }
+
+  // public void setLoaderVelocity(double velocity){
+  //   loaderTargetVelocity = velocity;
+  //   loaderMotor.set(ControlMode.Velocity, velocity * 0.1 * loaderTicksPerRadian);
+  // }
+
+  // public void setHoodPosition(double hoodPosition){
+  //   hoodTargetPosition = hoodPosition;
+  //   hoodMotor.set(ControlMode.Position, hoodPosition * hoodTicksPerRadian);
+  // }
+
+  // public double getFlywheelVelocity(){
+  //   return flywheelMotor.getSelectedSensorVelocity() * 10.0 / flywheelTicksPerRadian;
+  // }
+
+  // public double getLoaderVelocity(){
+  //   return loaderMotor.getSelectedSensorVelocity() * 10.0 / loaderTicksPerRadian;
+  // }
+
+  // public double getHoodPosition(){
+  //   return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+  // }
+
+  public void resetMotors(WPI_TalonFX motor){
+    motor.configFactoryDefault();
+    motor.setSafetyEnabled(false);
+    //motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
+    motor.setNeutralMode(NeutralMode.Brake);
   }
 
-  public void setLoaderVelocity(double velocity){
-    loaderTargetVelocity = velocity;
-    loaderMotor.set(ControlMode.Velocity, velocity * 0.1 * loaderTicksPerRadian);
-  }
-
-  public void setHoodPosition(double hoodPosition){
-    hoodTargetPosition = hoodPosition;
-    hoodMotor.set(ControlMode.Position, hoodPosition * hoodTicksPerRadian);
-  }
-
-  public double getFlywheelVelocity(){
-    return flywheelMotor.getSelectedSensorVelocity() * 10.0 / flywheelTicksPerRadian;
-  }
-
-  public double getLoaderVelocity(){
-    return loaderMotor.getSelectedSensorVelocity() * 10.0 / loaderTicksPerRadian;
-  }
-
-  public double getHoodPosition(){
-    return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+  public void updatePID(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val){
+    motor.config_kP(0, p_val);
+    motor.config_kI(0, i_val);
+    motor.config_kD(0, d_val);
+    motor.config_kF(0, f_val);
   }
 
   /*

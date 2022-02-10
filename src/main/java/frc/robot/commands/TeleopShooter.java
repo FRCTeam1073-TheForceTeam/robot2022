@@ -29,7 +29,7 @@ public class TeleopShooter extends CommandBase {
   public void execute() {
     double flywheelVelocity;
     double loaderVelocity;
-    // double hoodPosition;
+    double hoodPosition;
 
     flywheelVelocity = SmartDashboard.getNumber("Flywheel Motor Velocity", 0);
     if (flywheelVelocity < -1) {
@@ -47,26 +47,22 @@ public class TeleopShooter extends CommandBase {
       loaderVelocity = 1;
     }
 
-    /*
-    hoodPosition = SmartDashboard.getNumber("Hood Position", 0);
+    hoodPosition = SmartDashboard.getNumber("Set Hood Position", 0);
     if (hoodPosition < -1) {
       hoodPosition = -1;
     }
     if (hoodPosition >1) {
       hoodPosition = 1;
     }
-    */
 
-    System.out.println(flywheelVelocity);
-    shooter.setFlywheelVelocity(flywheelVelocity);
+    // System.out.println(flywheelVelocity);
+    // shooter.setFlywheelVelocity(flywheelVelocity);
 
-    System.out.println(loaderVelocity);
-    shooter.setLoaderVelocity(loaderVelocity);
+    // System.out.println(loaderVelocity);
+    // shooter.setLoaderVelocity(loaderVelocity);
 
-    /*
     System.out.println(hoodPosition);
     shooter.setHoodPosition(hoodPosition);
-    */
   }
 
   // Called once the command ends or is interrupted.
