@@ -14,7 +14,6 @@ public class TeleopCollector extends CommandBase
   Collector collector;
   Bling bling;
   private double collectorVelocity; 
-  private double collectorPosition; 
   private double loweredCollectorPosition = 1.0; 
   private double raisedCollectorPosition = 0.5; 
  
@@ -40,12 +39,12 @@ public class TeleopCollector extends CommandBase
     // moves collector up and down
     if (OI.driverController.getAButtonPressed())
     {
-      collectorPosition = raisedCollectorPosition;
+      collector.setLiftPosition(raisedCollectorPosition);
       bling.setArray("green");
     }
     else if (OI.driverController.getBButtonPressed())
     {
-      collectorPosition = loweredCollectorPosition;
+      collector.setLiftPosition(loweredCollectorPosition);
       bling.setArray("red");
     }
 

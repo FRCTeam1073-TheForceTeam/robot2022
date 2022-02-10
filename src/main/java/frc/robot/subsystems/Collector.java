@@ -16,6 +16,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Collector extends SubsystemBase 
@@ -49,15 +51,16 @@ public class Collector extends SubsystemBase
   private double maxLiftHeight = 1.0;
 
   /** Creates a new Collector. */
-  public Collector() {
+  public Collector() 
+  {
     liftMotor = new WPI_TalonFX(6); // set CAN ID
     collectMotor = new WPI_TalonFX(7); // set CAN ID
     resetMotors();
-    previousState=new TrapezoidProfile.State(0,0);
+    previousState = new TrapezoidProfile.State(0,0);
     targetLiftPosition = 0;
     liftProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
-        maxLiftVelocity,maxLiftAcceleration
+        maxLiftVelocity, maxLiftAcceleration
       ),
       previousState,
       previousState
@@ -74,6 +77,16 @@ public class Collector extends SubsystemBase
       ControlMode.Position,
       MathUtil.clamp(previousState.position, 0, maxLiftHeight)*liftTicksPerRadian
     );
+
+    SmartDashboard.putNumber("collector-lift_kP", lift_kP);
+    SmartDashboard.putNumber("collector-lift_kI", lift_kI);
+    SmartDashboard.putNumber("collector-lift_kD", lift_kD);
+    SmartDashboard.putNumber("collector-lift_kF", lift_kF);
+
+    SmartDashboard.putNumber("collector-collect_kP", collect_kP);
+    SmartDashboard.putNumber("collector-collect_kI", collect_kI);
+    SmartDashboard.putNumber("collector-collect_kD", collect_kD);
+    SmartDashboard.putNumber("collector-collect_kF", collect_kF);
   }
 
   public void setLiftPosition(double targetPosition) {
