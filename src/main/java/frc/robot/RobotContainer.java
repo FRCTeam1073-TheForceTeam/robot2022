@@ -32,7 +32,7 @@ public class RobotContainer {
   HubTracking hubTracking;
   private static final FrontSonar frontSonar = new FrontSonar();
 
-  Indexer indexer = new Indexer(null);
+  Indexer indexer = new Indexer();
 
   Climber climber = new Climber();
 

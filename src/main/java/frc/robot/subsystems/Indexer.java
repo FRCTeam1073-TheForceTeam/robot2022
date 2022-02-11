@@ -35,6 +35,9 @@ public class Indexer extends SubsystemBase {
     isNextCargoRed.setBoolean(false);
   }
 
+  public Indexer() {
+  }
+
   @Override
   public void periodic() {
     if (motorVelocity > 0.0) {
