@@ -25,23 +25,23 @@ public class Collector extends SubsystemBase
   WPI_TalonFX liftMotor;
   WPI_TalonFX collectMotor;
 
-  private double lift_kP;
-  private double lift_kI;
-  private double lift_kD;
-  private double lift_kF;
+  private double lift_kP=0.1;
+  private double lift_kI=0;
+  private double lift_kD=0;
+  private double lift_kF=0;
 
-  private double collect_kP;  
-  private double collect_kI;
-  private double collect_kD;
-  private double collect_kF;
+  private double collect_kP=0.1;
+  private double collect_kI=0;
+  private double collect_kD=0;
+  private double collect_kF=0;
 
   private TrapezoidProfile liftProfile;
   private TrapezoidProfile.State previousState;
   private double liftProfileStartTime;
 
   private double targetLiftPosition; //Units: radians
-  private final double maxLiftVelocity = 1.0; //Units: radians/s
-  private final double maxLiftAcceleration = 3.0; //Units: radians/s^2
+  private final double maxLiftVelocity = 6.0; //Units: radians/s
+  private final double maxLiftAcceleration = 1.5; //Units: radians/s^2
   private final double liftBeltRatio = 1.0;
   private final double liftTicksPerRadian = 2048.0 * liftBeltRatio;
 
@@ -50,11 +50,13 @@ public class Collector extends SubsystemBase
 
   private double maxLiftHeight = 1.0;
 
+  SlewRateLimiter collectFilter = new SlewRateLimiter(0.5);
+
   /** Creates a new Collector. */
   public Collector() 
   {
-    liftMotor = new WPI_TalonFX(6); // set CAN ID
-    collectMotor = new WPI_TalonFX(7); // set CAN ID
+    liftMotor = new WPI_TalonFX(46); // set CAN ID
+    collectMotor = new WPI_TalonFX(20); // set CAN ID
     resetMotors();
     previousState = new TrapezoidProfile.State(0,0);
     targetLiftPosition = 0;
@@ -65,29 +67,68 @@ public class Collector extends SubsystemBase
       previousState,
       previousState
     );
+    collectFilter=new SlewRateLimiter(10.0);
     liftProfileStartTime = System.currentTimeMillis() / 1000.0;
   }
 
+  int ctr=0;
   @Override
   public void periodic() {
+    ctr++;
     previousState = liftProfile.calculate(
       ((double)System.currentTimeMillis())/1000.0 - liftProfileStartTime
     );
     liftMotor.set(
       ControlMode.Position,
-      MathUtil.clamp(previousState.position, 0, maxLiftHeight)*liftTicksPerRadian
+      previousState.position*liftTicksPerRadian
     );
+    if(SmartDashboard.getBoolean("Update", false)){
+      lift_kP=SmartDashboard.getNumber("collector-lift_kP",0);
+      lift_kI=SmartDashboard.getNumber("collector-lift_kI",0);
+      lift_kD=SmartDashboard.getNumber("collector-lift_kD",0);
+      lift_kF=SmartDashboard.getNumber("collector-lift_kF",0);
+    
+      collect_kP=SmartDashboard.getNumber("collector-collect_kP",0);
+      collect_kI=SmartDashboard.getNumber("collector-collect_kI",0);
+      collect_kD=SmartDashboard.getNumber("collector-collect_kD",0);
+      collect_kF=SmartDashboard.getNumber("collector-collect_kF",0);
 
-    SmartDashboard.putNumber("collector-lift_kP", lift_kP);
-    SmartDashboard.putNumber("collector-lift_kI", lift_kI);
-    SmartDashboard.putNumber("collector-lift_kD", lift_kD);
-    SmartDashboard.putNumber("collector-lift_kF", lift_kF);
+      liftMotor.config_kP(0,lift_kP);
+      liftMotor.config_kI(0,lift_kI);
+      liftMotor.config_kD(0,lift_kD);
+      liftMotor.config_kF(0,lift_kF);
 
-    SmartDashboard.putNumber("collector-collect_kP", collect_kP);
-    SmartDashboard.putNumber("collector-collect_kI", collect_kI);
-    SmartDashboard.putNumber("collector-collect_kD", collect_kD);
-    SmartDashboard.putNumber("collector-collect_kF", collect_kF);
+      collectMotor.config_kP(0,collect_kP);
+      collectMotor.config_kI(0,collect_kI);
+      collectMotor.config_kD(0,collect_kD);
+      collectMotor.config_kF(0,collect_kF);
+
+      System.out.printf(">\t%f\n",lift_kP);
+
+      SmartDashboard.putBoolean("Update", false);
+    }
+    if(ctr%50==0){
+      SmartDashboard.putNumber("collector-lift_kP", lift_kP);
+      SmartDashboard.putNumber("collector-lift_kI", lift_kI);
+      SmartDashboard.putNumber("collector-lift_kD", lift_kD);
+      SmartDashboard.putNumber("collector-lift_kF", lift_kF);
+  
+      SmartDashboard.putNumber("collector-collect_kP", collect_kP);
+      SmartDashboard.putNumber("collector-collect_kI", collect_kI);
+      SmartDashboard.putNumber("collector-collect_kD", collect_kD);
+      SmartDashboard.putNumber("collector-collect_kF", collect_kF);
+      SmartDashboard.putBoolean("Update", false);
+    }
+    double vel=collectFilter.calculate(targetIntakeVelocity);
+    SmartDashboard.putNumber("Yeah", vel);
+    collectMotor.set(ControlMode.Velocity, vel*intakeTicksPerRadian*0.1);
+    SmartDashboard.putNumberArray("collector lift position vs target position",new Double []{liftMotor.getSelectedSensorPosition(),targetLiftPosition});
+    //SmartDashboard.putNumber("collector lift target position",);
+    SmartDashboard.putNumber("collector lift close loop error",liftMotor.getClosedLoopError());
+    SmartDashboard.putNumber("collector lift trap position",previousState.position);
+    SmartDashboard.putNumber("collector lift trap velocity",previousState.velocity);
   }
+
 
   public void setLiftPosition(double targetPosition) {
     targetLiftPosition = targetPosition;
@@ -97,9 +138,12 @@ public class Collector extends SubsystemBase
         maxLiftVelocity,
         maxLiftAcceleration
       ),
-      previousState,
       new TrapezoidProfile.State(
         targetLiftPosition,
+        0
+      ),
+      new TrapezoidProfile.State(
+        getLiftPosition(),
         0
       )
     );
@@ -112,7 +156,7 @@ public class Collector extends SubsystemBase
   // velocity is the speed of the ball in the intake in meters/second
   public void setIntakeVelocity(double velocity) {
     targetIntakeVelocity = velocity;
-    collectMotor.set(ControlMode.Velocity, targetIntakeVelocity * intakeTicksPerRadian * 0.1);
+//    collectMotor.set(ControlMode.Velocity, collectFilter.calculate(targetIntakeVelocity * intakeTicksPerRadian * 0.1));
   }
 
   public double getIntakeVelocity() {

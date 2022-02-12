@@ -40,6 +40,8 @@ public class RobotContainer {
 
   Drivetrain drivetrain = new Drivetrain();
 
+  Collector collector = new Collector();
+
   Bling bling = new Bling();
 
   HubTracking hubTracker = new HubTracking();
@@ -51,6 +53,7 @@ public class RobotContainer {
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
+  TeleopCollector teleopCollector = new TeleopCollector(collector);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -65,6 +68,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
     climber.setDefaultCommand(teleopClimber);
+    collector.setDefaultCommand(teleopCollector);
   }
 
   /**

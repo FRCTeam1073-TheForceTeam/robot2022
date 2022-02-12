@@ -13,9 +13,9 @@ public class TeleopCollector extends CommandBase
 {
   Collector collector;
   Bling bling;
-  private double collectorVelocity; 
-  private double loweredCollectorPosition = 1.0; 
-  private double raisedCollectorPosition = 0.5; 
+  private double collectorVelocity=20; 
+  private double loweredCollectorPosition = 6.0; 
+  private double raisedCollectorPosition = -6.0; 
  
   /** Creates a new TeleopCollector. */
   public TeleopCollector(Collector collector) 
@@ -40,27 +40,23 @@ public class TeleopCollector extends CommandBase
     if (OI.driverController.getAButtonPressed())
     {
       collector.setLiftPosition(raisedCollectorPosition);
-      bling.setArray("green");
     }
     else if (OI.driverController.getBButtonPressed())
     {
       collector.setLiftPosition(loweredCollectorPosition);
-      bling.setArray("red");
     }
 
     // spins the collector
-    if (OI.driverController.getLeftBumper())
+    if (OI.driverController.getLeftBumperPressed())
     {
       collector.setIntakeVelocity(collectorVelocity);
-      bling.setArray("blue");
     }
-    else if (OI.driverController.getRightBumper())
+    else if (OI.driverController.getRightBumperPressed())
     {
       collector.setIntakeVelocity(-collectorVelocity);
     }
-    else 
-    {
-      collector.setIntakeVelocity(0);
+    if(OI.driverController.getLeftBumperReleased()||OI.driverController.getRightBumperReleased()){
+      collector.setIntakeVelocity(0);      
     }
   }
 

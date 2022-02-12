@@ -30,7 +30,7 @@ public class TeleopIndexer extends CommandBase {
   @Override
   public void execute() {
     indexer.setWheelVelocity(OI.operatorController.getLeftY()*0.5);
-    System.out.println(OI.operatorController.getLeftY()*0.5);
+    // System.out.println(OI.operatorController.getLeftY()*0.5);
   }
 
   // Called once the command ends or is interrupted.
