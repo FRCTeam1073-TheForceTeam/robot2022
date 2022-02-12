@@ -40,8 +40,8 @@ public class Collector extends SubsystemBase
   private double liftProfileStartTime;
 
   private double targetLiftPosition; //Units: radians
-  private final double maxLiftVelocity = 6.0; //Units: radians/s
-  private final double maxLiftAcceleration = 1.5; //Units: radians/s^2
+  private final double maxLiftVelocity = 4.0; //Units: radians/s
+  private final double maxLiftAcceleration = 0.5; //Units: radians/s^2
   private final double liftBeltRatio = 1.0;
   private final double liftTicksPerRadian = 2048.0 * liftBeltRatio;
 
@@ -120,13 +120,14 @@ public class Collector extends SubsystemBase
       SmartDashboard.putBoolean("Update", false);
     }
     double vel=collectFilter.calculate(targetIntakeVelocity);
+    double velVal=vel*intakeTicksPerRadian*0.1;
     SmartDashboard.putNumber("Yeah", vel);
-    collectMotor.set(ControlMode.Velocity, vel*intakeTicksPerRadian*0.1);
+    collectMotor.set(ControlMode.Velocity, velVal);
     SmartDashboard.putNumberArray("collector lift position vs target position",new Double []{liftMotor.getSelectedSensorPosition(),targetLiftPosition});
-    //SmartDashboard.putNumber("collector lift target position",);
     SmartDashboard.putNumber("collector lift close loop error",liftMotor.getClosedLoopError());
     SmartDashboard.putNumber("collector lift trap position",previousState.position);
     SmartDashboard.putNumber("collector lift trap velocity",previousState.velocity);
+    SmartDashboard.putNumberArray("collector collect velocity vs target velocity",new Double []{collectMotor.getSelectedSensorVelocity(),velVal});
   }
 
 
@@ -156,7 +157,6 @@ public class Collector extends SubsystemBase
   // velocity is the speed of the ball in the intake in meters/second
   public void setIntakeVelocity(double velocity) {
     targetIntakeVelocity = velocity;
-//    collectMotor.set(ControlMode.Velocity, collectFilter.calculate(targetIntakeVelocity * intakeTicksPerRadian * 0.1));
   }
 
   public double getIntakeVelocity() {
