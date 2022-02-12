@@ -39,10 +39,10 @@ public class Shooter extends SubsystemBase {
   // private WPI_TalonFX loaderMotor;
   private WPI_TalonFX hoodMotor;
 
-  private double hood_kP;
-  private double hood_kI;
-  private double hood_kD;
-  private double hood_kF;
+  private double hood_kP = 0.1;
+  private double hood_kI = 0;
+  private double hood_kD = 0;
+  private double hood_kF = 0;
 
   // private double loader_kP;
   // private double loader_kI;
@@ -103,13 +103,14 @@ public class Shooter extends SubsystemBase {
 
     // SmartDashboard.putNumber("Flywheel Motor Velocity", 0);
     // SmartDashboard.putNumber("Loader Motor Velocity", 0);
-    SmartDashboard.putNumber("Hood Motor Velocity", 0);
+    // SmartDashboard.putNumber("Hood Motor Velocity", 0);
 
     // resetMotors(flywheelMotor);
     // resetMotors(loaderMotor);
     resetMotors(hoodMotor);
   }
 
+  int ctr=0;
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -131,10 +132,7 @@ public class Shooter extends SubsystemBase {
 
     // PrintMotorTelemetry();
 
-    updatePID(hoodMotor, hood_kP, hood_kI, hood_kD, hood_kF);
-    // updatePID(flywheelMotor, flywheel_kP, flywheel_kI, flywheel_kD, flywheel_kF);
-    // updatePID(loaderMotor, loader_kP, loader_kI, loader_kD, loader_kF);
-
+    ctr++;
     previousState = hoodProfile.calculate(
       ((double)System.currentTimeMillis())/1000.0 - hoodProfileStartTime
     );
@@ -142,11 +140,32 @@ public class Shooter extends SubsystemBase {
       ControlMode.Position,
       MathUtil.clamp(previousState.position, 0, maxHoodHeight)*hoodTicksPerRadian
       );
-    SmartDashboard.putNumber("Hood position", getHoodPosition());
-    SmartDashboard.putNumber("Hood target position", targetHoodPosition);
     SmartDashboard.putNumber("Hood closed loop error", hoodMotor.getClosedLoopError());
     SmartDashboard.putNumber("Trapezoid position", previousState.position);
     SmartDashboard.putNumber("Trapezoid velocity", previousState.velocity);
+
+    if(SmartDashboard.getBoolean("Update", false)){
+      hood_kP=SmartDashboard.getNumber("shooter-hood_kP",0);
+      hood_kI=SmartDashboard.getNumber("shooter-hood_kI",0);
+      hood_kD=SmartDashboard.getNumber("shooter-hood_kD",0);
+      hood_kF=SmartDashboard.getNumber("shooter-hood_kF",0);
+    
+      // loader_kP=SmartDashboard.getNumber("shooter-loader_kP",0);
+      // loader_kI=SmartDashboard.getNumber("shooter-loader_kI",0);
+      // loader_kD=SmartDashboard.getNumber("shooter-loader_kD",0);
+      // loader_kF=SmartDashboard.getNumber("shooter-loader_kF",0);
+
+      // flywheel_kP=SmartDashboard.getNumber("shooter-flywheel_kP",0);
+      // flywheel_kI=SmartDashboard.getNumber("shooter-flywheel_kI",0);
+      // flywheel_kD=SmartDashboard.getNumber("shooter-flywheel_kD",0);
+      // flywheel_kF=SmartDashboard.getNumber("shooter-flywheel_kF",0);
+
+      System.out.printf(">\t%f\n",hood_kP);
+
+      SmartDashboard.putBoolean("Update", false);
+    }
+    
+    SmartDashboard.putNumberArray("hood position vs target position",new Double []{hoodMotor.getSelectedSensorPosition(),targetHoodPosition});
   }
 
   public void setHoodPosition(double targetPosition){
