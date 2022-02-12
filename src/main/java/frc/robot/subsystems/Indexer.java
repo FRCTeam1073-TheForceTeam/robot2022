@@ -32,20 +32,24 @@ public class Indexer extends SubsystemBase {
     return 0.0;
   }
 
-  public void isCurrentCargoColored(){
-
+  public boolean isCurrentCargoThere(){
+    return false;
   }
 
-  public void isNextCargoColored(){
-
+  public boolean isNextCargoThere(){
+    return false;
   }
 
-  public void getNumCargo(){
-
+  public boolean isCurrentCargoRed(){
+    return false;
   }
 
-  public void getCargoPositions(){
-    
+  public boolean isNextCargoRed(){
+    return false;
+  }
+
+  public int getNumCargo(){
+    return 0;
   }
 
   /*

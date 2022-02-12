@@ -34,16 +34,25 @@ public class RobotContainer {
 
   Indexer indexer = new Indexer();
 
+  Climber climber = new Climber();
+
   Drivetrain drivetrain = new Drivetrain();
 
   Bling bling = new Bling();
 
   Shooter shooter = new Shooter();
 
+  HubTracking hubTracker = new HubTracking();
+  
+  CargoTracking cargoTracker = new CargoTracking();
+
   // Controls: Add controls here.
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
+  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
+  TeleopClimber teleopClimber = new TeleopClimber(climber);
+  TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -52,11 +61,13 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracking = new HubTracking();
+    hubTracker.setDefaultCommand(teleopHubTracking);
+    cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
     shooter.setDefaultCommand(teleopShooter);
+    climber.setDefaultCommand(teleopClimber);
   }
 
   /**

@@ -51,8 +51,6 @@ public class HubTracking extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //Update hubVisible
-    setLEDIntensity(OI.driverController.getLeftTriggerAxis());
   }
 
   public void sampleHubData(HubData data){
@@ -65,6 +63,6 @@ public class HubTracking extends SubsystemBase {
 
   public void setLEDIntensity(double percent){
     // System.out.println("Set Itensity: ");
-    canifier.setLEDOutput(percent, channel); 
+    canifier.setLEDOutput(percent / 2, channel); 
   }
 }
