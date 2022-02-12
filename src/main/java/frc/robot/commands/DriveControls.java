@@ -25,16 +25,21 @@ public class DriveControls extends CommandBase {
     drivetrain.setPower(0, 0);
   }
 
+  double zone = 0.1;
+  public double deadzone(double a) {
+    return (Math.abs(a) < zone) ? 0 : Math.signum(a)*((Math.abs(a) - zone) / (1 - zone));
+  }
+
 
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double forward = -OI.driverController.getLeftY();
-    double rotate = -OI.driverController.getRightX();
-    chassisSpeeds.vxMetersPerSecond = forward * 2.0;
-    chassisSpeeds.omegaRadiansPerSecond = rotate * 2.0;
+    double forward = -deadzone(OI.driverController.getLeftY());
+    double rotate = -deadzone(OI.driverController.getRightX());
+    chassisSpeeds.vxMetersPerSecond = forward * 3.75;
+    chassisSpeeds.omegaRadiansPerSecond = rotate * 3.75;
 
     // double fwd = SmartDashboard.getNumber("X", 0);
     // drivetrain.setPower(fwd, fwd);

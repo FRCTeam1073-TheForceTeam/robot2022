@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -30,8 +31,8 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX rightMotorLeader;
   private WPI_TalonFX rightMotorFollower;
 
-  private double kP = 0.15;
-  private double kI = 0.0;
+  private double kP = 0.1;
+  private double kI = 0.002;
   private double kD = 0.0;
   //0.5:9650, 0.75:14550
   private double kF = 0.05;
@@ -73,22 +74,21 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {
-    counter++;
-    drivetrainTable=NetworkTableInstance.getDefault().getTable("Drivetrain");
-    pEntry = drivetrainTable.getEntry("P");
-    iEntry = drivetrainTable.getEntry("I");
-    dEntry = drivetrainTable.getEntry("D");
-    fEntry = drivetrainTable.getEntry("F");
+    drivetrainTable = NetworkTableInstance.getDefault().getTable("Drivetrain");
+    pEntry = drivetrainTable.getEntry("kP");
+    iEntry = drivetrainTable.getEntry("kI");
+    dEntry = drivetrainTable.getEntry("kD");
+    fEntry = drivetrainTable.getEntry("kF");
 
-    updateButton = drivetrainTable.getEntry("Update");
-    updateButton.setBoolean(false);
+    updateButton = drivetrainTable.getEntry("update constants");
 
+    updateButton.setBoolean(true);
     pEntry.setDouble(kP);
     iEntry.setDouble(kI);
     dEntry.setDouble(kD);
     fEntry.setDouble(kF);
 
-    this.imu=imu;
+    this.imu = imu;
     leftMotorLeader = new WPI_TalonFX(31);
     leftMotorFollower = new WPI_TalonFX(27);
     rightMotorLeader = new WPI_TalonFX(30);
@@ -106,6 +106,8 @@ public class Drivetrain extends SubsystemBase {
 
     setupDrivetrainMotors();
   }
+  
+  boolean a = false;
 
   @Override
   public void periodic() {
@@ -119,15 +121,16 @@ public class Drivetrain extends SubsystemBase {
     wheelSpeeds.leftMetersPerSecond = leftMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
     wheelSpeeds.rightMetersPerSecond = rightMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
 
-    if (counter % 5 == 0) {
-      updateButton.setBoolean(updateButton.getBoolean(false));
-      pEntry.setDouble(kP);
-      iEntry.setDouble(kI);
-      dEntry.setDouble(kD);
-      fEntry.setDouble(kF);
-    }
-
-    if (updateButton.getBoolean(false)) {
+    counter++;
+    if (counter % 200 == 0) {
+      updateButton = drivetrainTable.getEntry("update constants");
+      updateButton.setBoolean(false);
+      //System.out.println(pEntry.getDouble(-1));
+      pEntry = drivetrainTable.getEntry("kP");
+      iEntry = drivetrainTable.getEntry("kI");
+      dEntry = drivetrainTable.getEntry("kD");
+      fEntry = drivetrainTable.getEntry("kF");
+    }else if (updateButton.getBoolean(false)) {
       kP = pEntry.getDouble(0);
       kI = iEntry.getDouble(0);
       kD = dEntry.getDouble(0);
@@ -137,11 +140,14 @@ public class Drivetrain extends SubsystemBase {
       leftMotorLeader.config_kI(0, kI);
       leftMotorLeader.config_kD(0, kD);
       leftMotorLeader.config_kF(0, kF);
+      leftMotorLeader.setIntegralAccumulator(0);
 
       rightMotorLeader.config_kP(0, kP);
       rightMotorLeader.config_kI(0, kI);
       rightMotorLeader.config_kD(0, kD);
       rightMotorLeader.config_kF(0, kF);
+      leftMotorLeader.setIntegralAccumulator(0);
+
 
       updateButton.setBoolean(false);
     }
@@ -159,7 +165,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("[Drivetrain] Left error ratio",
         (wheelSpeeds.leftMetersPerSecond - targetWheelSpeeds.leftMetersPerSecond) / wheelSpeeds.leftMetersPerSecond);
     SmartDashboard.putNumber("[Drivetrain] Right error ratio",
-        (wheelSpeeds.leftMetersPerSecond - targetWheelSpeeds.leftMetersPerSecond) / wheelSpeeds.leftMetersPerSecond);
+        (wheelSpeeds.rightMetersPerSecond - targetWheelSpeeds.rightMetersPerSecond) / wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left velocity", targetWheelSpeeds.leftMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Right velocity", wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left target velocity", targetWheelSpeeds.leftMetersPerSecond);
