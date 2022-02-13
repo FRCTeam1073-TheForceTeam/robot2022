@@ -32,10 +32,10 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX rightMotorFollower;
 
   private double kP = 0.1;
-  private double kI = 0.002;
-  private double kD = 0.0;
-  //0.5:9650, 0.75:14550
+  private double kI = 0.0015;
+  private double kD = 1.0;
   private double kF = 0.05;
+  //0.5:9650, 0.75:14550
 
 
   private final double currentLimit=28;
@@ -147,7 +147,6 @@ public class Drivetrain extends SubsystemBase {
       rightMotorLeader.config_kD(0, kD);
       rightMotorLeader.config_kF(0, kF);
       leftMotorLeader.setIntegralAccumulator(0);
-
 
       updateButton.setBoolean(false);
     }
