@@ -32,15 +32,15 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX rightMotorFollower;
 
   private double kP = 0.1;
-  private double kI = 0.0015;
+  private double kI = 0.001;
   private double kD = 1.0;
-  private double kF = 0.05;
-  //0.5:9650, 0.75:14550
+  private double kF = 0.052;
+    //0.5:9650, 0.75:14550
 
 
-  private final double currentLimit=28;
-  private final double currentThreshold=30; 
-  private final double currentThresholdTime=0.25;
+  private final double currentLimit = 28;
+  private final double currentThreshold = 30; 
+  private final double currentThresholdTime = 0.25;
 
   private final double wheelRadius = Units.inchesToMeters(2.0);
   private final double gearRatio = (12.0 / 44.0) * (24.0 / 50.0);
@@ -67,8 +67,9 @@ public class Drivetrain extends SubsystemBase {
 
   SlewRateLimiter leftMotorLimiter;
   SlewRateLimiter rightMotorLimiter;
+  private DifferentialDriveWheelSpeeds limitedTargetWheelSpeeds;
 
-  private final double rateLimit = 2000;
+  private final double rateLimit = 5.0;
   private DifferentialDriveWheelSpeeds targetWheelSpeeds;
   private int counter = 0;
 
@@ -103,6 +104,7 @@ public class Drivetrain extends SubsystemBase {
     rightMotorLimiter = new SlewRateLimiter(rateLimit);
 
     targetWheelSpeeds = new DifferentialDriveWheelSpeeds();
+    limitedTargetWheelSpeeds = new DifferentialDriveWheelSpeeds();
 
     setupDrivetrainMotors();
   }
@@ -120,6 +122,21 @@ public class Drivetrain extends SubsystemBase {
     );
     wheelSpeeds.leftMetersPerSecond = leftMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
     wheelSpeeds.rightMetersPerSecond = rightMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
+
+    limitedTargetWheelSpeeds.leftMetersPerSecond = leftMotorLimiter.calculate(targetWheelSpeeds.leftMetersPerSecond);
+    limitedTargetWheelSpeeds.rightMetersPerSecond = rightMotorLimiter.calculate(targetWheelSpeeds.rightMetersPerSecond);
+
+    leftMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.leftMetersPerSecond) * ticksPerMeter * 0.1);
+    rightMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.rightMetersPerSecond) * ticksPerMeter * 0.1);
+
+    if (OI.driverController.getLeftBumperPressed()) {
+      leftMotorLeader.setSelectedSensorPosition(0);
+      rightMotorLeader.setSelectedSensorPosition(0);
+    }
+    // SmartDashboard.putNumber("left distance", leftMotorLeader.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("right distance", rightMotorLeader.getSelectedSensorPosition());
+    drivetrainTable.getEntry("left distance").setDouble(Units.metersToFeet(leftMotorLeader.getSelectedSensorPosition()/ticksPerMeter));
+    drivetrainTable.getEntry("right distance").setDouble(Units.metersToFeet(rightMotorLeader.getSelectedSensorPosition()/ticksPerMeter));
 
     counter++;
     if (counter % 200 == 0) {
@@ -152,19 +169,19 @@ public class Drivetrain extends SubsystemBase {
     }
     
     SmartDashboard.putNumberArray("[Drivetrain] Left velocity", new Double[] {
-        targetWheelSpeeds.leftMetersPerSecond,
+        limitedTargetWheelSpeeds.leftMetersPerSecond,
         wheelSpeeds.leftMetersPerSecond,
-        targetWheelSpeeds.rightMetersPerSecond-wheelSpeeds.rightMetersPerSecond
+        limitedTargetWheelSpeeds.rightMetersPerSecond-wheelSpeeds.rightMetersPerSecond
     });
     SmartDashboard.putNumberArray("[Drivetrain] Right velocity", new Double[] {
-      targetWheelSpeeds.rightMetersPerSecond,
+      limitedTargetWheelSpeeds.rightMetersPerSecond,
       wheelSpeeds.rightMetersPerSecond,
-      targetWheelSpeeds.rightMetersPerSecond-wheelSpeeds.rightMetersPerSecond
+      limitedTargetWheelSpeeds.rightMetersPerSecond - wheelSpeeds.rightMetersPerSecond
     });
     SmartDashboard.putNumber("[Drivetrain] Left error ratio",
-        (wheelSpeeds.leftMetersPerSecond - targetWheelSpeeds.leftMetersPerSecond) / wheelSpeeds.leftMetersPerSecond);
+        (wheelSpeeds.leftMetersPerSecond - limitedTargetWheelSpeeds.leftMetersPerSecond) / wheelSpeeds.leftMetersPerSecond);
     SmartDashboard.putNumber("[Drivetrain] Right error ratio",
-        (wheelSpeeds.rightMetersPerSecond - targetWheelSpeeds.rightMetersPerSecond) / wheelSpeeds.rightMetersPerSecond);
+        (wheelSpeeds.rightMetersPerSecond - limitedTargetWheelSpeeds.rightMetersPerSecond) / wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left velocity", targetWheelSpeeds.leftMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Right velocity", wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left target velocity", targetWheelSpeeds.leftMetersPerSecond);
@@ -181,8 +198,6 @@ public class Drivetrain extends SubsystemBase {
 
   public void setChassisSpeeds(ChassisSpeeds speeds) {
     targetWheelSpeeds = kinematics.toWheelSpeeds(speeds);
-    leftMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.leftMetersPerSecond) * ticksPerMeter * 0.1);
-    rightMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.rightMetersPerSecond) * ticksPerMeter * 0.1);
   }
 
   // Fills in actual speeds
