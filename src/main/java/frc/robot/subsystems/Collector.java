@@ -57,7 +57,13 @@ public class Collector extends SubsystemBase
   {
     liftMotor = new WPI_TalonFX(46); // set CAN ID
     collectMotor = new WPI_TalonFX(20); // set CAN ID
-    resetMotors();
+
+    resetMotor(liftMotor);
+    resetMotor(collectMotor);
+
+    setPIDs(liftMotor, lift_kP, lift_kI, lift_kD, lift_kF);
+    setPIDs(collectMotor, collect_kP, collect_kI, collect_kD, collect_kF);
+
     previousState = new TrapezoidProfile.State(0,0);
     targetLiftPosition = 0;
     liftProfile = new TrapezoidProfile(
@@ -167,33 +173,20 @@ public class Collector extends SubsystemBase
     return false; //TODO: How do we do this?
   }
 
-  private void resetMotors() {
-    liftMotor.configFactoryDefault();
-    collectMotor.configFactoryDefault();
-
-    liftMotor.setSafetyEnabled(false);
+  private void resetMotor(WPI_TalonFX motor) {
+    motor.configFactoryDefault();
+    motor.setSafetyEnabled(false);
     collectMotor.setSafetyEnabled(false);
-
-    liftMotor.setNeutralMode(NeutralMode.Brake);
-    collectMotor.setNeutralMode(NeutralMode.Brake);
-
-    liftMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
-    collectMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
-
-    liftMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-    collectMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-
-    liftMotor.setSelectedSensorPosition(0);
-    collectMotor.setSelectedSensorPosition(0);
-
-    liftMotor.config_kP(0, lift_kP);
-    liftMotor.config_kI(0, lift_kI);
-    liftMotor.config_kD(0, lift_kD);
-    liftMotor.config_kF(0, lift_kF);
-
-    collectMotor.config_kP(0, collect_kP);
-    collectMotor.config_kI(0, collect_kI);
-    collectMotor.config_kD(0, collect_kD);
-    collectMotor.config_kF(0, collect_kF);
+    motor.setNeutralMode(NeutralMode.Brake);
+    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
+    motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    motor.setSelectedSensorPosition(0);
+  }
+    
+  private void setPIDs(WPI_TalonFX motor, double motor_kP, double motor_kI, double motor_kD, double motor_kF){
+    motor.config_kP(0, motor_kP);
+    motor.config_kI(0, motor_kI);
+    motor.config_kD(0, motor_kD);
+    motor.config_kF(0, motor_kF);
   }
 }
