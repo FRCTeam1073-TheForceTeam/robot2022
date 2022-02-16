@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -33,7 +34,7 @@ public class Drivetrain extends SubsystemBase {
 
   private double kP = 0.1;
   private double kI = 0.001;
-  private double kD = 1.0;
+  private double kD = 2.0;
   private double kF = 0.052;
     //0.5:9650, 0.75:14550
 
@@ -90,10 +91,10 @@ public class Drivetrain extends SubsystemBase {
     fEntry.setDouble(kF);
 
     this.imu = imu;
-    leftMotorLeader = new WPI_TalonFX(31);
-    leftMotorFollower = new WPI_TalonFX(27);
-    rightMotorLeader = new WPI_TalonFX(30);
-    rightMotorFollower = new WPI_TalonFX(50);
+    leftMotorLeader = new WPI_TalonFX(30);
+    leftMotorFollower = new WPI_TalonFX(50);
+    rightMotorLeader = new WPI_TalonFX(31);
+    rightMotorFollower = new WPI_TalonFX(27);
     robotPose = new Pose2d();
     kinematics = new DifferentialDriveKinematics(drivetrainWidth);
     heading = imu.getAngleRadians();

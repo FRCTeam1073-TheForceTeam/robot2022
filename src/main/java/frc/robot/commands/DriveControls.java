@@ -27,7 +27,7 @@ public class DriveControls extends CommandBase {
 
   double zone = 0.05;
   public double deadzone(double a) {
-    return (Math.abs(a) < zone) ? 0 : Math.signum(a)*Math.pow((Math.abs(a) - zone) / (1 - zone),1.0);
+    return (Math.abs(a) < zone) ? 0 : Math.signum(a) * Math.pow((Math.abs(a) - zone) / (1 - zone), 1.0);
   }
 
 
@@ -36,7 +36,7 @@ public class DriveControls extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double forward = deadzone(OI.driverController.getLeftY());
+    double forward = -deadzone(OI.driverController.getLeftY());
     double rotate = -deadzone(OI.driverController.getRightX());
     chassisSpeeds.vxMetersPerSecond = forward * 1.50;
     chassisSpeeds.omegaRadiansPerSecond = rotate * 2.00;
