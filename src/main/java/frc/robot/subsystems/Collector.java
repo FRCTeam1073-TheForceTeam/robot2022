@@ -129,11 +129,12 @@ public class Collector extends SubsystemBase
     double velVal=vel*intakeTicksPerRadian*0.1;
     SmartDashboard.putNumber("Yeah", vel);
     collectMotor.set(ControlMode.Velocity, velVal);
-    SmartDashboard.putNumberArray("collector lift position vs target position",new Double []{liftMotor.getSelectedSensorPosition(),targetLiftPosition});
-    SmartDashboard.putNumber("collector lift close loop error",liftMotor.getClosedLoopError());
-    SmartDashboard.putNumber("collector lift trap position",previousState.position);
-    SmartDashboard.putNumber("collector lift trap velocity",previousState.velocity);
-    SmartDashboard.putNumberArray("collector collect velocity vs target velocity",new Double []{collectMotor.getSelectedSensorVelocity(),velVal});
+    SmartDashboard.putNumberArray("collector lift position vs target position", new Double []{liftMotor.getSelectedSensorPosition(),targetLiftPosition});
+    SmartDashboard.putNumber("just collector lift position", liftMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("collector lift close loop error", liftMotor.getClosedLoopError());
+    SmartDashboard.putNumber("collector lift trap position", previousState.position);
+    SmartDashboard.putNumber("collector lift trap velocity", previousState.velocity);
+    SmartDashboard.putNumberArray("collector collect velocity vs target velocity", new Double []{collectMotor.getSelectedSensorVelocity(),velVal});
   }
 
 
