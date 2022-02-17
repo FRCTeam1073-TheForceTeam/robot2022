@@ -43,7 +43,7 @@ public class Collector extends SubsystemBase
   private final double maxLiftVelocity = 4.0; //Units: radians/s
   private final double maxLiftAcceleration = 0.5; //Units: radians/s^2
   private final double liftBeltRatio = 1.0;
-  private final double liftTicksPerRadian = 2048.0 * liftBeltRatio;
+  private final double liftTicksPerRadian = 2048.0 * liftBeltRatio / (2 * Math.PI);
 
   private final double intakeTicksPerRadian = 1000.0;
   private double targetIntakeVelocity = 0;
