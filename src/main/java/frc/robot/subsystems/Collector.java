@@ -55,8 +55,8 @@ public class Collector extends SubsystemBase
   /** Creates a new Collector. */
   public Collector() 
   {
-    liftMotor = new WPI_TalonFX(46); // set CAN ID
-    collectMotor = new WPI_TalonFX(20); // set CAN ID
+    liftMotor = new WPI_TalonFX(49); // set CAN ID
+    collectMotor = new WPI_TalonFX(48); // set CAN ID
 
     resetMotor(liftMotor);
     resetMotor(collectMotor);
@@ -130,7 +130,7 @@ public class Collector extends SubsystemBase
     SmartDashboard.putNumber("Yeah", vel);
     collectMotor.set(ControlMode.Velocity, velVal);
     SmartDashboard.putNumberArray("collector lift position vs target position", new Double []{liftMotor.getSelectedSensorPosition(),targetLiftPosition});
-    SmartDashboard.putNumber("just collector lift position", liftMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("just collector lift position", liftMotor.getSelectedSensorPosition()/liftTicksPerRadian);
     SmartDashboard.putNumber("collector lift close loop error", liftMotor.getClosedLoopError());
     SmartDashboard.putNumber("collector lift trap position", previousState.position);
     SmartDashboard.putNumber("collector lift trap velocity", previousState.velocity);
