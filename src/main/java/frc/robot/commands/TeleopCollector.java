@@ -13,8 +13,9 @@ public class TeleopCollector extends CommandBase
 {
   Collector collector;
   Bling bling;
-  private double collectorVelocity=20; 
+  private double collectorVelocity = 1.0;
   private double loweredCollectorPosition = 1.55;
+  private double middleCollectorPosition = 1.55 / 2.0;
   private double raisedCollectorPosition = 0; 
  
   /** Creates a new TeleopCollector. */
@@ -35,28 +36,23 @@ public class TeleopCollector extends CommandBase
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() 
-  { 
+  {
     // moves collector up and down
-    if (OI.driverController.getAButtonPressed())
-    {
+    if (OI.operatorController.getAButtonPressed()) {
       collector.setLiftPosition(raisedCollectorPosition);
-    }
-    else if (OI.driverController.getBButtonPressed())
-    {
+    } else if (OI.operatorController.getBButtonPressed()) {
+      collector.setLiftPosition(middleCollectorPosition);
+    } else if (OI.operatorController.getXButtonPressed()) {
       collector.setLiftPosition(loweredCollectorPosition);
     }
 
     // spins the collector
-    if (OI.driverController.getLeftBumperPressed())
-    {
+    if (OI.operatorController.getLeftBumper()) {
       collector.setIntakeVelocity(collectorVelocity);
-    }
-    else if (OI.driverController.getRightBumperPressed())
-    {
+    } else if (OI.operatorController.getRightBumper()) {
       collector.setIntakeVelocity(-collectorVelocity);
-    }
-    if(OI.driverController.getLeftBumperReleased()||OI.driverController.getRightBumperReleased()){
-      collector.setIntakeVelocity(0);      
+    }else{
+      collector.setIntakeVelocity(0);
     }
   }
 
