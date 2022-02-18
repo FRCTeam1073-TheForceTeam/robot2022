@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 // import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -45,6 +46,11 @@ public class Indexer extends SubsystemBase {
     } else {
       Robot.getBling().setSlot(1, 168, 50, 50);
     }
+
+    SmartDashboard.putNumber("o",OI.operatorController.getLeftY());
+
+    SmartDashboard.putNumber("[Indexer] Current (A)", indexerMotor.getStatorCurrent());
+    SmartDashboard.putNumber("[Indexer] Output power", indexerMotor.getMotorOutputPercent());
 
     rawCurrent = indexerMotor.getStatorCurrent();
     filteredCurrent = filter.calculate(rawCurrent);
