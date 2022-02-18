@@ -29,8 +29,7 @@ public class TeleopIndexer extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    indexer.setPower(OI.operatorController.getLeftY()*0.5);
-    System.out.println(OI.operatorController.getLeftY()*0.5);
+    indexer.setPower(OI.operatorController.getLeftY() * 0.5);
   }
 
   // Called once the command ends or is interrupted.

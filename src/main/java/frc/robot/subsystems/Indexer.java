@@ -7,7 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 // import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,14 +15,14 @@ import frc.robot.Robot;
 
 public class Indexer extends SubsystemBase {
   private double motorPower;
-  private WPI_TalonFX indexerMotor;
+  private WPI_TalonSRX indexerMotor;
   private LinearFilter filter;
   private double rawCurrent;
   private double filteredCurrent;
 
   /** Creates a new Indexer. */
   public Indexer() {
-    indexerMotor = new WPI_TalonFX(20);
+    indexerMotor = new WPI_TalonSRX(19);
     resetMotor();
 
     motorPower = 0.0;
