@@ -38,7 +38,7 @@ public class RobotContainer {
 
   Climber climber = new Climber();
 
-  Drivetrain drivetrain = new Drivetrain();
+  Drivetrain drivetrain = new Drivetrain(imu);
 
   Collector collector = new Collector();
 
@@ -48,7 +48,7 @@ public class RobotContainer {
   CargoTracking cargoTracker = new CargoTracking();
 
   // Controls: Add controls here.
-  TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
+  DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
