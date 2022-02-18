@@ -5,12 +5,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Bling;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.OI;
 
 public class TeleopIndexer extends CommandBase {
 
   private Indexer indexer;
+  Bling bling;
 
   /** Creates a new TeleopIndexer. */
   public TeleopIndexer(Indexer indexer) {
@@ -33,6 +35,13 @@ public class TeleopIndexer extends CommandBase {
       indexer.setPower(0.7);
     }else{
       indexer.setPower(0);
+    }
+
+    
+    if (indexer.isStalled()) {
+      bling.setSlot(2, 255, 0, 0);
+    } else {
+      bling.setSlot(2, 0, 0, 0);
     }
   }
 
