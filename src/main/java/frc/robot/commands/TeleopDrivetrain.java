@@ -34,8 +34,8 @@ public class TeleopDrivetrain extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double forward = OI.driverController.getLeftY()*forwardSpeed;
-    double rotation = OI.driverController.getRightX()*rotationSpeed;
+    double forward = OI.driverController.getY()*forwardSpeed;
+    double rotation = OI.driverController.getX()*rotationSpeed;
     chassisSpeeds.vxMetersPerSecond = forward;
     chassisSpeeds.omegaRadiansPerSecond = rotation;
     drivetrain.setChassisSpeeds(chassisSpeeds);

@@ -130,10 +130,6 @@ public class Drivetrain extends SubsystemBase {
     leftMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.leftMetersPerSecond) * ticksPerMeter * 0.1);
     rightMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.rightMetersPerSecond) * ticksPerMeter * 0.1);
 
-    if (OI.driverController.getLeftBumperPressed()) {
-      leftMotorLeader.setSelectedSensorPosition(0);
-      rightMotorLeader.setSelectedSensorPosition(0);
-    }
     // SmartDashboard.putNumber("left distance", leftMotorLeader.getSelectedSensorPosition());
     // SmartDashboard.putNumber("right distance", rightMotorLeader.getSelectedSensorPosition());
     drivetrainTable.getEntry("left distance").setDouble(Units.metersToFeet(leftMotorLeader.getSelectedSensorPosition()/ticksPerMeter));

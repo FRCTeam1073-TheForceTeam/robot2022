@@ -13,7 +13,7 @@ public class TeleopCollector extends CommandBase
 {
   Collector collector;
   Bling bling;
-  private double collectorVelocity = 24;
+  private double collectorVelocity = 32;
   private double loweredCollectorPosition = 1.5;
   private double middleCollectorPosition = 1.5 * 0.5;
   private double raisedCollectorPosition = 0; 

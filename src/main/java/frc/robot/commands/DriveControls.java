@@ -33,13 +33,21 @@ public class DriveControls extends CommandBase {
 
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 
+  double fwdZero = 0;
+  double rotZero = 0;
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double forward = -deadzone(OI.driverController.getLeftY());
-    double rotate = -deadzone(OI.driverController.getRightX());
-    chassisSpeeds.vxMetersPerSecond = forward * 1.50;
-    chassisSpeeds.omegaRadiansPerSecond = rotate * 2.00;
+    if (OI.driverController.getRawButtonReleased(14)) {
+      fwdZero = OI.driverController.getRawAxis(1);
+      rotZero = OI.driverController.getRawAxis(3);
+    }
+    SmartDashboard.putBoolean("A", OI.driverController.getRawButton(14));
+    double forward = deadzone(OI.driverController.getRawAxis(1) - fwdZero);
+    double rotate = -deadzone(OI.driverController.getRawAxis(3) - rotZero);
+    chassisSpeeds.vxMetersPerSecond = forward * 3.00;
+    chassisSpeeds.omegaRadiansPerSecond = rotate * 4.00;
 
     // double fwd = SmartDashboard.getNumber("X", 0);
     // drivetrain.setPower(fwd, fwd);

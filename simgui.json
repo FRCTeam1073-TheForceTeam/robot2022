@@ -1,0 +1,24 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Bling": "Subsystem",
+      "/LiveWindow/CargoTracking": "Subsystem",
+      "/LiveWindow/Climber": "Subsystem",
+      "/LiveWindow/Collector": "Subsystem",
+      "/LiveWindow/Drivetrain": "Subsystem",
+      "/LiveWindow/FrontSonar": "Subsystem",
+      "/LiveWindow/HubTracking": "Subsystem",
+      "/LiveWindow/IMU": "Subsystem",
+      "/LiveWindow/Indexer": "Subsystem",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/Talon FX [27]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [30]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [31]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [48]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [49]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [50]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon SRX [19]": "Motor Controller"
+    }
+  }
+}
