@@ -87,12 +87,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return new DriveForwardCommand(drivetrain, 2.0, 1.5);
     /*
      * 1. Set bling lights to blue and wait 5 seconds
      * 2. Set bling lights to green and turn wheel at 0.25 power for 3 seconds
      * 3. Once done set bling lights to red
      */
-    return null;
   }
 
   public Command getTeleopCommand() {
