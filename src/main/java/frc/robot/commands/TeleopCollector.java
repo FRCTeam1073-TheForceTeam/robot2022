@@ -31,7 +31,11 @@ public class TeleopCollector extends CommandBase
   public void initialize() 
   {
     collector.setIntakeVelocity(0.0);
+    isCollectorDown=false;
   }
+
+
+  boolean isCollectorDown;
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -39,24 +43,24 @@ public class TeleopCollector extends CommandBase
   {
     // moves collector up and down
     if (OI.operatorController.getAButtonPressed()) {
-      collector.setLiftPosition(raisedCollectorPosition);
-    } else if (OI.operatorController.getBButtonPressed()) {
-      collector.setLiftPosition(middleCollectorPosition);
-    } else if (OI.operatorController.getXButtonPressed()) {
       collector.setLiftPosition(loweredCollectorPosition);
+      isCollectorDown=true;
+    } else if (OI.operatorController.getAButtonReleased()) {
+      collector.setLiftPosition(raisedCollectorPosition);
+      isCollectorDown=false;
+    }
+    if(isCollectorDown){
+      if(OI.operatorController.getLeftTriggerAxis()>0.5){
+        collector.setIntakeVelocity(-collectorVelocity);
+      }else{
+        collector.setIntakeVelocity(collectorVelocity);
+      }
+    }else{
+      collector.setIntakeVelocity(0);
     }
 
-    // spins the collector
-    if (OI.operatorController.getLeftBumper()) {
-      collector.setIntakeVelocity(collectorVelocity);
-    } else if (OI.operatorController.getRightBumper()) {
-      collector.setIntakeVelocity(-collectorVelocity);
-    } else if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
-      collector.setIntakeVelocity(collectorVelocity);
-    } else if (OI.operatorController.getYButtonPressed()) {
+    if (OI.operatorController.getYButtonPressed()) {
       collector.hardSetIntakeVelocity(-collectorVelocity);
-    } else {
-      collector.setIntakeVelocity(0);
     }
   }
 

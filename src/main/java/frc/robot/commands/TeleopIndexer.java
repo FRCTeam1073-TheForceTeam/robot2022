@@ -31,10 +31,10 @@ public class TeleopIndexer extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (OI.operatorController.getLeftBumper()) {
-      indexer.setPower(0.75);
-    }else if (OI.operatorController.getRightBumper()) {
-      indexer.setPower(-0.75);
+    if (OI.operatorController.getRightBumper()||(OI.operatorController.getLeftTriggerAxis()>0.5)) {
+      indexer.setPower(-0.8);
+    }else if (OI.operatorController.getLeftBumper()) {
+      indexer.setPower(0.8);
     }else{
       indexer.setPower(0);
     }
