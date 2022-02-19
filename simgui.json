@@ -1,8 +1,23 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "Talon FX[25]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Talon FX[31]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Bling": "Subsystem",
+      "/LiveWindow/Bucket": "Subsystem",
       "/LiveWindow/CargoTracking": "Subsystem",
       "/LiveWindow/Climber": "Subsystem",
       "/LiveWindow/Collector": "Subsystem",
@@ -12,6 +27,7 @@
       "/LiveWindow/IMU": "Subsystem",
       "/LiveWindow/Indexer": "Subsystem",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/Talon FX [25]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [27]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [30]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [31]": "Motor Controller",

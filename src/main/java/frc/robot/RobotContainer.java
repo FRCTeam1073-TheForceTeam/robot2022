@@ -52,6 +52,8 @@ public class RobotContainer {
   HubTracking hubTracker = new HubTracking();
   CargoTracking cargoTracker = new CargoTracking();
 
+  Bucket bucket = new Bucket();
+
   NetworkTable initTable;
   NetworkTableEntry autoCheckBox;
 
@@ -62,6 +64,7 @@ public class RobotContainer {
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector);
+  BucketControls bucketControls = new BucketControls(bucket);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -77,6 +80,8 @@ public class RobotContainer {
     indexer.setDefaultCommand(teleopIndexer);
     climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
+
+    bucket.setDefaultCommand(bucketControls);
 
     initTable = NetworkTableInstance.getDefault().getTable("Init");
     autoCheckBox=initTable.getEntry("Enable autonomous?");
