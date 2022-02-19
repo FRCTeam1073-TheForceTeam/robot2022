@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.*;
 
@@ -47,6 +50,8 @@ public class RobotContainer {
   HubTracking hubTracker = new HubTracking();
   CargoTracking cargoTracker = new CargoTracking();
 
+  NetworkTableEntry autoCheckBox;
+
   // Controls: Add controls here.
   DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
@@ -69,6 +74,9 @@ public class RobotContainer {
     indexer.setDefaultCommand(teleopIndexer);
     climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
+
+    autoCheckBox = NetworkTableInstance.getDefault().getEntry("Enable autonomous?");
+    autoCheckBox.setBoolean(false);
   }
 
   /**
@@ -87,12 +95,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new DriveForwardCommand(drivetrain, 2.0, 1.5);
-    /*
-     * 1. Set bling lights to blue and wait 5 seconds
-     * 2. Set bling lights to green and turn wheel at 0.25 power for 3 seconds
-     * 3. Once done set bling lights to red
-     */
+    if (autoCheckBox.getBoolean(false)) {
+      return new DriveForwardCommand(drivetrain, 2.0, 1.5);
+    } else {
+      return null;
+    }
   }
 
   public Command getTeleopCommand() {
