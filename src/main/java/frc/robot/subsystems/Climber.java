@@ -60,6 +60,12 @@ public class Climber extends SubsystemBase {
 
   public boolean isHanging(){
     return false;
+    //if you've ever attempted to hang (without resetting)
+  }
+
+  public boolean climbReady(){
+    return false;
+    //if it's not swinging and winch is fully retracted
   }
 
   public double getSpoolPosition(){

@@ -31,7 +31,7 @@ public class RobotContainer {
   HubTracking hubTracking;
   private static final FrontSonar frontSonar = new FrontSonar();
 
-  Indexer indexer = new Indexer();
+  // Indexer indexer = new Indexer();
 
   Climber climber = new Climber();
 
@@ -44,10 +44,11 @@ public class RobotContainer {
 
   // Controls: Add controls here.
   TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
-  TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
+  // TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
+  HangStartPositioning hangStartPositioning = new HangStartPositioning(drivetrain, frontSonar);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -60,7 +61,7 @@ public class RobotContainer {
     cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
-    indexer.setDefaultCommand(teleopIndexer);
+    // indexer.setDefaultCommand(teleopIndexer);
     climber.setDefaultCommand(teleopClimber);
   }
 
@@ -91,7 +92,7 @@ public class RobotContainer {
   public Command getTeleopCommand() {
     // Return the command that will run during teleop ('return null' means no
     // command will be run)
-    return null;
+    return hangStartPositioning;
   }
 
   public Command getTestCommand() {
