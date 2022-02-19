@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Robot;
 import frc.robot.subsystems.Drivetrain;
 
 public class DriveForwardCommand extends CommandBase {
@@ -17,6 +18,7 @@ public class DriveForwardCommand extends CommandBase {
   double velocity;
   ChassisSpeeds chassisSpeeds;
   Pose2d startingPose;
+  int blinkCounter = 0;
 
   /** Creates a new DriveForwardCommand. */
   public DriveForwardCommand(Drivetrain drivetrain_, double targetDistance_, double velocity_) {
@@ -33,6 +35,7 @@ public class DriveForwardCommand extends CommandBase {
     chassisSpeeds = new ChassisSpeeds();
     startingPose = drivetrain.getPoseMeters();
     drivetrain.setChassisSpeeds(chassisSpeeds);
+    blinkCounter = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -47,6 +50,12 @@ public class DriveForwardCommand extends CommandBase {
     SmartDashboard.putNumber("[DF_C] Current distance (meters)", currentDistance);
     SmartDashboard.putNumber("[DF_C] Distance remaining (meters)", targetDistance - currentDistance);
     SmartDashboard.putNumber("[DF_C] Target velocity (meters per second)", targetDistance - currentDistance);
+    blinkCounter++;
+    if (((int) (blinkCounter / 10)) % 2 == 0) {
+      Robot.getBling().setSlot(1, 255, 0, 255);
+    } else {
+      Robot.getBling().setSlot(1, 0, 0, 0);
+    }
   }
 
   // Called once the command ends or is interrupted.

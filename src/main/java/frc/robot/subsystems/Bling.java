@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.XboxController;
 public class Bling extends SubsystemBase {
   public AddressableLED m_led;
   public AddressableLEDBuffer m_ledBuffer;
-  public XboxController driverController;
   Collector collector;
 
   private int counter_rainbow = 0;
