@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
@@ -50,6 +51,7 @@ public class RobotContainer {
   HubTracking hubTracker = new HubTracking();
   CargoTracking cargoTracker = new CargoTracking();
 
+  NetworkTable initTable;
   NetworkTableEntry autoCheckBox;
 
   // Controls: Add controls here.
@@ -75,7 +77,8 @@ public class RobotContainer {
     climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
 
-    autoCheckBox = NetworkTableInstance.getDefault().getEntry("Enable autonomous?");
+    initTable = NetworkTableInstance.getDefault().getTable("Init");
+    autoCheckBox=initTable.getEntry("Enable autonomous?");
     autoCheckBox.setBoolean(false);
   }
 
