@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.*;
 
 // Import subsystems: Add subsystems here.
@@ -99,7 +100,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     if (autoCheckBox.getBoolean(false)) {
-      return new DriveForwardCommand(drivetrain, 2.0, 1.5);
+      return new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
+        new WaitCommand(5.0)
+      );
     } else {
       return null;
     }

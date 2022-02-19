@@ -51,7 +51,11 @@ public class TeleopCollector extends CommandBase
       collector.setIntakeVelocity(collectorVelocity);
     } else if (OI.operatorController.getRightBumper()) {
       collector.setIntakeVelocity(-collectorVelocity);
-    }else{
+    } else if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
+      collector.setIntakeVelocity(collectorVelocity);
+    } else if (OI.operatorController.getXButtonPressed()) {
+      collector.hardSetIntakeVelocity(-collectorVelocity);
+    } else {
       collector.setIntakeVelocity(0);
     }
   }

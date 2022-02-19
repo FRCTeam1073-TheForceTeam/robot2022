@@ -23,6 +23,8 @@ public class DriveControls extends CommandBase {
   public void initialize() {
     SmartDashboard.putNumber("X", 0);
     drivetrain.setPower(0, 0);
+    fwdZero = OI.driverController.getRawAxis(1);
+    rotZero = OI.driverController.getRawAxis(3);
   }
 
   double zone = 0.05;
@@ -46,8 +48,8 @@ public class DriveControls extends CommandBase {
     SmartDashboard.putBoolean("A", OI.driverController.getRawButton(14));
     double forward = deadzone(OI.driverController.getRawAxis(1) - fwdZero);
     double rotate = -deadzone(OI.driverController.getRawAxis(3) - rotZero);
-    chassisSpeeds.vxMetersPerSecond = forward * 3.00;
-    chassisSpeeds.omegaRadiansPerSecond = rotate * 4.00;
+    chassisSpeeds.vxMetersPerSecond = forward * 3.80;
+    chassisSpeeds.omegaRadiansPerSecond = rotate * 4.40;
 
     // double fwd = SmartDashboard.getNumber("X", 0);
     // drivetrain.setPower(fwd, fwd);

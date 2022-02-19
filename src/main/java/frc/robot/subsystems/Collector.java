@@ -41,8 +41,8 @@ public class Collector extends SubsystemBase
 
   private double targetLiftPosition; //Units: radians
   private double currentLiftPosition; //Units: radians
-  private final double maxLiftVelocity = 6.0; //Units: radians/s
-  private final double maxLiftAcceleration = 1.0; //Units: radians/s^2
+  private final double maxLiftVelocity = 8.0; //Units: radians/s
+  private final double maxLiftAcceleration = 1.5; //Units: radians/s^2
   private final double liftGearRatio = 20.0;
   private final double liftTicksPerRadian = 2048.0 * liftGearRatio / (2.0 * Math.PI);
 
@@ -51,7 +51,7 @@ public class Collector extends SubsystemBase
   private double targetIntakeVelocity = 0;
   private double currentIntakeVelocity = 0;
 
-  SlewRateLimiter collectFilter = new SlewRateLimiter(5.0);
+  SlewRateLimiter collectFilter = new SlewRateLimiter(10.0);
 
   /** Creates a new Collector. */
   public Collector() 
@@ -167,6 +167,11 @@ public class Collector extends SubsystemBase
     return currentLiftPosition;
   }
 
+  public void hardSetIntakeVelocity(double tgt) {
+    targetIntakeVelocity = tgt;
+    collectFilter.reset(tgt);
+  }
+
   // velocity is the speed of the ball in the intake in meters/second
   public void setIntakeVelocity(double velocity) {
     targetIntakeVelocity = velocity;
@@ -185,7 +190,7 @@ public class Collector extends SubsystemBase
     motor.setSafetyEnabled(false);
     collectMotor.setSafetyEnabled(false);
     motor.setNeutralMode(NeutralMode.Brake);
-    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
+    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setSelectedSensorPosition(0);
   }

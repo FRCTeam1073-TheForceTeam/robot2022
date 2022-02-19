@@ -32,7 +32,9 @@ public class TeleopIndexer extends CommandBase {
   @Override
   public void execute() {
     if (OI.operatorController.getLeftBumper()) {
-      indexer.setPower(0.7);
+      indexer.setPower(0.75);
+    }else if (OI.operatorController.getRightBumper()) {
+      indexer.setPower(-0.75);
     }else{
       indexer.setPower(0);
     }
