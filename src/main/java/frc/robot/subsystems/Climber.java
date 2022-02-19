@@ -4,32 +4,48 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.CANCoder;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
-  enum ClimberMotor{
-    LIFT_LEFT,
-    LIFT_RIGHT,
-    GRAPPLE_LEFT,
-    GRAPPLE_RIGHT
-  }
+  private WPI_TalonFX spoolMotorRight;
+  // private WPI_TalonFX spoolMotorLeft;
+  private WPI_TalonFX extensionMotorRight;
+  // private WPI_TalonFX extensionMotorLeft;
 
-  //How many climber arms?
+  // private CANCoder spoolCANCoderRight;
+  // private CANCoder spoolCANCoderLeft;
 
   /** Creates a new Climber. */
-  public Climber() {}
+  public Climber() {
+    spoolMotorRight = new WPI_TalonFX(20);
+    extensionMotorRight = new WPI_TalonFX(46);
+    //set the left motors to follow + be inverted from the right motors
+
+    resetSpoolMotor(spoolMotorRight);
+    resetExtensionMotor(extensionMotorRight);
+    //then set up followers (reset may need to be organized differently)
+
+    //spooler encoder
+    // spoolCANCoderRight = new CANCoder(0);
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
 
-  public void setLiftVelocity(double velocity) {
+  public void setSpoolVelocity(double velocity){
 
   }
 
-  public void setGrappleVelocity(double angularVelocity) {
+  public void setExtensionVelocity(double angularVelocity){
 
   }
 
@@ -39,18 +55,41 @@ public class Climber extends SubsystemBase {
    * @param motor
    * @param velocity
    */
-  public void setMotorVelocity(ClimberMotor motor, double velocity){
+  // public void setMotorVelocity(ClimberMotor motor, double velocity){
+  // }
+
+  public boolean isHanging(){
+    return false;
   }
 
-  public double getLiftPosition() {
+  public double getSpoolPosition(){
     return 0;
   }
 
-  public double getGrapplePosition() {
+  public double getExtensionPosition(){
     return 0;
   }
 
-  public double getMotorPosition(ClimberMotor motor){
-    return 0;
+  // public double getMotorPosition(ClimberMotor motor){
+  //   return 0;
+  // }
+
+  //no brake mode?
+  private void resetSpoolMotor(WPI_TalonFX motor) {
+    motor.configFactoryDefault();
+    motor.setSafetyEnabled(false);
+    motor.setNeutralMode(NeutralMode.Brake);
+    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
+    motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    motor.setSelectedSensorPosition(0);
+  }
+
+  private void resetExtensionMotor(WPI_TalonFX motor) {
+    motor.configFactoryDefault();
+    motor.setSafetyEnabled(false);
+    motor.setNeutralMode(NeutralMode.Brake);
+    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
+    motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    motor.setSelectedSensorPosition(0);
   }
 }
