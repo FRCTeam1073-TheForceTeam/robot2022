@@ -182,7 +182,6 @@ public class Collector extends SubsystemBase
   private void resetMotor(WPI_TalonFX motor) {
     motor.configFactoryDefault();
     motor.setSafetyEnabled(false);
-    collectMotor.setSafetyEnabled(false);
     motor.setNeutralMode(NeutralMode.Brake);
     motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
