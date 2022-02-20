@@ -51,7 +51,7 @@ public class Collector extends SubsystemBase
   private double targetIntakeVelocity = 0;
   private double currentIntakeVelocity = 0;
 
-  SlewRateLimiter collectFilter = new SlewRateLimiter(10.0);
+  SlewRateLimiter collectFilter=new SlewRateLimiter(80.0);
 
   /** Creates a new Collector. */
   public Collector() 
@@ -60,6 +60,7 @@ public class Collector extends SubsystemBase
     collectMotor = new WPI_TalonFX(48); // set CAN ID
 
     resetMotor(liftMotor);
+    liftMotor.setSelectedSensorPosition(0.225*liftTicksPerRadian);
     resetMotor(collectMotor);
     collectMotor.setInverted(true);
 
@@ -74,7 +75,6 @@ public class Collector extends SubsystemBase
             maxLiftVelocity, maxLiftAcceleration),
         previousState,
         previousState);
-    collectFilter = new SlewRateLimiter(10.0);
     liftProfileStartTime = System.currentTimeMillis() / 1000.0;
     SmartDashboard.putNumber("collector-lift_kP", lift_kP);
     SmartDashboard.putNumber("collector-lift_kI", lift_kI);
@@ -100,6 +100,7 @@ public class Collector extends SubsystemBase
       ControlMode.Position,
       previousState.position*liftTicksPerRadian
     );
+    SmartDashboard.putNumber("VALUE", collectMotor.getMotorOutputPercent());
     currentLiftPosition = liftMotor.getSelectedSensorPosition() / liftTicksPerRadian;
     if(SmartDashboard.getBoolean("Update", false)){
       lift_kP=SmartDashboard.getNumber("collector-lift_kP",0);
