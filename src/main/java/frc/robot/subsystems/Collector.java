@@ -10,13 +10,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -50,6 +46,8 @@ public class Collector extends SubsystemBase
   private final double intakeTicksPerRadian = 2048.0 * intakeGearRatio / (2.0 * Math.PI);
   private double targetIntakeVelocity = 0;
   private double currentIntakeVelocity = 0;
+
+  private final double intakeWheelRadius = Units.inchesToMeters(1.5);
 
   SlewRateLimiter collectFilter = new SlewRateLimiter(10.0);
 
@@ -172,9 +170,20 @@ public class Collector extends SubsystemBase
     collectFilter.reset(tgt);
   }
 
-  // velocity is the speed of the ball in the intake in meters/second
+  /**
+   * Sets the <b>angular</b> velocity of the intake wheels.
+   * @param velocity Velocity in radians/second
+   */
   public void setIntakeVelocity(double velocity) {
     targetIntakeVelocity = velocity;
+  }
+
+  /**
+   * Sets the <b>linear</b> velocity of the intake wheels.
+   * @param linearVelocity Velocity in meters/second
+   */
+  public void setLinearIntakeVelocity(double linearVelocity) {
+    targetIntakeVelocity = linearVelocity / (2.0 * Math.PI * intakeWheelRadius);
   }
 
   public double getIntakeVelocity() {

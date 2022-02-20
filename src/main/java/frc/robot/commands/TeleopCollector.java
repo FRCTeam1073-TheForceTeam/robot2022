@@ -4,25 +4,29 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Collector;
-import frc.robot.subsystems.OI;
-import frc.robot.subsystems.Bling;
+import frc.robot.Robot;
+import frc.robot.subsystems.*;
 
 public class TeleopCollector extends CommandBase 
 {
   Collector collector;
+  Drivetrain drivetrain;
   Bling bling;
+  ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
   private double collectorVelocity = 32;
   private double loweredCollectorPosition = 1.5;
-  private double middleCollectorPosition = 1.5 * 0.5;
-  private double raisedCollectorPosition = 0; 
+  private double raisedCollectorPosition = 0;
+  boolean isCollectorDown = false;
  
   /** Creates a new TeleopCollector. */
-  public TeleopCollector(Collector collector) 
+  public TeleopCollector(Collector collector, Drivetrain drivetrain) 
   {
     // Use addRequirements() here to declare subsystem dependencies.
     this.collector = collector;
+    this.drivetrain = drivetrain;
+    bling = Robot.getBling();
     addRequirements(collector);
   }
 
@@ -31,11 +35,9 @@ public class TeleopCollector extends CommandBase
   public void initialize() 
   {
     collector.setIntakeVelocity(0.0);
-    isCollectorDown=false;
+    chassisSpeeds = new ChassisSpeeds();
+    isCollectorDown = false;
   }
-
-
-  boolean isCollectorDown;
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -49,18 +51,16 @@ public class TeleopCollector extends CommandBase
       collector.setLiftPosition(raisedCollectorPosition);
       isCollectorDown=false;
     }
-    if(isCollectorDown){
-      if(OI.operatorController.getLeftTriggerAxis()>0.5){
-        collector.setIntakeVelocity(-collectorVelocity);
-      }else{
-        collector.setIntakeVelocity(collectorVelocity);
-      }
-    }else{
-      collector.setIntakeVelocity(0);
-    }
+    drivetrain.getChassisSpeeds(chassisSpeeds);
 
-    if (OI.operatorController.getYButtonPressed()) {
-      collector.hardSetIntakeVelocity(-collectorVelocity);
+    if (isCollectorDown) {
+      if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
+        collector.setLinearIntakeVelocity(-collectorVelocity);
+      } else {
+        collector.setLinearIntakeVelocity(chassisSpeeds.vxMetersPerSecond + collectorVelocity);
+      }
+    } else {
+      collector.setLinearIntakeVelocity(0);
     }
   }
 
