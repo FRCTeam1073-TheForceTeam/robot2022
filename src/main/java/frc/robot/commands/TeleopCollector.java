@@ -15,7 +15,7 @@ public class TeleopCollector extends CommandBase
   Drivetrain drivetrain;
   Bling bling;
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
-  private double collectorVelocity = 32;
+  private double collectorVelocity = 12;
   private double loweredCollectorPosition = 1.5;
   private double raisedCollectorPosition = 0;
   boolean isCollectorDown = false;
