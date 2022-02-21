@@ -27,8 +27,10 @@ public class ClimbToMediumRung extends CommandBase {
   @Override
   public void execute() {
     //Make sure it's not already hanging and everything's set correctly
-    //Extend, then release spool to grab onto bar
-    //Retract and wind spool
+    //Extend halfway
+    //Release spool
+    //Extend the rest of the way (grabs onto bar)
+    //Wind spool (lifts up)
   }
 
   // Called once the command ends or is interrupted.

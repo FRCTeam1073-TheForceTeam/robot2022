@@ -27,11 +27,12 @@ public class ClimbAcrossRungs extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //Check to see if it's already hanging and we are not swinging
-    //Extend/release spool halfway
-    //Release spool
-    //Extend (grab onto next bar)
-    //Wind spool (pulling robot off of previous bar)
+    //Check to see if it's already hanging and hang is stable
+    //Release spool halfway
+    //Extend vertically
+    //Release spool the rest of the way
+    //Extend until you hit the next bar
+    //Wind spool (pulling robot onto new bar and off of previous bar)
   }
 
   // Called once the command ends or is interrupted.

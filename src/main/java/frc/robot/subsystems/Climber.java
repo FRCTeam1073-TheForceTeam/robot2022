@@ -58,12 +58,12 @@ public class Climber extends SubsystemBase {
   // public void setMotorVelocity(ClimberMotor motor, double velocity){
   // }
 
-  public boolean isHanging(){
-    return false;
-    //if you've ever attempted to hang (without resetting)
+  public boolean hasNotHung(){
+    return true;
+    //if you've never attempted to hang (without resetting)
   }
 
-  public boolean climbReady(){
+  public boolean hangIsStable(){
     return false;
     //if it's not swinging and winch is fully retracted
   }
