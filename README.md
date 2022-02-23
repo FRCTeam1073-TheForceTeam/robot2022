@@ -28,3 +28,12 @@ Team 1073's robot code for FRC 2022: Rapid React, to control our robot Willard.
 6 | Shooter
 7 | TBD
 8 | TBD
+
+### PS4 Controller Symbols
+
+| Letter | Shape |
+| ------ | ----- |
+A | X
+B | Circle
+X | Square
+Y | Triangle
