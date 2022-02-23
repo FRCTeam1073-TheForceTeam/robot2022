@@ -28,6 +28,8 @@ public class Dashboard extends SubsystemBase {
   ShuffleboardLayout layoutDrivetrain;
 
   NetworkTableEntry drivetrainVelocity;
+  NetworkTableEntry drivetrainVelocityMetersPerSecond;
+  NetworkTableEntry drivetrainVelocityRaw;
   ChassisSpeeds chassisSpeeds;
   NetworkTableEntry tgtDrivetrainVelocity;
 
@@ -50,6 +52,8 @@ public class Dashboard extends SubsystemBase {
     driverStation = Shuffleboard.getTab("Driver Station");
     drivetrainVelocity = driverStation.add("Drivetrain Speed (ft per s)", 0).getEntry();
     tgtDrivetrainVelocity = driverStation.add("Target Drivetrain Speed (ft per s)", 0).getEntry();
+    drivetrainVelocityMetersPerSecond = driverStation.add("Drivetrain Speed (m per s)", 0).getEntry();
+    drivetrainVelocityRaw = driverStation.add("Drivetrain Speed (raw)", 0).getEntry();
     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
   }
 
@@ -57,6 +61,8 @@ public class Dashboard extends SubsystemBase {
   public void periodic() {
     drivetrain.getChassisSpeeds(chassisSpeeds);
     drivetrainVelocity.setDouble(Units.metersToFeet(chassisSpeeds.vxMetersPerSecond));
+    drivetrainVelocityMetersPerSecond.setDouble(chassisSpeeds.vxMetersPerSecond);
+    drivetrainVelocityRaw.setDouble(drivetrain.getRawVelocity());
     tgtDrivetrainVelocity.setDouble(Units.metersToFeet(drivetrain.targetChassisSpeeds.vxMetersPerSecond));
   }
 }

@@ -32,11 +32,12 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX rightMotorLeader;
   private WPI_TalonFX rightMotorFollower;
 
-  private double kP = 0.1;
-  private double kI = 0.001;
-  private double kD = 2.0;
+  private double kP = 0.15;
+  private double kI = 0.002;
+  private double kD = 0.0;
   private double kF = 0.052;
-    //0.5:9650, 0.75:14550
+  //0.5: 10100, 0.75:
+  //Old: 0.5 : 9650, 0.75 : 14550
 
 
   private final double currentLimit = 28;
@@ -74,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
   private DifferentialDriveWheelSpeeds targetWheelSpeeds;
   private int counter = 0;
 
-  private final boolean isPowerMode = true;
+  private final boolean isPowerMode = false;
 
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {
@@ -135,13 +136,15 @@ public class Drivetrain extends SubsystemBase {
 
     // SmartDashboard.putNumber("left distance", leftMotorLeader.getSelectedSensorPosition());
     // SmartDashboard.putNumber("right distance", rightMotorLeader.getSelectedSensorPosition());
-    drivetrainTable.getEntry("left distance")
+    drivetrainTable.getEntry("Left distance")
         .setDouble(Units.metersToFeet(leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter));
-    drivetrainTable.getEntry("right distance")
+    drivetrainTable.getEntry("Right distance")
         .setDouble(Units.metersToFeet(rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter));
 
     SmartDashboard.putNumber("[DRIVETRAIN] Left power", leftMotorLeader.getMotorOutputPercent());
     SmartDashboard.putNumber("[DRIVETRAIN] Right power", rightMotorLeader.getMotorOutputPercent());
+    SmartDashboard.putNumber("[DRIVETRAIN] Left integrator", leftMotorLeader.getIntegralAccumulator());
+    SmartDashboard.putNumber("[DRIVETRAIN] Right integrator", rightMotorLeader.getIntegralAccumulator());
 
     counter++;
     if (counter % 200 == 0) {
@@ -200,7 +203,8 @@ public class Drivetrain extends SubsystemBase {
   public void setPower(double leftPower, double rightPower)
   {
     leftMotorLeader.set(ControlMode.PercentOutput, leftPower);
-    rightMotorLeader.set(ControlMode.PercentOutput, rightPower);
+    // leftMotorLeader.set(ControlMode.PercentOutput, leftPower);
+    // rightMotorLeader.set(ControlMode.PercentOutput, rightPower);
   }
 
   public ChassisSpeeds targetChassisSpeeds=new ChassisSpeeds();
@@ -243,6 +247,10 @@ public class Drivetrain extends SubsystemBase {
       leftMotorLeader.setNeutralMode(NeutralMode.Coast);
       rightMotorLeader.setNeutralMode(NeutralMode.Coast);
     }
+  }
+
+  public double getRawVelocity() {
+    return (leftMotorLeader.getSelectedSensorVelocity() + rightMotorLeader.getSelectedSensorVelocity()) * 0.5;
   }
 
   public void setupDrivetrainMotors() {
@@ -292,13 +300,13 @@ public class Drivetrain extends SubsystemBase {
     leftMotorLeader.config_kI(0, kI);
     leftMotorLeader.config_kD(0, kD);
     leftMotorLeader.config_kF(0, kF);
-    // leftMotorLeader.configMaxIntegralAccumulator(0, 400);
+    leftMotorLeader.configMaxIntegralAccumulator(0, 8000);
 
     rightMotorLeader.config_kP(0, kP);
     rightMotorLeader.config_kI(0, kI);
     rightMotorLeader.config_kD(0, kD);
     rightMotorLeader.config_kF(0, kF);
-    // rightMotorLeader.configMaxIntegralAccumulator(0, 400);
+    rightMotorLeader.configMaxIntegralAccumulator(0, 8000);
  
     leftMotorLeader.setIntegralAccumulator(0);
     rightMotorLeader.setIntegralAccumulator(0);

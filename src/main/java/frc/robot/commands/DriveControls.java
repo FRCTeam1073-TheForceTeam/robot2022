@@ -22,8 +22,6 @@ public class DriveControls extends CommandBase {
   @Override
   public void initialize() {
     drivetrain.setPower(0, 0);
-    fwdZero = OI.driverController.getRawAxis(1);
-    rotZero = OI.driverController.getRawAxis(3);
   }
 
   double zone = 0.05;
@@ -34,30 +32,28 @@ public class DriveControls extends CommandBase {
 
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 
-  double fwdZero = 0;
-  double rotZero = 0;
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (OI.driverController.getRawButtonReleased(14)) {
       OI.zeroDriverController();
     }
-    SmartDashboard.putNumber("[Left X]", OI.getDriverLeftX());
-    SmartDashboard.putNumber("[Left Y]", OI.getDriverLeftY());
-    SmartDashboard.putNumber("[Right Y]", OI.getDriverRightY());
-    SmartDashboard.putNumber("[Right X]", OI.getDriverRightX());
+    // SmartDashboard.putNumber("[Left X]", OI.getDriverLeftX());
+    // SmartDashboard.putNumber("[Left Y]", OI.getDriverLeftY());
+    // SmartDashboard.putNumber("[Right Y]", OI.getDriverRightY());
+    // SmartDashboard.putNumber("[Right X]", OI.getDriverRightX());
     
-    SmartDashboard.putBoolean("A", OI.driverController.getRawButton(14));
-    double forward = deadzone(OI.getDriverLeftY() / 0.66 - fwdZero);
-    double rotate = -deadzone(OI.getDriverRightX() / 0.66 - rotZero);
+    double forward = deadzone(OI.getDriverLeftY());
+    double rotate = -deadzone(OI.getDriverRightX());
     chassisSpeeds.vxMetersPerSecond = forward * 3.80;
     chassisSpeeds.omegaRadiansPerSecond = rotate * 4.40;
-
-    // double fwd = SmartDashboard.getNumber("X", 0);
-    // drivetrain.setPower(fwd, fwd);
-    
     drivetrain.setChassisSpeeds(chassisSpeeds);
+
+    // double fwd=0.5*OI.getDriverLeftY();
+    // double rot=0.5*OI.getDriverRightX();
+    // double fwd = SmartDashboard.getNumber("X", 0);
+    // drivetrain.setPower(fwd + rot, fwd - rot);
+    
     // SmartDashboard.putNumber("Y", rotate);
     // drivetrain.setPower((forward + rotate), (forward - rotate));
   }
