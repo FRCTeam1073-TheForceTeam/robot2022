@@ -74,6 +74,8 @@ public class Drivetrain extends SubsystemBase {
   private DifferentialDriveWheelSpeeds targetWheelSpeeds;
   private int counter = 0;
 
+  private final boolean isPowerMode = true;
+
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {
     drivetrainTable = NetworkTableInstance.getDefault().getTable("Drivetrain");
@@ -117,27 +119,30 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Left vel (raw)", leftMotorLeader.getSelectedSensorVelocity());
     heading = imu.getAngleRadians();
     robotPose = odometry.update(
-      new Rotation2d(imu.getAngleRadians()),
-      leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter,
-      rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter
-    );
+        new Rotation2d(imu.getAngleRadians()),
+        leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter,
+        rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter);
     wheelSpeeds.leftMetersPerSecond = leftMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
     wheelSpeeds.rightMetersPerSecond = rightMotorLeader.getSelectedSensorVelocity() / ticksPerMeter * 10.0;
 
     limitedTargetWheelSpeeds.leftMetersPerSecond = leftMotorLimiter.calculate(targetWheelSpeeds.leftMetersPerSecond);
     limitedTargetWheelSpeeds.rightMetersPerSecond = rightMotorLimiter.calculate(targetWheelSpeeds.rightMetersPerSecond);
 
-    leftMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.leftMetersPerSecond) * ticksPerMeter * 0.1);
-    rightMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.rightMetersPerSecond) * ticksPerMeter * 0.1);
+    if (!isPowerMode) {
+      leftMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.leftMetersPerSecond) * ticksPerMeter * 0.1);
+      rightMotorLeader.set(ControlMode.Velocity, (targetWheelSpeeds.rightMetersPerSecond) * ticksPerMeter * 0.1);  
+    }
 
     // SmartDashboard.putNumber("left distance", leftMotorLeader.getSelectedSensorPosition());
     // SmartDashboard.putNumber("right distance", rightMotorLeader.getSelectedSensorPosition());
-    drivetrainTable.getEntry("left distance").setDouble(Units.metersToFeet(leftMotorLeader.getSelectedSensorPosition()/ticksPerMeter));
-    drivetrainTable.getEntry("right distance").setDouble(Units.metersToFeet(rightMotorLeader.getSelectedSensorPosition()/ticksPerMeter));
+    drivetrainTable.getEntry("left distance")
+        .setDouble(Units.metersToFeet(leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter));
+    drivetrainTable.getEntry("right distance")
+        .setDouble(Units.metersToFeet(rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter));
 
     SmartDashboard.putNumber("[DRIVETRAIN] Left power", leftMotorLeader.getMotorOutputPercent());
     SmartDashboard.putNumber("[DRIVETRAIN] Right power", rightMotorLeader.getMotorOutputPercent());
-    
+
     counter++;
     if (counter % 200 == 0) {
       updateButton = drivetrainTable.getEntry("update constants");
@@ -147,7 +152,7 @@ public class Drivetrain extends SubsystemBase {
       iEntry = drivetrainTable.getEntry("kI");
       dEntry = drivetrainTable.getEntry("kD");
       fEntry = drivetrainTable.getEntry("kF");
-    }else if (updateButton.getBoolean(false)) {
+    } else if (updateButton.getBoolean(false)) {
       kP = pEntry.getDouble(0);
       kI = iEntry.getDouble(0);
       kD = dEntry.getDouble(0);
@@ -167,21 +172,23 @@ public class Drivetrain extends SubsystemBase {
 
       updateButton.setBoolean(false);
     }
-    
+
     SmartDashboard.putNumberArray("[Drivetrain] Left velocity", new Double[] {
         limitedTargetWheelSpeeds.leftMetersPerSecond,
         wheelSpeeds.leftMetersPerSecond,
-        limitedTargetWheelSpeeds.rightMetersPerSecond-wheelSpeeds.rightMetersPerSecond
+        limitedTargetWheelSpeeds.rightMetersPerSecond - wheelSpeeds.rightMetersPerSecond
     });
     SmartDashboard.putNumberArray("[Drivetrain] Right velocity", new Double[] {
-      limitedTargetWheelSpeeds.rightMetersPerSecond,
-      wheelSpeeds.rightMetersPerSecond,
-      limitedTargetWheelSpeeds.rightMetersPerSecond - wheelSpeeds.rightMetersPerSecond
+        limitedTargetWheelSpeeds.rightMetersPerSecond,
+        wheelSpeeds.rightMetersPerSecond,
+        limitedTargetWheelSpeeds.rightMetersPerSecond - wheelSpeeds.rightMetersPerSecond
     });
     SmartDashboard.putNumber("[Drivetrain] Left error ratio",
-        (wheelSpeeds.leftMetersPerSecond - limitedTargetWheelSpeeds.leftMetersPerSecond) / wheelSpeeds.leftMetersPerSecond);
+        (wheelSpeeds.leftMetersPerSecond - limitedTargetWheelSpeeds.leftMetersPerSecond)
+            / wheelSpeeds.leftMetersPerSecond);
     SmartDashboard.putNumber("[Drivetrain] Right error ratio",
-        (wheelSpeeds.rightMetersPerSecond - limitedTargetWheelSpeeds.rightMetersPerSecond) / wheelSpeeds.rightMetersPerSecond);
+        (wheelSpeeds.rightMetersPerSecond - limitedTargetWheelSpeeds.rightMetersPerSecond)
+            / wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left velocity", targetWheelSpeeds.leftMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Right velocity", wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left target velocity", targetWheelSpeeds.leftMetersPerSecond);

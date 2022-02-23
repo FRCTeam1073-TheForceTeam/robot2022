@@ -57,7 +57,7 @@ public class Collector extends SubsystemBase
     collectMotor = new WPI_TalonFX(48); // set CAN ID
 
     resetMotor(liftMotor);
-    liftMotor.setSelectedSensorPosition(0.225*liftTicksPerRadian);
+    liftMotor.setSelectedSensorPosition(0);
     resetMotor(collectMotor);
     collectMotor.setInverted(true);
 
