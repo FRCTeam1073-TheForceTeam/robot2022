@@ -61,6 +61,9 @@ public class Collector extends SubsystemBase
     resetMotor(collectMotor);
     collectMotor.setInverted(true);
 
+    liftMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+    collectMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+
     setPIDs(liftMotor, lift_kP, lift_kI, lift_kD, lift_kF);
     setPIDs(collectMotor, collect_kP, collect_kI, collect_kD, collect_kF);
 
@@ -203,7 +206,6 @@ public class Collector extends SubsystemBase
     motor.setSafetyEnabled(false);
     collectMotor.setSafetyEnabled(false);
     motor.setNeutralMode(NeutralMode.Brake);
-    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setSelectedSensorPosition(0);
   }
