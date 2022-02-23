@@ -21,7 +21,6 @@ public class DriveControls extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SmartDashboard.putNumber("X", 0);
     drivetrain.setPower(0, 0);
     fwdZero = OI.driverController.getRawAxis(1);
     rotZero = OI.driverController.getRawAxis(3);
@@ -44,6 +43,11 @@ public class DriveControls extends CommandBase {
     if (OI.driverController.getRawButtonReleased(14)) {
       OI.zeroDriverController();
     }
+    SmartDashboard.putNumber("[Left X]", OI.getDriverLeftX());
+    SmartDashboard.putNumber("[Left Y]", OI.getDriverLeftY());
+    SmartDashboard.putNumber("[Right Y]", OI.getDriverRightY());
+    SmartDashboard.putNumber("[Right X]", OI.getDriverRightX());
+    
     SmartDashboard.putBoolean("A", OI.driverController.getRawButton(14));
     double forward = deadzone(OI.getDriverLeftY() / 0.66 - fwdZero);
     double rotate = -deadzone(OI.getDriverRightX() / 0.66 - rotZero);
