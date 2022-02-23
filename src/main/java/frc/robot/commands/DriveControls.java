@@ -42,12 +42,11 @@ public class DriveControls extends CommandBase {
   @Override
   public void execute() {
     if (OI.driverController.getRawButtonReleased(14)) {
-      fwdZero = OI.driverController.getRawAxis(1);
-      rotZero = OI.driverController.getRawAxis(3);
+      OI.zeroDriverController();
     }
     SmartDashboard.putBoolean("A", OI.driverController.getRawButton(14));
-    double forward = deadzone(OI.driverController.getRawAxis(1) - fwdZero);
-    double rotate = -deadzone(OI.driverController.getRawAxis(3) - rotZero);
+    double forward = deadzone(OI.getDriverLeftY() / 0.66 - fwdZero);
+    double rotate = -deadzone(OI.getDriverRightX() / 0.66 - rotZero);
     chassisSpeeds.vxMetersPerSecond = forward * 3.80;
     chassisSpeeds.omegaRadiansPerSecond = rotate * 4.40;
 

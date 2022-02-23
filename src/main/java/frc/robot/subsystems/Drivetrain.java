@@ -135,6 +135,9 @@ public class Drivetrain extends SubsystemBase {
     drivetrainTable.getEntry("left distance").setDouble(Units.metersToFeet(leftMotorLeader.getSelectedSensorPosition()/ticksPerMeter));
     drivetrainTable.getEntry("right distance").setDouble(Units.metersToFeet(rightMotorLeader.getSelectedSensorPosition()/ticksPerMeter));
 
+    SmartDashboard.putNumber("[DRIVETRAIN] Left power", leftMotorLeader.getMotorOutputPercent());
+    SmartDashboard.putNumber("[DRIVETRAIN] Right power", rightMotorLeader.getMotorOutputPercent());
+    
     counter++;
     if (counter % 200 == 0) {
       updateButton = drivetrainTable.getEntry("update constants");
@@ -193,14 +196,25 @@ public class Drivetrain extends SubsystemBase {
     rightMotorLeader.set(ControlMode.PercentOutput, rightPower);
   }
 
+  public ChassisSpeeds targetChassisSpeeds=new ChassisSpeeds();
+
   public void setChassisSpeeds(ChassisSpeeds speeds) {
+    targetChassisSpeeds = speeds;
     targetWheelSpeeds = kinematics.toWheelSpeeds(speeds);
   }
 
   // Fills in actual speeds
   public void getChassisSpeeds(ChassisSpeeds speeds) {
-    speeds = kinematics.toChassisSpeeds(wheelSpeeds);
+    ChassisSpeeds temp = kinematics.toChassisSpeeds(wheelSpeeds);
+    speeds.vxMetersPerSecond = temp.vxMetersPerSecond;
+    speeds.vyMetersPerSecond = temp.vyMetersPerSecond;
+    speeds.omegaRadiansPerSecond = temp.omegaRadiansPerSecond;
   }
+
+  // // Fills in actual speeds
+  // public ChassisSpeeds tGetChassisSpeeds() {
+  //   return kinematics.toChassisSpeeds(wheelSpeeds);
+  // }
 
   public Pose2d getPoseMeters() {
     return robotPose;

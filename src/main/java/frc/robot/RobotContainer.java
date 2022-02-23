@@ -52,6 +52,8 @@ public class RobotContainer {
   HubTracking hubTracker = new HubTracking();
   CargoTracking cargoTracker = new CargoTracking();
 
+  Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
+
   NetworkTable initTable;
   NetworkTableEntry autoCheckBox;
 
