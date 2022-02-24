@@ -47,6 +47,7 @@ public class Indexer extends SubsystemBase {
 
     rawCurrent = indexerMotor.getStatorCurrent();
     filteredCurrent = filter.calculate(rawCurrent);
+
   }
 
   public void setPower(double power) {

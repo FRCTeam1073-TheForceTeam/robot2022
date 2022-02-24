@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableEntry;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifier.LEDChannel;
@@ -27,9 +30,13 @@ public class HubTracking extends SubsystemBase {
     public double range = 0.0;
     public double azimuth = 0.0;
     public double elevation = 0.0;
+    public NetworkTableEntry hubArea;
+    public boolean isHubInView;
 
     public HubData() {
       clear();
+
+      hubArea = NetworkTableInstance.getDefault().getTable("HUB").getEntry("Hub Area");
     }
 
     public void clear() {
