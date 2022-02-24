@@ -18,6 +18,11 @@ public class OI
     }
 
     public static void zeroDriverController() {
+        //Sets all the offsets to zero, then uses whatever value it returns as the new offset.
+        LEFT_X_ZERO = 0;
+        LEFT_Y_ZERO = 0;
+        RIGHT_X_ZERO = 0;
+        RIGHT_Y_ZERO = 0;
         LEFT_X_ZERO = getDriverLeftX();
         LEFT_Y_ZERO = getDriverLeftY();
         RIGHT_X_ZERO = getDriverRightX();
