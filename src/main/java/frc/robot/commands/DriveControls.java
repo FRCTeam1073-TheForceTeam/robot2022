@@ -29,7 +29,6 @@ public class DriveControls extends CommandBase {
     return (Math.abs(a) < zone) ? 0 : Math.signum(a) * Math.pow((Math.abs(a) - zone) / (1 - zone), 1.0);
   }
 
-
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 
   // Called every time the scheduler runs while the command is scheduled.

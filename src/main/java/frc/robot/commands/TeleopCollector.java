@@ -43,7 +43,8 @@ public class TeleopCollector extends CommandBase
   @Override
   public void execute() 
   {
-    // moves collector up and down
+    // The collector raises when the A button (cross button on the PS4 controller) and goes back up when it's released.
+    // The isCollectorDown variable is updated so the command knows which state it's in.
     if (OI.operatorController.getAButtonPressed()) {
       collector.setLiftPosition(loweredCollectorPosition);
       isCollectorDown=true;
@@ -53,11 +54,14 @@ public class TeleopCollector extends CommandBase
     }
     drivetrain.getChassisSpeeds(chassisSpeeds);
 
+    //If the collector is down, run the intake wheels inwards.
+    //If it's down AND the left trigger is past 50% (same as with TeleopIndexer), it runs outwards.
+    //If it's up, it doesn't run at all.
     if (isCollectorDown) {
       if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
         collector.setLinearIntakeVelocity(-collectorVelocity);
       } else {
-        collector.setLinearIntakeVelocity(chassisSpeeds.vxMetersPerSecond + collectorVelocity);
+        collector.setLinearIntakeVelocity(collectorVelocity);
       }
     } else {
       collector.setLinearIntakeVelocity(0);
