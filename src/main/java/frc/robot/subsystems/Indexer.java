@@ -4,31 +4,49 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 public class Indexer extends SubsystemBase {
-  private double motorVelocity;
+  private double motorPower;
+  private WPI_TalonSRX indexerMotor;
+  private LinearFilter filter;
+  private double rawCurrent;
+  private double filteredCurrent;
 
   /** Creates a new Indexer. */
   public Indexer() {
-    motorVelocity = 0.0;
+    indexerMotor = new WPI_TalonSRX(19);
+    resetMotor();
+
+    motorPower = 0.0;
+
+    filter = LinearFilter.singlePoleIIR(0.75, 0.02);
   }
 
   @Override
   public void periodic() {
-    if (motorVelocity > 0.0) {
-      Robot.getBling().setSlot(1, 60, 168, 50);
-    } else {
-      Robot.getBling().setSlot(1, 168, 50, 50);
-    }
+    SmartDashboard.putNumber("o",OI.operatorController.getLeftY());
+
+    SmartDashboard.putNumber("[Indexer] Current (A)", indexerMotor.getStatorCurrent());
+    SmartDashboard.putNumber("[Indexer] Output power", indexerMotor.getMotorOutputPercent());
+
+    rawCurrent = indexerMotor.getStatorCurrent();
+    filteredCurrent = filter.calculate(rawCurrent);
   }
 
-  public void setWheelVelocity(double velocity) {
-    motorVelocity = velocity;
+  public void setPower(double power) {
+    motorPower = power;
+    indexerMotor.set(ControlMode.PercentOutput, motorPower);
   }
 
-  public double getWheelVelocity() {
+  public double getPower() {
     return 0.0;
   }
 
@@ -52,9 +70,26 @@ public class Indexer extends SubsystemBase {
     return 0;
   }
 
-  /*
-   * TODO: Does this launch the cargo,
-   * is it position based or velocity based,
-   * how many motors
-   */
+  public boolean isStalled(){
+    return 27.85 < Math.abs(getFilteredCurrent()); //Value copied from WPI sample code!
+  }
+
+  public double getFilteredCurrent(){
+    return filteredCurrent;
+  }
+
+  public double getRawCurrent(){
+    return rawCurrent;
+  }
+
+  public void resetMotor(){
+    indexerMotor.configFactoryDefault();
+    indexerMotor.setSafetyEnabled(false);
+    indexerMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 10, 15, 0.5)); //Values copied from WPI sample code!
+    indexerMotor.setNeutralMode(NeutralMode.Brake);
+    // indexerMotor.enableCurrentLimit(true);
+    // indexerMotor.configPeakCurrentLimit(28, 500);
+    // indexerMotor.configPeakCurrentDuration(750,500);
+    // indexerMotor.configContinuousCurrentLimit(15,500);
+  }
 }

@@ -4,8 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.*;
 
 // Import subsystems: Add subsystems here.
@@ -27,7 +32,10 @@ import frc.robot.subsystems.*;
  */
 public class RobotContainer {
 
-  // Subsystems: Add subsystems here.
+  // Subsystems: Add subsystems here
+  IMU imu = new IMU();
+  
+  // Subsystems: Add subsystems.
   HubTracking hubTracking;
 
   FrontSonar frontSonar = new FrontSonar();
@@ -36,7 +44,9 @@ public class RobotContainer {
 
   Climber climber = new Climber();
 
-  Drivetrain drivetrain = new Drivetrain();
+  Drivetrain drivetrain = new Drivetrain(imu);
+
+  Collector collector = new Collector();
 
   Bling bling = new Bling();
 
@@ -46,13 +56,19 @@ public class RobotContainer {
   
   CargoTracking cargoTracker = new CargoTracking();
 
+  Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
+
+  NetworkTable initTable;
+  NetworkTableEntry autoCheckBox;
+
   // Controls: Add controls here.
-  TeleopDrivetrain teleopDrivetrain = new TeleopDrivetrain(drivetrain);
+  DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
+  TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -68,6 +84,11 @@ public class RobotContainer {
     indexer.setDefaultCommand(teleopIndexer);
     shooter.setDefaultCommand(teleopShooter);
     climber.setDefaultCommand(teleopClimber);
+    collector.setDefaultCommand(teleopCollector);
+
+    initTable = NetworkTableInstance.getDefault().getTable("Init");
+    autoCheckBox=initTable.getEntry("Enable autonomous?");
+    autoCheckBox.setBoolean(false);
   }
 
   /**
@@ -86,12 +107,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    /*
-     * 1. Set bling lights to blue and wait 5 seconds
-     * 2. Set bling lights to green and turn wheel at 0.25 power for 3 seconds
-     * 3. Once done set bling lights to red
-     */
-    return null;
+    if (autoCheckBox.getBoolean(false)) {
+      return new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
+        new WaitCommand(5.0)
+      );
+    } else {
+      return null;
+    }
   }
 
   public Command getTeleopCommand() {
