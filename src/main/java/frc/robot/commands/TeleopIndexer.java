@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Robot;
+import frc.robot.subsystems.Bling;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.OI;
 
@@ -23,20 +25,35 @@ public class TeleopIndexer extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    indexer.setWheelVelocity(0.0);
+    indexer.setPower(0.0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    indexer.setWheelVelocity(OI.operatorController.getLeftY()*0.5);
-    System.out.println(OI.operatorController.getLeftY()*0.5);
+    //Indexer runs inward if the left bumper's held and outward if the right bumper's held.
+    //If the left trigger is past 50%, it goes backwards regardless of other inputs.
+    //Otherwise, it sets power to zero.
+    if (OI.operatorController.getRightBumper()||(OI.operatorController.getLeftTriggerAxis()>0.5)) {
+      indexer.setPower(-0.8);
+    }else if (OI.operatorController.getLeftBumper()) {
+      indexer.setPower(0.8);
+    }else{
+      indexer.setPower(0);
+    }
+
+    
+    if (indexer.isStalled()) {
+      Robot.getBling().setSlot(2, 255, 0, 0);
+    } else {
+      Robot.getBling().setSlot(2, 0, 0, 0);
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    indexer.setWheelVelocity(0.0);
+    indexer.setPower(0.0);
   }
 
   // Returns true when the command should end.
