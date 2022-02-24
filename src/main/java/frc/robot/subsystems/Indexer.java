@@ -12,6 +12,9 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 
 public class Indexer extends SubsystemBase {
   private double motorPower;
@@ -19,6 +22,11 @@ public class Indexer extends SubsystemBase {
   private LinearFilter filter;
   private double rawCurrent;
   private double filteredCurrent;
+  private NetworkTableEntry redIndexerArea;
+  private NetworkTableEntry blueIndexerArea;
+  private boolean hasCargo = false;
+  private boolean cargoIsRed = false;
+
 
   /** Creates a new Indexer. */
   public Indexer() {
@@ -28,6 +36,9 @@ public class Indexer extends SubsystemBase {
     motorPower = 0.0;
 
     filter = LinearFilter.singlePoleIIR(0.75, 0.02);
+// Network Tables
+    redIndexerArea = NetworkTableInstance.getDefault().getTable("INDEXER").getEntry("Red Indexer Area");
+    blueIndexerArea = NetworkTableInstance.getDefault().getTable("INDEXER").getEntry("Blue Indexer Area");
   }
 
   @Override
@@ -47,6 +58,21 @@ public class Indexer extends SubsystemBase {
 
     rawCurrent = indexerMotor.getStatorCurrent();
     filteredCurrent = filter.calculate(rawCurrent);
+    // Vision Input
+    double redArea = redIndexerArea.getDouble(0);
+    double blueArea = blueIndexerArea.getDouble(0);
+    
+    hasCargo = false;
+    cargoIsRed = false;
+
+    if (redArea > 0) {
+      hasCargo = true;
+      cargoIsRed =true;
+    }
+    if (blueArea > 0) {
+       hasCargo = true;
+    }
+
   }
 
   public void setPower(double power) {
@@ -88,6 +114,14 @@ public class Indexer extends SubsystemBase {
 
   public double getRawCurrent(){
     return rawCurrent;
+  }
+
+  public boolean hasCargo(){
+    return hasCargo;
+  }
+
+  public boolean cargoIsRed(){
+    return cargoIsRed;
   }
 
   public void resetMotor(){
