@@ -33,11 +33,11 @@ public class TeleopShooter extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (OI.driverController.getAButtonPressed())
+    if (OI.driverController.getRawButtonPressed(8)) //Just an arbitrary temporary number for the joystick because the old xbox code here was causing an error with the new OI code from main
     {
       shooter.setHoodPosition(hoodPosition1);
     }
-    else if (OI.driverController.getBButtonPressed())
+    else if (OI.driverController.getRawButtonPressed(7)) //Temporary button number!
     {
       shooter.setHoodPosition(hoodPosition2);
     }
