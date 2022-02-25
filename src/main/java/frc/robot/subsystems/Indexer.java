@@ -26,6 +26,11 @@ public class Indexer extends SubsystemBase {
   private NetworkTableEntry blueIndexerArea;
   private boolean hasCargo = false;
   private boolean cargoIsRed = false;
+  // private boolean isCurrentCargoRed;
+  //private boolean isNextCargoThere;
+  //private boolean isCurrentCargo;
+  //private boolean isNextCargoRed;
+  private int getNumCargo;
 
 
   /** Creates a new Indexer. */
