@@ -31,14 +31,13 @@ import frc.robot.subsystems.*;
  * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-
+  /*
   // Subsystems: Add subsystems here
   IMU imu = new IMU();
   
   // Subsystems: Add subsystems.
   HubTracking hubTracking;
-
-  FrontSonar frontSonar = new FrontSonar();
+  private static final FrontSonar frontSonar = new FrontSonar();
 
   Indexer indexer = new Indexer();
 
@@ -50,25 +49,24 @@ public class RobotContainer {
 
   Bling bling = new Bling();
 
+  HubTracking hubTracker = new HubTracking();
+  CargoTracking cargoTracker = new CargoTracking();
+  */
   Shooter shooter = new Shooter();
 
-  HubTracking hubTracker = new HubTracking();
-  
-  CargoTracking cargoTracker = new CargoTracking();
-
-  Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
+  //Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
 
   NetworkTable initTable;
   NetworkTableEntry autoCheckBox;
 
   // Controls: Add controls here.
-  DriveControls teleopDrivetrain = new DriveControls(drivetrain);
+  /*DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
-  TeleopShooter teleopShooter = new TeleopShooter(shooter);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
-  TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
+  TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);*/
+  TeleopShooter teleopShooter = new TeleopShooter(shooter);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -77,15 +75,14 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracker.setDefaultCommand(teleopHubTracking);
+    /*hubTracker.setDefaultCommand(teleopHubTracking);
     cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
-    shooter.setDefaultCommand(teleopShooter);
     climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
-
+    */
     initTable = NetworkTableInstance.getDefault().getTable("Init");
     autoCheckBox=initTable.getEntry("Enable autonomous?");
     autoCheckBox.setBoolean(false);
@@ -108,9 +105,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     if (autoCheckBox.getBoolean(false)) {
-      return new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
+      return /*new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
         new WaitCommand(5.0)
-      );
+      )*/ null;
     } else {
       return null;
     }
