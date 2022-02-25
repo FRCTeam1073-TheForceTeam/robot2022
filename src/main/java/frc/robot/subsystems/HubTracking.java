@@ -18,7 +18,8 @@ public class HubTracking extends SubsystemBase {
   // setLEDOutput() - https://store.ctr-electronics.com/content/api/java/html/classcom_1_1ctre_1_1phoenix_1_1_c_a_nifier.html
   private final CANifier canifier;
   private final LEDChannel channel;
-
+  private NetworkTableEntry hubArea;
+  private boolean hubVisible;
 
   public static class HubData {
     public int cx = 0;
@@ -30,21 +31,14 @@ public class HubTracking extends SubsystemBase {
     public double range = 0.0;
     public double azimuth = 0.0;
     public double elevation = 0.0;
-    public NetworkTableEntry hubArea;
-    public boolean isHubInView;
 
     public HubData() {
       clear();
-
-      hubArea = NetworkTableInstance.getDefault().getTable("HUB").getEntry("Hub Area");
     }
 
     public void clear() {
-
     }
   }
-
-  private boolean hubVisible;
 
   /** Creates a new HubTracking. */
   public HubTracking() {
@@ -54,10 +48,21 @@ public class HubTracking extends SubsystemBase {
     canifier = new CANifier(8);
     channel = LEDChannel.LEDChannelA;
 
+    hubArea = NetworkTableInstance.getDefault().getTable("HUB").getEntry("Hub Area");
+
   }
 
   @Override
   public void periodic() {
+
+    double areaOfHub = hubArea.getDouble(0);
+
+    hubVisible = false;
+
+    if (areaOfHub > 0) {
+      hubVisible = true;
+    }
+
   }
 
   public void sampleHubData(HubData data){
