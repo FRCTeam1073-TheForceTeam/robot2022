@@ -63,7 +63,7 @@ public class RobotContainer {
 
   // Controls: Add controls here.
   DriveControls teleopDrivetrain = new DriveControls(drivetrain);
-  TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
+  TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);

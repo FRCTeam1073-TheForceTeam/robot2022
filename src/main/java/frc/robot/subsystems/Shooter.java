@@ -122,6 +122,12 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 1 Time", tof1DutyCycle / tof1Freq);
     SmartDashboard.putNumber("TOF 1 Range", tof1Range);
 
+    if (tof1Range < 0.03) {
+      ball1Held = true;
+    } else {
+      ball1Held = false;
+    }
+
     tof2Freq = tof2DutyCycleInput.getFrequency();
     tof2DutyCycle = tof2DutyCycleInput.getOutput();
     tof2Range = tof2ScaleFactor * (tof2DutyCycle / tof2Freq - 0.001);
@@ -129,6 +135,12 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 2 Duty Cycle", tof2DutyCycle);
     SmartDashboard.putNumber("TOF 2 Time", tof2DutyCycle / tof2Freq);
     SmartDashboard.putNumber("TOF 2 Range", tof2Range);
+
+    if (tof2Range < 0.1) {
+      ball2Held = true;
+    } else {
+      ball2Held = false;
+    }
 
     // PrintMotorTelemetry();
 
@@ -197,12 +209,12 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isBallInShooter() {
-    return ball1Held;
+    return ball2Held;
     // ^ This returns true if the time of flight sensor detects that the ball is in the wheels.
   }
 
   public boolean isBallInIndexer() {
-    return ball2Held;
+    return ball1Held;
   }
 
   // public void setFlywheelVelocity(double velocity){
