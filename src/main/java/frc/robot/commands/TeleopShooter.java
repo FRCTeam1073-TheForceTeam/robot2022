@@ -10,12 +10,14 @@ import frc.robot.subsystems.OI;
 import frc.robot.subsystems.Shooter;
 
 public class TeleopShooter extends CommandBase {
-  private double hoodVelocity=20; 
+  private double hoodVelocity = 20;
 
   private Shooter shooter;
 
   private double hoodPosition1 = 6.0; 
-  private double hoodPosition2 = -6.0; 
+  private double hoodPosition2 = -6.0;
+  
+  private double feederVelocity = 192;
 
   /** Creates a new TeleopShooter. */
   public TeleopShooter(Shooter shooter) {
@@ -33,14 +35,22 @@ public class TeleopShooter extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (OI.driverController.getRawButtonPressed(8)) //Just an arbitrary temporary number for the joystick because the old xbox code here was causing an error with the new OI code from main
-    {
-      shooter.setHoodPosition(hoodPosition1);
+
+    if (OI.operatorController.getXButton()) {
+      shooter.setFeederVelocity(feederVelocity);      
+    } else {
+      shooter.setFeederVelocity(0);
     }
-    else if (OI.driverController.getRawButtonPressed(7)) //Temporary button number!
-    {
-      shooter.setHoodPosition(hoodPosition2);
-    }
+
+    /*Just an arbitrary temporary number for the joystick because the old xbox
+    code here was causing an error with the new OI code from main*/
+    // if (OI.driverController.getRawButtonPressed(8)) {
+    //   shooter.setHoodPosition(hoodPosition1);
+    // }
+    //Temporary button number!
+    // else if (OI.driverController.getRawButtonPressed(7)) {
+    //   shooter.setHoodPosition(hoodPosition2);
+    // }
 
     // double flywheelVelocity;
     // double loaderVelocity;

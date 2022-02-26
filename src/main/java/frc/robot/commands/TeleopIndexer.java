@@ -37,7 +37,7 @@ public class TeleopIndexer extends CommandBase {
     //Indexer runs inward if the left bumper's held and outward if the right bumper's held.
     //If the left trigger is past 50%, it goes backwards regardless of other inputs.
     //Otherwise, it sets power to zero.
-    if (shooter.isBallInIndexer() == true) {
+    if (shooter.isBallInIndexer()) {
       indexer.setPower(0);
     } else if (OI.operatorController.getRightBumper()||(OI.operatorController.getLeftTriggerAxis()>0.5)) {
       indexer.setPower(-0.8);

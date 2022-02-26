@@ -6,13 +6,17 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 // import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -23,7 +27,7 @@ public class Shooter extends SubsystemBase {
   private double tof1Freq;
   private double tof1DutyCycle;
   private double tof1Range;
-  private boolean ball1Held;
+  private boolean ball1Stored;
   private final double tof1ScaleFactor = 0.004 / (1e-6);
 
   private DigitalInput tof2Input;
@@ -31,67 +35,101 @@ public class Shooter extends SubsystemBase {
   private double tof2Freq;
   private double tof2DutyCycle;
   private double tof2Range;
-  private boolean ball2Held;
+  private boolean ball2Stored;
   private final double tof2ScaleFactor = 0.004 / (1e-6);
   
-  //motors
-  // private WPI_TalonFX  flywheelMotor;
-  // private WPI_TalonFX loaderMotor;
+  //Motors
+  private WPI_TalonFX feederMotor;
+  private WPI_TalonFX flywheelMotor;
   private WPI_TalonFX hoodMotor;
 
-  private double hood_kP = 0.1;
+  private double feeder_kP = 0.1;
+  private double feeder_kI = 0;
+  private double feeder_kD = 0;
+  private double feeder_kF = 0.048;
+  private double feeder_maxIntegrator = 1000;
+  private double feederTicksPerRadian = 2048.0 / (2.0 * Math.PI);
+
+  private double flywheel_kP = 0;
+  private double flywheel_kI = 0;
+  private double flywheel_kD = 0;
+  private double flywheel_kF = 0;
+  private double flywheel_maxIntegrator = 0;
+  private double flywheelTicksPerRadian = 0;
+
+  private double hood_kP = 0;
   private double hood_kI = 0;
   private double hood_kD = 0;
   private double hood_kF = 0;
+  private double hood_maxIntegrator = 0;
+  private double hoodTicksPerRadian = 0;
 
-  // private double loader_kP;
-  // private double loader_kI;
-  // private double loader_kD;
-  // private double loader_kF;
-  
-  // private double flywheel_kP;
-  // private double flywheel_kI;
-  // private double flywheel_kD;
-  // private double flywheel_kF;
+  private final double feederRateLimit = 120;
+  private final double flywheelRateLimit = 0;
 
-  // private double flywheelTargetVelocity;
-  // private double loaderTargetVelocity;
-  // private double hoodTargetPosition;
+  private double feederTargetVelocity = 0;
+  private SlewRateLimiter feederRateLimiter = new SlewRateLimiter(feederRateLimit);
+  private double limitedFeederTargetVelocity = 0;
 
+  private double flywheelTargetVelocity = 0;
+  private SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(flywheelRateLimit);
+
+
+  private double hoodTargetPosition = 0;
+  private double hoodProfileTargetPosition = 0;
   private TrapezoidProfile hoodProfile;
   private TrapezoidProfile.State previousState;
   private double hoodProfileStartTime;
 
-  private double targetHoodPosition;
   private final double maxHoodVelocity = 1.0; //Units :radians/s
   private final double maxHoodAcceleration = 3.0; //Units: radians/s^2
+
+  private final double maximumHoodAngle = 0;
   
-  // private final double flywheelTicksPerRadian = 1;
-  // private final double loaderTicksPerRadian =1;
-  private final double hoodTicksPerRadian = 2048.1;
-
-  private double maxHoodHeight = 1.0;
-
   public Shooter() {
     tof1Input = new DigitalInput(0);
     tof1DutyCycleInput = new DutyCycle(tof1Input);
     tof1Freq = 0;
     tof1Range = 0;
-    ball1Held = false;
+    ball1Stored = false;
 
     tof2Input = new DigitalInput(1);
     tof2DutyCycleInput = new DutyCycle(tof2Input);
     tof2Freq = 0;
     tof2Range = 0;
-    ball2Held = false;
+    ball2Stored = false;
 
-    // CAN IDs currently for roadkill
-    // flywheelMotor = new WPI_TalonFX(20);
-    // loaderMotor = new WPI_TalonFX(46);
-    hoodMotor = new WPI_TalonFX(20);
+    feederMotor = new WPI_TalonFX(42);
+    resetMotors(feederMotor);
+    feederMotor.setInverted(true);
+    feederMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
+    updatePID(feederMotor,
+      feeder_kP,
+      feeder_kI,
+      feeder_kD,
+      feeder_kF,
+      feeder_maxIntegrator
+    );
+    updatePID(flywheelMotor,
+      flywheel_kP,
+      flywheel_kI,
+      flywheel_kD,
+      flywheel_kF,
+      flywheel_maxIntegrator
+    );
+    updatePID(hoodMotor,
+      hood_kP,
+      hood_kI,
+      hood_kD,
+      hood_kF,
+      hood_maxIntegrator
+    );
+
+    // flywheelMotor = new WPI_TalonFX(61);
+    // hoodMotor = new WPI_TalonFX(62);
 
     previousState = new TrapezoidProfile.State(0,0);
-    targetHoodPosition = 0;
+    hoodTargetPosition = 0;
     hoodProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
         maxHoodVelocity,maxHoodAcceleration
@@ -101,87 +139,129 @@ public class Shooter extends SubsystemBase {
     );
     hoodProfileStartTime = System.currentTimeMillis() / 1000.0;
 
-    // SmartDashboard.putNumber("Flywheel Motor Velocity", 0);
-    // SmartDashboard.putNumber("Loader Motor Velocity", 0);
-    // SmartDashboard.putNumber("Hood Motor Velocity", 0);
+    SmartDashboard.putBoolean("[Shooter] Update", false);
 
-    // resetMotors(flywheelMotor);
-    // resetMotors(loaderMotor);
-    resetMotors(hoodMotor);
+    SmartDashboard.putNumber("[Shooter] feeder/kP", feeder_kP);
+    SmartDashboard.putNumber("[Shooter] feeder/kI", feeder_kI);
+    SmartDashboard.putNumber("[Shooter] feeder/kD", feeder_kD);
+    SmartDashboard.putNumber("[Shooter] feeder/kF", feeder_kF);
+
+    SmartDashboard.putNumber("[Shooter] flywheel/kP", 0);
+    SmartDashboard.putNumber("[Shooter] flywheel/kI", 0);
+    SmartDashboard.putNumber("[Shooter] flywheel/kD", 0);
+    SmartDashboard.putNumber("[Shooter] flywheel/kF", 0);
+
+    SmartDashboard.putNumber("[Shooter] hood/kP", 0);
+    SmartDashboard.putNumber("[Shooter] hood/kI", 0);
+    SmartDashboard.putNumber("[Shooter] hood/kD", 0);
+    SmartDashboard.putNumber("[Shooter] hood/kF", 0);
   }
 
-  int ctr=0;
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     tof1Freq = tof1DutyCycleInput.getFrequency();
     tof1DutyCycle = tof1DutyCycleInput.getOutput();
     tof1Range = tof1ScaleFactor * (tof1DutyCycle / tof1Freq - 0.001);
-    SmartDashboard.putNumber("TOF 1 Frequency", tof1Freq);
-    SmartDashboard.putNumber("TOF 1 Duty Cycle", tof1DutyCycle);
-    SmartDashboard.putNumber("TOF 1 Time", tof1DutyCycle / tof1Freq);
-    SmartDashboard.putNumber("TOF 1 Range", tof1Range);
+    SmartDashboard.putNumber("TOF 1/Frequency", tof1Freq);
+    SmartDashboard.putNumber("TOF 1/Duty Cycle", tof1DutyCycle);
+    SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
+    SmartDashboard.putNumber("TOF 1/Range", tof1Range);
 
     if (tof1Range < 0.03) {
-      ball1Held = true;
+      ball1Stored = true;
     } else {
-      ball1Held = false;
+      ball1Stored = false;
     }
 
     tof2Freq = tof2DutyCycleInput.getFrequency();
     tof2DutyCycle = tof2DutyCycleInput.getOutput();
     tof2Range = tof2ScaleFactor * (tof2DutyCycle / tof2Freq - 0.001);
-    SmartDashboard.putNumber("TOF 2 Frequency", tof2Freq);
-    SmartDashboard.putNumber("TOF 2 Duty Cycle", tof2DutyCycle);
-    SmartDashboard.putNumber("TOF 2 Time", tof2DutyCycle / tof2Freq);
-    SmartDashboard.putNumber("TOF 2 Range", tof2Range);
+    SmartDashboard.putNumber("TOF 2/Frequency", tof2Freq);
+    SmartDashboard.putNumber("TOF 2/Duty Cycle", tof2DutyCycle);
+    SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
+    SmartDashboard.putNumber("TOF 2/Range", tof2Range);
 
     if (tof2Range < 0.1) {
-      ball2Held = true;
+      ball2Stored = true;
     } else {
-      ball2Held = false;
+      ball2Stored = false;
     }
 
-    // PrintMotorTelemetry();
+    limitedFeederTargetVelocity=feederRateLimiter.calculate(feederTargetVelocity);
+    feederMotor.set(ControlMode.Velocity, limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
+    SmartDashboard.putNumber("A", limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
 
-    ctr++;
-    previousState = hoodProfile.calculate(
-      ((double)System.currentTimeMillis())/1000.0 - hoodProfileStartTime
-    );
-    hoodMotor.set(
-      ControlMode.Position,
-      MathUtil.clamp(previousState.position, 0, maxHoodHeight)*hoodTicksPerRadian
+    double currentVel = feederMotor.getSelectedSensorVelocity() * 10.0 / feederTicksPerRadian;
+
+    SmartDashboard.putNumberArray("[Shooter] Feeder actual vs. target vel", new Double[] {
+      limitedFeederTargetVelocity,
+      currentVel,
+      currentVel-limitedFeederTargetVelocity
+    });
+    SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentVel-limitedFeederTargetVelocity)/limitedFeederTargetVelocity);
+    SmartDashboard.putNumber("[Shooter] Feeder position", feederMotor.getSelectedSensorPosition() / feederTicksPerRadian);
+    // flywheelMotor.set(ControlMode.Velocity, flywheelTargetVelocity * 0.1 / flywheelTicksPerRadian);
+    
+    // previousState = hoodProfile.calculate(
+    //   ((double)System.currentTimeMillis())/1000.0 - hoodProfileStartTime
+    // );
+    // hoodMotor.set(
+    //   ControlMode.Position,
+    //   MathUtil.clamp(previousState.position, 0, maximumHoodAngle)*hood_ticksPerRadian
+    // );
+    // SmartDashboard.putNumber("[Shooter] Hood closed loop error", hoodMotor.getClosedLoopError());
+    // SmartDashboard.putNumber("[Shooter] Trapezoid position", previousState.position);
+    // SmartDashboard.putNumber("[Shooter] Trapezoid velocity", previousState.velocity);
+
+    if (SmartDashboard.getBoolean("[Shooter] Update", false)) {
+      feeder_kP = SmartDashboard.getNumber("[Shooter] feeder/kP", 0);
+      feeder_kI = SmartDashboard.getNumber("[Shooter] feeder/kI", 0);
+      feeder_kD = SmartDashboard.getNumber("[Shooter] feeder/kD", 0);
+      feeder_kF = SmartDashboard.getNumber("[Shooter] feeder/kF", 0);
+
+      flywheel_kP = SmartDashboard.getNumber("[Shooter] flywheel/kP", 0);
+      flywheel_kI = SmartDashboard.getNumber("[Shooter] flywheel/kI", 0);
+      flywheel_kD = SmartDashboard.getNumber("[Shooter] flywheel/kD", 0);
+      flywheel_kF = SmartDashboard.getNumber("[Shooter] flywheel/kF", 0);
+
+      hood_kP = SmartDashboard.getNumber("[Shooter] hood/kP", 0);
+      hood_kI = SmartDashboard.getNumber("[Shooter] hood/kI", 0);
+      hood_kD = SmartDashboard.getNumber("[Shooter] hood/kD", 0);
+      hood_kF = SmartDashboard.getNumber("[Shooter] hood/kF", 0);
+
+      updatePID(
+        feederMotor,
+        feeder_kP,
+        feeder_kI,
+        feeder_kD,
+        feeder_kF,
+        feeder_maxIntegrator
       );
-    SmartDashboard.putNumber("Hood closed loop error", hoodMotor.getClosedLoopError());
-    SmartDashboard.putNumber("Trapezoid position", previousState.position);
-    SmartDashboard.putNumber("Trapezoid velocity", previousState.velocity);
 
-    if(SmartDashboard.getBoolean("Update", false)){
-      hood_kP=SmartDashboard.getNumber("shooter-hood_kP",0);
-      hood_kI=SmartDashboard.getNumber("shooter-hood_kI",0);
-      hood_kD=SmartDashboard.getNumber("shooter-hood_kD",0);
-      hood_kF=SmartDashboard.getNumber("shooter-hood_kF",0);
-    
-      // loader_kP=SmartDashboard.getNumber("shooter-loader_kP",0);
-      // loader_kI=SmartDashboard.getNumber("shooter-loader_kI",0);
-      // loader_kD=SmartDashboard.getNumber("shooter-loader_kD",0);
-      // loader_kF=SmartDashboard.getNumber("shooter-loader_kF",0);
+      updatePID(
+        flywheelMotor,
+        flywheel_kP,
+        flywheel_kI,
+        flywheel_kD,
+        flywheel_kF,
+        flywheel_maxIntegrator
+      );
 
-      // flywheel_kP=SmartDashboard.getNumber("shooter-flywheel_kP",0);
-      // flywheel_kI=SmartDashboard.getNumber("shooter-flywheel_kI",0);
-      // flywheel_kD=SmartDashboard.getNumber("shooter-flywheel_kD",0);
-      // flywheel_kF=SmartDashboard.getNumber("shooter-flywheel_kF",0);
-
-      System.out.printf(">\t%f\n",hood_kP);
-
-      SmartDashboard.putBoolean("Update", false);
+      updatePID(
+        hoodMotor,
+        hood_kP,
+        hood_kI,
+        hood_kD,
+        hood_kF,
+        hood_maxIntegrator
+      );
+      SmartDashboard.putBoolean("[Shooter] Update", false);
     }
-    
-    SmartDashboard.putNumberArray("hood position vs target position",new Double []{hoodMotor.getSelectedSensorPosition(),targetHoodPosition});
   }
 
   public void setHoodPosition(double targetPosition){
-    targetHoodPosition = targetPosition;
+    hoodTargetPosition = targetPosition;
     hoodProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
     hoodProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
@@ -190,7 +270,7 @@ public class Shooter extends SubsystemBase {
       ),
       previousState,
       new TrapezoidProfile.State(
-        targetHoodPosition,
+        hoodTargetPosition,
         0
       )
     );
@@ -208,19 +288,22 @@ public class Shooter extends SubsystemBase {
     return tof2Range;
   }
 
+  public boolean isBallInIndexer() {
+    return ball1Stored;
+  }
+
   public boolean isBallInShooter() {
-    return ball2Held;
+    return ball2Stored;
     // ^ This returns true if the time of flight sensor detects that the ball is in the wheels.
   }
 
-  public boolean isBallInIndexer() {
-    return ball1Held;
+  public void setFeederVelocity(double velocity) {
+    feederTargetVelocity = velocity;
   }
 
-  // public void setFlywheelVelocity(double velocity){
-  //   flywheelTargetVelocity = velocity;
-  //   flywheelMotor.set(ControlMode.Velocity, velocity * 0.1 * flywheelTicksPerRadian);
-  // }
+  public void setFlywheelVelocity(double velocity) {
+    flywheelTargetVelocity = velocity;
+  }
 
   // public void setLoaderVelocity(double velocity){
   //   loaderTargetVelocity = velocity;
@@ -245,13 +328,23 @@ public class Shooter extends SubsystemBase {
   // }
 
   public void resetMotors(WPI_TalonFX motor){
+    if (motor == null) {
+      return;
+    }
     motor.configFactoryDefault();
     motor.setSafetyEnabled(false);
-    //motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 25, 0.2));
     motor.setNeutralMode(NeutralMode.Brake);
+    motor.setSelectedSensorPosition(0);
+    motor.setIntegralAccumulator(0);
   }
 
-  public void updatePID(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val){
+  public void updatePID(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val, double max_integrator) {
+    if (motor == null) {
+      return;
+    }
+    motor.setIntegralAccumulator(0);
+    motor.configMaxIntegralAccumulator(0, max_integrator);
+    System.out.println("P" + p_val);
     motor.config_kP(0, p_val);
     motor.config_kI(0, i_val);
     motor.config_kD(0, d_val);
