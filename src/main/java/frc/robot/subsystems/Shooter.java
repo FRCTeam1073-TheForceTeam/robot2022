@@ -196,7 +196,7 @@ public class Shooter extends SubsystemBase {
       currentVel,
       currentVel-limitedFeederTargetVelocity
     });
-    SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentVel-limitedFeederTargetVelocity)/limitedFeederTargetVelocity);
+    SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentVel - limitedFeederTargetVelocity) / limitedFeederTargetVelocity);
     SmartDashboard.putNumber("[Shooter] Feeder position", feederMotor.getSelectedSensorPosition() / feederTicksPerRadian);
     // flywheelMotor.set(ControlMode.Velocity, flywheelTargetVelocity * 0.1 / flywheelTicksPerRadian);
     
