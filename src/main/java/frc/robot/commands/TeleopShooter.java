@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OI;
@@ -23,6 +25,8 @@ public class TeleopShooter extends CommandBase {
   public TeleopShooter(Shooter shooter) {
     this.shooter = shooter;
 
+    SmartDashboard.putNumber("[T-Sh] Flywheel vel (rad.s)", 0);
+
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
   }
@@ -30,17 +34,33 @@ public class TeleopShooter extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    SmartDashboard.putNumber("[T-Sh] Flywheel vel (rads)", 0);
+    // shooter.setFlywheelVelocity(0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    if (OI.operatorController.getXButton()) {
-      shooter.setFeederVelocity(feederVelocity);      
-    } else {
-      shooter.setFeederVelocity(0);
+    double flywheelTargetVel = SmartDashboard.getNumber("[T-Sh] Flywheel vel (rad.s)", 0);
+    shooter.setFlywheelVelocity(flywheelTargetVel);
+
+    // if (OI.operatorController.getXButton()) {
+    //   shooter.setFeederVelocity(feederVelocity);      
+    // } else {
+    //   shooter.setFeederVelocity(0);
+    // }
+
+    if (OI.operatorController.getXButtonPressed()) {
+      shooter.setHoodPosition(Units.degreesToRadians(30.0));
     }
+    if (OI.operatorController.getYButtonPressed()) {
+      shooter.setHoodPosition(Units.degreesToRadians(60.0));
+    }
+    if (OI.operatorController.getXButtonReleased()||OI.operatorController.getYButtonReleased()){
+      shooter.setHoodPosition(Units.degreesToRadians(0.0));      
+    }
+
 
     /*Just an arbitrary temporary number for the joystick because the old xbox
     code here was causing an error with the new OI code from main*/

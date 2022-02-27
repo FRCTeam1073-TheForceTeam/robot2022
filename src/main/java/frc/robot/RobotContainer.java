@@ -4,13 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.*;
 
 // Import subsystems: Add subsystems here.
@@ -89,6 +92,8 @@ public class RobotContainer {
     initTable = NetworkTableInstance.getDefault().getTable("Init");
     autoCheckBox=initTable.getEntry("Enable autonomous?");
     autoCheckBox.setBoolean(false);
+    
+    configureButtonBindings();
   }
 
   /**
@@ -98,7 +103,13 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-
+    new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whenPressed(
+      new SequentialCommandGroup(
+        new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
+        new ShooterFeedCommand(shooter, 2.0),
+        new ShooterSpinDownCommand(shooter)        
+      )
+    );
   }
 
   /**
