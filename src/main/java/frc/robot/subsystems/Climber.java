@@ -57,26 +57,26 @@ public class Climber extends SubsystemBase {
     spoolMotorRight = new WPI_TalonFX(20);
     extensionMotorRight = new WPI_TalonFX(46);
     
-    // spoolMotorLeft = new WPI_TalonFX(25);
-    // extensionMotorLeft = new WPI_TalonFX(26);
+    spoolMotorLeft = new WPI_TalonFX(25);
+    extensionMotorLeft = new WPI_TalonFX(26);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
 
-    // resetSpoolMotor(spoolMotorLeft);
-    // resetExtensionMotor(extensionMotorLeft);
+    resetSpoolMotor(spoolMotorLeft);
+    resetExtensionMotor(extensionMotorLeft);
 
-    // spoolMotorLeft.setInverted(true);
-    // extensionMotorLeft.setInverted(true);
+    spoolMotorLeft.setInverted(true);
+    extensionMotorLeft.setInverted(true);
 
     spoolMotorRight.setInverted(false);
     extensionMotorRight.setInverted(false);
 
-    // spoolMotorLeft.follow(spoolMotorRight);
-    // extensionMotorLeft.follow(extensionMotorRight);
+    spoolMotorLeft.follow(spoolMotorRight);
+    extensionMotorLeft.follow(extensionMotorRight);
 
-    // spoolMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
-    // extensionMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+    spoolMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+    extensionMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
 
     spoolMotorRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
     extensionMotorRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
