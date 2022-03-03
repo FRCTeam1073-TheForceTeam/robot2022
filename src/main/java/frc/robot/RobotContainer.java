@@ -37,34 +37,34 @@ public class RobotContainer {
   
   // Subsystems: Add subsystems.
   HubTracking hubTracking;
-  private static final FrontSonar frontSonar = new FrontSonar();
+  // private static final FrontSonar frontSonar = new FrontSonar();
 
   // Indexer indexer = new Indexer();
 
   Climber climber = new Climber();
 
-  Drivetrain drivetrain = new Drivetrain(imu);
+  // Drivetrain drivetrain = new Drivetrain(imu);
 
-  Collector collector = new Collector();
+  // Collector collector = new Collector();
 
-  Bling bling = new Bling();
+  // Bling bling = new Bling();
 
-  HubTracking hubTracker = new HubTracking();
-  CargoTracking cargoTracker = new CargoTracking();
+  // HubTracking hubTracker = new HubTracking();
+  // CargoTracking cargoTracker = new CargoTracking();
 
-  Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
+  // Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
 
-  NetworkTable initTable;
-  NetworkTableEntry autoCheckBox;
+  // NetworkTable initTable;
+  // NetworkTableEntry autoCheckBox;
 
   // Controls: Add controls here.
-  DriveControls teleopDrivetrain = new DriveControls(drivetrain);
-  TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
-  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
+  // DriveControls teleopDrivetrain = new DriveControls(drivetrain);
+  // TeleopIndexer teleopIndexer = new TeleopIndexer(indexer);
+  // TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
-  TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
-  TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
-  HangStartPositioning hangStartPositioning = new HangStartPositioning(drivetrain, frontSonar);
+  // TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
+  // TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
+  // HangStartPositioning hangStartPositioning = new HangStartPositioning(drivetrain, frontSonar);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -73,17 +73,17 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracker.setDefaultCommand(teleopHubTracking);
-    cargoTracker.setDefaultCommand(teleopCargoTracking);
+    // hubTracker.setDefaultCommand(teleopHubTracking);
+    // cargoTracker.setDefaultCommand(teleopCargoTracking);
 
-    drivetrain.setDefaultCommand(teleopDrivetrain);
+    // drivetrain.setDefaultCommand(teleopDrivetrain);
     // indexer.setDefaultCommand(teleopIndexer);
     climber.setDefaultCommand(teleopClimber);
-    collector.setDefaultCommand(teleopCollector);
+    // collector.setDefaultCommand(teleopCollector);
 
-    initTable = NetworkTableInstance.getDefault().getTable("Init");
-    autoCheckBox=initTable.getEntry("Enable autonomous?");
-    autoCheckBox.setBoolean(false);
+    // initTable = NetworkTableInstance.getDefault().getTable("Init");
+    // autoCheckBox=initTable.getEntry("Enable autonomous?");
+    // autoCheckBox.setBoolean(false);
   }
 
   /**
@@ -102,19 +102,19 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    if (autoCheckBox.getBoolean(false)) {
-      return new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
-        new WaitCommand(5.0)
-      );
-    } else {
+    // if (autoCheckBox.getBoolean(false)) {
+    //   return new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
+    //     new WaitCommand(5.0)
+    //   );
+    // } else {
       return null;
-    }
+    // }
   }
 
   public Command getTeleopCommand() {
     // Return the command that will run during teleop ('return null' means no
     // command will be run)
-    return hangStartPositioning;
+    return null;
   }
 
   public Command getTestCommand() {

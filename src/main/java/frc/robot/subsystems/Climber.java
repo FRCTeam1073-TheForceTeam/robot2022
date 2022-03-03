@@ -4,49 +4,153 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
   private WPI_TalonFX spoolMotorRight;
-  // private WPI_TalonFX spoolMotorLeft;
   private WPI_TalonFX extensionMotorRight;
-  // private WPI_TalonFX extensionMotorLeft;
+  private WPI_TalonFX spoolMotorLeft;
+  private WPI_TalonFX extensionMotorLeft;
 
   // private CANCoder spoolCANCoderRight;
   // private CANCoder spoolCANCoderLeft;
+
+  // TODO: get actual values
+  private final double spoolGearRatio = 65.0;
+  private final double extensionGearRatio = 1.0;
+
+  private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
+  private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
+
+  
+  SlewRateLimiter spoolFilter = new SlewRateLimiter(80.0);
+  SlewRateLimiter extensionFilter = new SlewRateLimiter(80.0);
+
+  double targetSpoolVelocity = 0;
+  double targetExtensionVelocity = 0;
+
+  double currentSpoolVelocity = 0;
+  double currentExtensionVelocity = 0;
+
+  private double spool_kP = 0.2;
+  private double spool_kI = 0.001;
+  private double spool_kD = 0;
+  private double spool_kF = 0;
+
+  private double extension_kP = 0.2;
+  private double extension_kI = 0.001;
+  private double extension_kD = 0;
+  private double extension_kF = 0.05;
 
   /** Creates a new Climber. */
   public Climber() {
     spoolMotorRight = new WPI_TalonFX(20);
     extensionMotorRight = new WPI_TalonFX(46);
-    //set the left motors to follow + be inverted from the right motors
+    
+    // spoolMotorLeft = new WPI_TalonFX(25);
+    // extensionMotorLeft = new WPI_TalonFX(26);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
-    //then set up followers (reset may need to be organized differently)
 
-    //spooler encoder
+    // resetSpoolMotor(spoolMotorLeft);
+    // resetExtensionMotor(extensionMotorLeft);
+
+    // spoolMotorLeft.setInverted(true);
+    // extensionMotorLeft.setInverted(true);
+
+    spoolMotorRight.setInverted(false);
+    extensionMotorRight.setInverted(false);
+
+    // spoolMotorLeft.follow(spoolMotorRight);
+    // extensionMotorLeft.follow(extensionMotorRight);
+
+    // spoolMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+    // extensionMotorLeft.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+
+    spoolMotorRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+    extensionMotorRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+
+    // spooler encoder
     // spoolCANCoderRight = new CANCoder(0);
+
+    SmartDashboard.putNumber("climber-spool_kP", spool_kP);
+    SmartDashboard.putNumber("climber-spool_kI", spool_kI);
+    SmartDashboard.putNumber("climber-spool_kD", spool_kD);
+    SmartDashboard.putNumber("climber-spool_kF", spool_kF);
+
+    SmartDashboard.putNumber("climber-extension_kP", extension_kP);
+    SmartDashboard.putNumber("climber-extension_kI", extension_kI);
+    SmartDashboard.putNumber("climber-extension_kD", extension_kD);
+    SmartDashboard.putNumber("climber-extension_kF", extension_kF);
+    SmartDashboard.putBoolean("Update", false);
+
+    // TODO: someone plz tell me what the 1000 does plz
+    setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
+    setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    double spoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
+    double extensionVelocity = extensionFilter.calculate(targetExtensionVelocity);
+
+    double rawSpoolVel = spoolVelocity * spoolTicksPerRadian * 0.1;
+    double rawExtensionVel = extensionVelocity * extensionTicksPerRadian * 0.1;
+    
+    spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
+    extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+
+
+    currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
+    currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
+
+    if(SmartDashboard.getBoolean("Update", false)){
+      spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
+      spool_kI = SmartDashboard.getNumber("climber-spool_kI", 0);
+      spool_kD = SmartDashboard.getNumber("climber-spool_kD", 0);
+      spool_kF = SmartDashboard.getNumber("climber-spool_kF", 0);
+
+      extension_kP = SmartDashboard.getNumber("climber-extension_kP", 0);
+      extension_kI = SmartDashboard.getNumber("climber-extension_kI", 0);
+      extension_kD = SmartDashboard.getNumber("climber-extension_kD", 0);
+      extension_kF = SmartDashboard.getNumber("climber-extension_kF", 0);
+
+      // TODO: someone plz tell me what the 1000 does plz
+      setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
+      setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
+
+      SmartDashboard.putBoolean("Update", false);
+    }
   }
 
   public void setSpoolVelocity(double velocity){
-
+    targetSpoolVelocity = velocity;
   }
 
   public void setExtensionVelocity(double angularVelocity){
+    targetExtensionVelocity = angularVelocity;
+  }
 
+  public void setPIDs(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val, double max_integrator) {
+    motor.config_kP(0,p_val);
+    motor.config_kI(0,i_val);
+    motor.config_kD(0,d_val);
+    motor.config_kF(0,f_val);
+    motor.setIntegralAccumulator(0);
+    motor.configMaxIntegralAccumulator(0, max_integrator);
   }
 
   /**
