@@ -26,6 +26,8 @@ public class TeleopShooter extends CommandBase {
     this.shooter = shooter;
 
     SmartDashboard.putNumber("[T-Sh] Flywheel vel (rad.s)", 0);
+    SmartDashboard.putNumber("[T-Sh] Hood angle (rads)", 0);
+    SmartDashboard.putBoolean("[T-Sh] Update", false);
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
@@ -34,7 +36,9 @@ public class TeleopShooter extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SmartDashboard.putNumber("[T-Sh] Flywheel vel (rads)", 0);
+    SmartDashboard.putNumber("[T-Sh] Flywheel vel (rad.s)", 0);
+    SmartDashboard.putNumber("[T-Sh] Hood angle (rads)", 0);
+    SmartDashboard.putBoolean("[T-Sh] Update", false);
     // shooter.setFlywheelVelocity(0);
   }
 
@@ -42,24 +46,27 @@ public class TeleopShooter extends CommandBase {
   @Override
   public void execute() {
 
-    double flywheelTargetVel = SmartDashboard.getNumber("[T-Sh] Flywheel vel (rad.s)", 0);
-    shooter.setFlywheelVelocity(flywheelTargetVel);
+    if(SmartDashboard.getBoolean("[T-Sh] Update", false)){
+      shooter.setFlywheelVelocity(SmartDashboard.getNumber("[T-Sh] Flywheel vel (rad.s)", 0));
+      shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0));
+      SmartDashboard.putBoolean("[T-Sh] Update", false);
+    }
 
-    // if (OI.operatorController.getXButton()) {
-    //   shooter.setFeederVelocity(feederVelocity);      
-    // } else {
-    //   shooter.setFeederVelocity(0);
+    if (OI.operatorController.getXButton()) {
+      shooter.setFeederVelocity(feederVelocity);
+    } else {
+      shooter.setFeederVelocity(0);
+    }
+
+    // if (OI.operatorController.getXButtonPressed()) {
+    //   shooter.setHoodPosition(Units.degreesToRadians(30.0));
     // }
-
-    if (OI.operatorController.getXButtonPressed()) {
-      shooter.setHoodPosition(Units.degreesToRadians(30.0));
-    }
-    if (OI.operatorController.getYButtonPressed()) {
-      shooter.setHoodPosition(Units.degreesToRadians(60.0));
-    }
-    if (OI.operatorController.getXButtonReleased()||OI.operatorController.getYButtonReleased()){
-      shooter.setHoodPosition(Units.degreesToRadians(0.0));      
-    }
+    // if (OI.operatorController.getYButtonPressed()) {
+    //   shooter.setHoodPosition(Units.degreesToRadians(60.0));
+    // }
+    // if (OI.operatorController.getXButtonReleased()||OI.operatorController.getYButtonReleased()){
+    //   shooter.setHoodPosition(Units.degreesToRadians(0.0));      
+    // }
 
 
     /*Just an arbitrary temporary number for the joystick because the old xbox

@@ -50,7 +50,7 @@ public class Shooter extends SubsystemBase {
   private double feederTicksPerRadian = 2048.0 / (2.0 * Math.PI);
 
   private double flywheel_kP = 0.2;
-  private double flywheel_kI = 0;
+  private double flywheel_kI = 0.004;
   private double flywheel_kD = 0;
   private double flywheel_kF = 0.05;
   private double flywheel_maxIntegrator = 6000;
