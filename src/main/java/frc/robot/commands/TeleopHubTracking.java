@@ -28,7 +28,7 @@ public class TeleopHubTracking extends CommandBase {
   public void execute() {
     //Update hubVisible
     // hubTracker.setLEDIntensity(OI.driverController.getLeftTriggerAxis());
-    hubTracker.setLEDIntensity(100);
+    hubTracker.setLEDIntensity(0.95);
   }
 
   // Called once the command ends or is interrupted.

@@ -21,6 +21,7 @@ public class DriveControls extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    OI.zeroDriverController();
     drivetrain.setPower(0, 0);
   }
 

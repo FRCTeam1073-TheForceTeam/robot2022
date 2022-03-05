@@ -22,7 +22,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -66,6 +68,8 @@ public class Drivetrain extends SubsystemBase {
   NetworkTableEntry dEntry;
   NetworkTableEntry fEntry;
   NetworkTableEntry updateButton;
+
+  Field2d field;
 
   SlewRateLimiter leftMotorLimiter;
   SlewRateLimiter rightMotorLimiter;
@@ -111,6 +115,7 @@ public class Drivetrain extends SubsystemBase {
     limitedTargetWheelSpeeds = new DifferentialDriveWheelSpeeds();
 
     setupDrivetrainMotors();
+    field = new Field2d();
   }
   
   boolean a = false;
@@ -192,6 +197,15 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("[Drivetrain] Right error ratio",
         (wheelSpeeds.rightMetersPerSecond - limitedTargetWheelSpeeds.rightMetersPerSecond)
             / wheelSpeeds.rightMetersPerSecond);
+
+    if (OI.driverController.getRawButtonPressed(13)) {
+      resetOdometry(new Pose2d());
+    }
+    field.setRobotPose(robotPose);
+    SmartDashboard.putData(field);
+    SmartDashboard.putNumber("[Drivetrain] Robot pose/X position (meters)", robotPose.getTranslation().getX());
+    SmartDashboard.putNumber("[Drivetrain] Robot pose/Y position (meters)", robotPose.getTranslation().getY());
+    SmartDashboard.putNumber("[Drivetrain] Robot pose/Angle (radians)", robotPose.getRotation().getDegrees());
     // SmartDashboard.putNumber("[Drivetrain] Left velocity", targetWheelSpeeds.leftMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Right velocity", wheelSpeeds.rightMetersPerSecond);
     // SmartDashboard.putNumber("[Drivetrain] Left target velocity", targetWheelSpeeds.leftMetersPerSecond);
