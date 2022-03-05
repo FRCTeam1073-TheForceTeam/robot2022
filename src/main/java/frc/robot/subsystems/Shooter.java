@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
   //ToF sensors
+  
   private DigitalInput tof1Input;
   private DutyCycle tof1DutyCycleInput;
   private double tof1Freq;
