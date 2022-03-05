@@ -26,8 +26,8 @@ public class Climber extends SubsystemBase {
   // private CANCoder spoolCANCoderLeft;
 
   // TODO: get actual values
-  private final double spoolGearRatio = 65.0;
-  private final double extensionGearRatio = 1.0;
+  private final double spoolGearRatio = 56.25;
+  private final double extensionGearRatio = 25.0;
 
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
   private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
@@ -54,11 +54,11 @@ public class Climber extends SubsystemBase {
 
   /** Creates a new Climber. */
   public Climber() {
-    spoolMotorRight = new WPI_TalonFX(20);
-    extensionMotorRight = new WPI_TalonFX(46);
+    spoolMotorRight = new WPI_TalonFX(44);
+    extensionMotorRight = new WPI_TalonFX(17);
     
-    spoolMotorLeft = new WPI_TalonFX(25);
-    extensionMotorLeft = new WPI_TalonFX(26);
+    spoolMotorLeft = new WPI_TalonFX(32);
+    extensionMotorLeft = new WPI_TalonFX(29);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
@@ -95,7 +95,6 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("climber-extension_kF", extension_kF);
     SmartDashboard.putBoolean("Update", false);
 
-    // TODO: someone plz tell me what the 1000 does plz
     setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
     setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
 
@@ -110,9 +109,8 @@ public class Climber extends SubsystemBase {
     double rawSpoolVel = spoolVelocity * spoolTicksPerRadian * 0.1;
     double rawExtensionVel = extensionVelocity * extensionTicksPerRadian * 0.1;
     
-    spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
-    extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
-
+    // spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
+    // extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
 
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
@@ -144,6 +142,14 @@ public class Climber extends SubsystemBase {
     targetExtensionVelocity = angularVelocity;
   }
 
+  public void setSpoolPower(double power) {
+    spoolMotorRight.set(ControlMode.PercentOutput, power);
+  }
+
+  public void setExtensionPower(double power) {
+    extensionMotorRight.set(ControlMode.PercentOutput, power);
+  }
+
   public void setPIDs(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val, double max_integrator) {
     motor.config_kP(0,p_val);
     motor.config_kI(0,i_val);
@@ -173,12 +179,14 @@ public class Climber extends SubsystemBase {
   }
 
   public double getSpoolPosition(){
-    return 0;
+    return spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian;
   }
 
   public double getExtensionPosition(){
-    return 0;
+    return extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian;
   }
+
+
 
   // public double getMotorPosition(ClimberMotor motor){
   //   return 0;

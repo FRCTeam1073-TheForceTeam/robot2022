@@ -44,9 +44,9 @@ public class HangStartPositioning extends CommandBase {
     chassisSpeeds.omegaRadiansPerSecond = calculateRotation();
     chassisSpeeds.vxMetersPerSecond = calculateForward();
     // drivetrain.setChassisSpeeds(chassisSpeeds);
-    System.out.println("Rotation: " + chassisSpeeds.omegaRadiansPerSecond);
-    System.out.println("Forward: " + chassisSpeeds.vxMetersPerSecond);
-    System.out.println("Raw Range: " + rightRange);
+    // System.out.println("Rotation: " + chassisSpeeds.omegaRadiansPerSecond);
+    // System.out.println("Forward: " + chassisSpeeds.vxMetersPerSecond);
+    // System.out.println("Raw Range: " + rightRange);
   }
 
   // Called once the command ends or is interrupted.

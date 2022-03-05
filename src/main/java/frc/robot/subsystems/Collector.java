@@ -146,7 +146,7 @@ public class Collector extends SubsystemBase
   public void setLiftPosition(double targetPosition) {
     targetLiftPosition = targetPosition;
     liftMotor.setIntegralAccumulator(0);
-    System.out.println(getLiftPosition());
+    // System.out.println(getLiftPosition());
     liftProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
     liftProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
