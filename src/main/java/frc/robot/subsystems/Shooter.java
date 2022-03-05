@@ -397,7 +397,8 @@ public class Shooter extends SubsystemBase {
     motor.setIntegralAccumulator(0);
   }
 
-  public void updatePID(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val, double max_integrator) {
+  public void updatePID(WPI_TalonFX motor, double p_val, double i_val, double d_val, double f_val,
+      double max_integrator) {
     if (motor == null) {
       return;
     }
@@ -408,5 +409,10 @@ public class Shooter extends SubsystemBase {
     motor.config_kI(0, i_val);
     motor.config_kD(0, d_val);
     motor.config_kF(0, f_val);
+  }
+  
+  public static class Constants {
+    public static final double ACCEPTABLE_FLYWHEEL_ERROR = 15.0; //Units: radians/second
+    public static final double ACCEPTABLE_HOOD_ERROR = 0.1; //Units: radians
   }
 }

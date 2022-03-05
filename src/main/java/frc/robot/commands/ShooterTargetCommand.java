@@ -7,7 +7,6 @@ package frc.robot.commands;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.components.InterpolatorTable;
 import frc.robot.components.InterpolatorTable.InterpolatorTableEntry;
 import frc.robot.subsystems.HubTracking;
@@ -91,7 +90,7 @@ public class ShooterTargetCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(targetHoodAngle - shooter.getHoodPosition()) <= Constants.ACCEPTABLE_HOOD_ERROR
-        && Math.abs(targetFlywheelVelocity - shooter.getFlywheelVelocity()) <= Constants.ACCEPTABLE_FLYWHEEL_ERROR;
+    return Math.abs(targetHoodAngle - shooter.getHoodPosition()) <= Shooter.Constants.ACCEPTABLE_HOOD_ERROR
+        && Math.abs(targetFlywheelVelocity - shooter.getFlywheelVelocity()) <= Shooter.Constants.ACCEPTABLE_FLYWHEEL_ERROR;
   }
 }
