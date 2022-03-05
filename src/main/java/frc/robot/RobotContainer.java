@@ -8,9 +8,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -109,6 +111,11 @@ public class RobotContainer {
         new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
         new ShooterFeedCommand(shooter, 2.0),
         new ShooterSpinDownCommand(shooter)        
+      )
+    );
+    OI.getOperatorDPadDown().whileActiveContinuous(
+      new InstantCommand(
+        ()->{SmartDashboard.putNumber("Hey",RobotController.getFPGATime());}
       )
     );
   }
