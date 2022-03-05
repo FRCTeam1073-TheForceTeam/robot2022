@@ -4,6 +4,9 @@
 
 package frc.robot.components;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * A component for generating output values based on a set of input-output pairs,
  * linearly interpolating between values and optionally either extrapolating past
@@ -13,6 +16,8 @@ package frc.robot.components;
 public class InterpolatorTable {
     private InterpolatorTableEntry[] entries;
 
+    private double minimumX = 0, maximumX = 0;
+
     /**
      * Constructs an InterpolatorTable object.
      * Optionally allows for extrapolation past the lower and upper bounds
@@ -21,6 +26,36 @@ public class InterpolatorTable {
      */
     public InterpolatorTable(InterpolatorTableEntry... entries_) {
         entries = entries_;
+        if (entries.length > 0) {
+            double lowestX = entries[0].x;
+            double highestX = entries[0].x;
+            for (InterpolatorTableEntry entry : entries) {
+                if (entry.x < lowestX) {
+                    lowestX = entry.x;
+                }
+                if (entry.x > highestX) {
+                    highestX = entry.x;
+                }
+            }
+            minimumX = lowestX;
+            maximumX = highestX;
+        }
+    }
+
+    /**
+     * Gets minimum of X domain.
+     * @return The minimum X value of any entry.
+     */
+    public double getMinimumX() {
+        return minimumX;
+    }
+
+    /**
+     * Gets minimum of X domain.
+     * @return The minimum X value of any entry.
+     */
+    public double getMaximumX() {
+        return maximumX;
     }
 
     public double getValue(double input) {
@@ -54,6 +89,7 @@ public class InterpolatorTable {
     public static class InterpolatorTableEntry {
         double x = 0;
         double y = 0;
+
         public InterpolatorTableEntry(double x_, double y_) {
             x = x_;
             y = y_;
