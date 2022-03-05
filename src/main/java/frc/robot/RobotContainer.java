@@ -116,28 +116,40 @@ public class RobotContainer {
     OI.getOperatorDPadDown().whenActive(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new ShooterFeedCommand(shooter, 2.0),
+        new WaitCommand(2.0),
+        new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
     OI.getOperatorDPadLeft().whenActive(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-        new ShooterFeedCommand(shooter, 2.0),
+        new WaitCommand(2.0),
+        new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
     OI.getOperatorDPadUp().whenActive(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
-        new ShooterFeedCommand(shooter, 2.0),
+        new WaitCommand(2.0),
+        new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
     OI.getOperatorDPadRight().whenActive(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
-        new ShooterFeedCommand(shooter, 2.0),
+        new WaitCommand(2.0),
+        new ShooterFeedCommand(shooter, 2.5),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+    (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whenPressed(
+      new SequentialCommandGroup(
+        new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
+        new WaitCommand(2.0),
+        new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );

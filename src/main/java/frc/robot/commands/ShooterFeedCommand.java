@@ -39,16 +39,13 @@ public class ShooterFeedCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.setFeederVelocity(0);
+
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     //Check for falling edge on ToF sensor 2
-    currSensor2 = shooter.isBallInShooter();
-    boolean fallingEdge = (!currSensor2) && (prevSensor2);
-    prevSensor2 = currSensor2;
     double currentTime = ((double) System.currentTimeMillis()) / 1000.0;
     System.out.println((currentTime - startTime));
     return ((currentTime - startTime) >= timeout);

@@ -53,8 +53,8 @@ public class Shooter extends SubsystemBase {
   private double flywheel_kP = 0.2;
   private double flywheel_kI = 0.004;
   private double flywheel_kD = 0;
-  private double flywheel_kF = 0.05;
-  private double flywheel_maxIntegrator = 6000;
+  private double flywheel_kF = 0.051;
+  private double flywheel_maxIntegrator = 8000;
   private double flywheelTicksPerRadian = 2048.0 / (2.0 * Math.PI);
 
   //Yes, I know it's not just a belt, there's a gearbox in there too, but I don't really care?
@@ -92,6 +92,8 @@ public class Shooter extends SubsystemBase {
 
   private final double maxHoodVelocity = 5.0; //Units :radians/s
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
+
+  private final double hoodAngleOffset = Units.degreesToRadians(3.0);
 
   private final double maximumHoodAngle = 1.27;
 
@@ -192,7 +194,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
     SmartDashboard.putNumber("TOF 1/Range", tof1Range);
 
-    if (tof1Range < 0.03) {
+    if (tof1Range <= 0.04) {
       ball1Stored = true;
     } else {
       ball1Stored = false;
@@ -206,7 +208,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
     SmartDashboard.putNumber("TOF 2/Range", tof2Range);
 
-    if (tof2Range < 0.1) {
+    if (tof2Range <= 0.07) {
       ball2Stored = true;
     } else {
       ball2Stored = false;
@@ -250,6 +252,7 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Out", flywheelMotor.getMotorOutputPercent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Current", flywheelMotor.getSupplyCurrent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Temperature", flywheelMotor.getTemperature());
+      SmartDashboard.putNumber("[Shooter] Flywheel Data/Accumulator", flywheelMotor.getIntegralAccumulator());
     }
 
 
@@ -353,8 +356,12 @@ public class Shooter extends SubsystemBase {
     );
   }
 
-  public double getHoodPosition(){
+  public double getHoodPosition() {
     return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+  }
+
+  public double getHoodTargetPosition() {
+    return hoodTargetPosition;
   }
 
   public double getRange1() {
@@ -380,6 +387,10 @@ public class Shooter extends SubsystemBase {
 
   public void setFlywheelVelocity(double velocity) {
     flywheelTargetVelocity = velocity;
+  }
+
+  public double getFlywheelTargetVelocity() {
+    return flywheelTargetVelocity;
   }
 
   public double getFlywheelVelocity() {
@@ -412,7 +423,8 @@ public class Shooter extends SubsystemBase {
   }
   
   public static class Constants {
-    public static final double ACCEPTABLE_FLYWHEEL_ERROR = 15.0; //Units: radians/second
-    public static final double ACCEPTABLE_HOOD_ERROR = 0.1; //Units: radians
+    public static final double kAcceptableFlywheelVelocityError = 0.3; //Units: radians/second
+    public static final double kAcceptableHoodPositionError = 0.005; //Units: radians
+    // public static final double kTOF1_threshold = 0.07;
   }
 }

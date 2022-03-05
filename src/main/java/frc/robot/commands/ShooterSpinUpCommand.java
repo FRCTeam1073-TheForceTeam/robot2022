@@ -39,6 +39,6 @@ public class ShooterSpinUpCommand extends CommandBase {
   public boolean isFinished() {
     double currentVel = shooter.getFlywheelVelocity();
     double currentAngle = shooter.getHoodPosition();
-    return (Math.abs(currentVel - velocity) < 15.0) && (Math.abs(currentAngle - hoodAngle) < 0.1);
+    return (Math.abs(currentVel - velocity) < Shooter.Constants.kAcceptableFlywheelVelocityError) && (Math.abs(currentAngle - hoodAngle) < Shooter.Constants.kAcceptableHoodPositionError);
   }
 }
