@@ -15,6 +15,13 @@ Team 1073's robot code for FRC 2022: Rapid React, to control our robot Willard.
 | Collector lift | 49 |
 | Collector intake | 48 |
 | Indexer | 19 |
+| Left spooler | 32 |
+| Right spooler | 44 |
+| Left extension | 29 |
+| Right extension | 17 |
+| Feeder | 42 |
+| Flywheel | 45 |
+| Hood | 18 |
 
 ### Bling slots
 

@@ -146,7 +146,7 @@ public class Collector extends SubsystemBase
   public void setLiftPosition(double targetPosition) {
     targetLiftPosition = targetPosition;
     liftMotor.setIntegralAccumulator(0);
-    System.out.println(getLiftPosition());
+    // System.out.println(getLiftPosition());
     liftProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
     liftProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
@@ -204,7 +204,6 @@ public class Collector extends SubsystemBase
   private void resetMotor(WPI_TalonFX motor) {
     motor.configFactoryDefault();
     motor.setSafetyEnabled(false);
-    collectMotor.setSafetyEnabled(false);
     motor.setNeutralMode(NeutralMode.Brake);
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setSelectedSensorPosition(0);
