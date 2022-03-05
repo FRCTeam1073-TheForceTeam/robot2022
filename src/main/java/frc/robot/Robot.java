@@ -32,7 +32,7 @@ public class Robot extends TimedRobot
   public void robotInit() 
   {
     robotContainer = new RobotContainer();
-    // bling = robotContainer.bling;
+    bling = robotContainer.bling;
   }
 
   @Override
@@ -67,7 +67,8 @@ public class Robot extends TimedRobot
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
   public void disabledInit() {}
