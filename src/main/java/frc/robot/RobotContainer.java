@@ -131,7 +131,7 @@ public class RobotContainer {
   public Command getTeleopCommand() {
     // Return the command that will run during teleop ('return null' means no
     // command will be run)
-    return hangStartPositioning;
+    return null;
   }
 
   public Command getTestCommand() {
