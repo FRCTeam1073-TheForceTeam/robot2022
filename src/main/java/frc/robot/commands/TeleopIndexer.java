@@ -9,14 +9,17 @@ import frc.robot.Robot;
 import frc.robot.subsystems.Bling;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.OI;
+import frc.robot.subsystems.Shooter;
 
 public class TeleopIndexer extends CommandBase {
 
   private Indexer indexer;
+  private Shooter shooter;
 
   /** Creates a new TeleopIndexer. */
-  public TeleopIndexer(Indexer indexer) {
+  public TeleopIndexer(Indexer indexer, Shooter shooter) {
     this.indexer = indexer;
+    this.shooter = shooter;
     
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(indexer);
@@ -34,7 +37,9 @@ public class TeleopIndexer extends CommandBase {
     //Indexer runs inward if the left bumper's held and outward if the right bumper's held.
     //If the left trigger is past 50%, it goes backwards regardless of other inputs.
     //Otherwise, it sets power to zero.
-    if (OI.operatorController.getRightBumper()||(OI.operatorController.getLeftTriggerAxis()>0.5)) {
+    if (shooter.isBallInIndexer()) {
+      indexer.setPower(0);
+    } else if (OI.operatorController.getRightBumper()||(OI.operatorController.getLeftTriggerAxis()>0.5)) {
       indexer.setPower(-0.8);
     }else if (OI.operatorController.getLeftBumper()) {
       indexer.setPower(0.8);
