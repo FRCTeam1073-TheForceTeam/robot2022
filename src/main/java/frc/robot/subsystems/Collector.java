@@ -134,15 +134,13 @@ public class Collector extends SubsystemBase
 
     currentIntakeVelocity = collectMotor.getSelectedSensorVelocity() / intakeTicksPerRadian * 10.0;
 
-    SmartDashboard.putNumber("[Collector] RAW lift position", liftMotor.getSelectedSensorPosition());
     SmartDashboard.putNumberArray("[Collector] Lift position vs target position (radians)", new Double[]{currentLiftPosition, targetLiftPosition});
     SmartDashboard.putNumber("[Collector] Lift position (radians)", currentLiftPosition);
     SmartDashboard.putNumber("[Collector] Lift error ratio", (currentLiftPosition - targetLiftPosition) / targetLiftPosition);
     SmartDashboard.putNumber("[Collector] TrapezoidProfile position", previousState.position);
     SmartDashboard.putNumber("[Collector] TrapezoidProfile velocity", previousState.velocity);
     SmartDashboard.putNumberArray("[Collector] Intake velocity vs target velocity (radians per second)", new Double[]{intakeVel, currentIntakeVelocity});
-    SmartDashboard.putNumber("[Collector] Intake velocity error ratio",
-        (intakeVel - currentIntakeVelocity) / intakeVel);
+    SmartDashboard.putNumber("[Collector] Intake velocity error ratio", (intakeVel-currentIntakeVelocity)/intakeVel);
   }
 
   public void setLiftPosition(double targetPosition) {

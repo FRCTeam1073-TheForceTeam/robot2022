@@ -14,8 +14,7 @@ public class HubTracking extends SubsystemBase {
   // CANifier - https://docs.ctre-phoenix.com/en/stable/ch12_BringUpCANifier.html
   // setLEDOutput() - https://store.ctr-electronics.com/content/api/java/html/classcom_1_1ctre_1_1phoenix_1_1_c_a_nifier.html
   private final CANifier canifier;
-  private final LEDChannel lowerChannel;
-  private final LEDChannel upperChannel;
+  private final LEDChannel channel;
 
 
   public static class HubData {
@@ -46,8 +45,8 @@ public class HubTracking extends SubsystemBase {
 
     // Initialize the canifier variables:
     canifier = new CANifier(8);
-    lowerChannel = LEDChannel.LEDChannelA;
-    upperChannel = LEDChannel.LEDChannelB;
+    channel = LEDChannel.LEDChannelA;
+
   }
 
   @Override
@@ -63,8 +62,7 @@ public class HubTracking extends SubsystemBase {
   }
 
   public void setLEDIntensity(double percent){
-    //System.out.println("Set Intensity: "+percent);
-    canifier.setLEDOutput(percent, lowerChannel);
-    canifier.setLEDOutput(percent, upperChannel);
+    // System.out.println("Set Itensity: ");
+    canifier.setLEDOutput(percent * 0.001, channel); 
   }
 }
