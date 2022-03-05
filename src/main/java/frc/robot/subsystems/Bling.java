@@ -42,8 +42,8 @@ public class Bling extends SubsystemBase {
   public boolean cleared = false;
 
   public Bling() {
-    m_led = new AddressableLED(1);
-    m_ledBuffer = new AddressableLEDBuffer(66);
+    m_led = new AddressableLED(0);
+    m_ledBuffer = new AddressableLEDBuffer(64);
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
@@ -69,15 +69,15 @@ public class Bling extends SubsystemBase {
   public void periodic() {
     
     if (!cleared) {
-      LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
+      // LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
 
-      // batteryBling(0, 1, 8.0, 12.5);
+      batteryBling(0, slotLength, 8.0, 12.5);
 
       // setColorRGBAll(255, 0, 0);
 
       // setSlot(5, 255, 0, 0);
 
-      reverseRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+      reverseRange(0, slotLength, m_ledBuffer.getLength() / 2);
 
       m_led.setData(m_ledBuffer);
 
