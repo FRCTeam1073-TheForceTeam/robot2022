@@ -113,9 +113,32 @@ public class RobotContainer {
         new ShooterSpinDownCommand(shooter)        
       )
     );
-    OI.getOperatorDPadDown().whileActiveContinuous(
-      new InstantCommand(
-        ()->{SmartDashboard.putNumber("Hey",RobotController.getFPGATime());}
+    OI.getOperatorDPadDown().whenActive(
+      new SequentialCommandGroup(
+        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+        new ShooterFeedCommand(shooter, 2.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+    OI.getOperatorDPadLeft().whenActive(
+      new SequentialCommandGroup(
+        new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
+        new ShooterFeedCommand(shooter, 2.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+    OI.getOperatorDPadUp().whenActive(
+      new SequentialCommandGroup(
+        new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
+        new ShooterFeedCommand(shooter, 2.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+    OI.getOperatorDPadRight().whenActive(
+      new SequentialCommandGroup(
+        new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
+        new ShooterFeedCommand(shooter, 2.0),
+        new ShooterSpinDownCommand(shooter)
       )
     );
   }

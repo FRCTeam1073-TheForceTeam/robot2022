@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.components.InterpolatorTable;
 import frc.robot.components.InterpolatorTable.InterpolatorTableEntry;
@@ -66,12 +67,15 @@ public class ShooterTargetCommand extends CommandBase {
       range = overrideDistance;
       targetFlywheelVelocity = flywheelTable.getValue(range);
       targetHoodAngle = hoodTable.getValue(range);
+      shooter.setFlywheelVelocity(targetFlywheelVelocity);
+      shooter.setHoodPosition(targetHoodAngle);
     }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putNumberArray("[S-TC] Target vel, Target angle",new Double[]{targetFlywheelVelocity, targetHoodAngle});
     if (!overrideHubTracking && !dataCollected) {
       hubTracking.sampleHubData(data);
       range = data.range;
@@ -79,6 +83,8 @@ public class ShooterTargetCommand extends CommandBase {
         dataCollected = true;
         targetFlywheelVelocity = flywheelTable.getValue(range);
         targetHoodAngle = hoodTable.getValue(range);
+        shooter.setFlywheelVelocity(targetFlywheelVelocity);
+        shooter.setHoodPosition(targetHoodAngle);
       }
     }
   }
