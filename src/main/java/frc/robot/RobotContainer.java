@@ -77,7 +77,7 @@ public class RobotContainer {
     cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
-    // indexer.setDefaultCommand(teleopIndexer);
+    indexer.setDefaultCommand(teleopIndexer);
     climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
 
