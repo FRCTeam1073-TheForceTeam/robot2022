@@ -64,6 +64,7 @@ public class RobotContainer {
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
+  HangStartPositioning hangStartPositioning = new HangStartPositioning(drivetrain, frontSonar);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -113,7 +114,7 @@ public class RobotContainer {
   public Command getTeleopCommand() {
     // Return the command that will run during teleop ('return null' means no
     // command will be run)
-    return null;
+    return hangStartPositioning;
   }
 
   public Command getTestCommand() {

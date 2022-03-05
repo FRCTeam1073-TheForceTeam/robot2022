@@ -6,14 +6,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.OI;
 
-public class TeleopClimber extends CommandBase {
-  Climber climber = new Climber();
+public class ClimbToMediumRung extends CommandBase {
 
-  /** Creates a new TeleopClimber. */
-  public TeleopClimber(Climber climber) {
+  private Climber climber;
+
+  /** Creates a new ClimbToMediumRung. */
+  public ClimbToMediumRung(Climber climber) {
     this.climber = climber;
+
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
   }
@@ -25,19 +26,16 @@ public class TeleopClimber extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // climber.setSpoolVelocity(OI.operatorController.getLeftY());
-    // climber.setExtensionVelocity(OI.operatorController.getRightY());
-
-    climber.setSpoolPower(OI.operatorController.getLeftY() * .25);
-    climber.setExtensionPower(OI.operatorController.getRightY() * .25);
+    //Make sure it's not already hanging and everything's set correctly
+    //Extend halfway
+    //Release spool
+    //Extend the rest of the way (grabs onto bar)
+    //Wind spool (lifts up)
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    climber.setSpoolVelocity(0);
-    climber.setExtensionVelocity(0);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

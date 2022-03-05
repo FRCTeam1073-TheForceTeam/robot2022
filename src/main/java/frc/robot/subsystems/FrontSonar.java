@@ -12,6 +12,8 @@ public class FrontSonar extends SubsystemBase {
   // https://www.maxbotix.com/ultrasonic_sensors/mb1043.htm
   // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/sensors/analog-inputs-software.html
 
+  //TODO: NEEDS SECOND SENSOR
+
   AnalogInput analog = new AnalogInput(0);
   double inputMeters = -1;
   final double voltageRatio = 0.005/0.00488;
@@ -36,7 +38,12 @@ public class FrontSonar extends SubsystemBase {
 
   // sensorNumber determines which sensor to read from
   // If invalid, return -1, otherwise range in meters
-  public double getRange(int sensorNumber) {
+  public double getRangeRight(int sensorNumber) {
     return inputMeters;
+  }
+
+  public double getRangeLeft(int sensorNumber){
+    return inputMeters + 0.2;
+    //Currently set up for testing on roadkill, needs to be set up for a separate sensor for the real robot
   }
 }
