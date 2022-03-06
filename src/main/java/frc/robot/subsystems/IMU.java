@@ -32,11 +32,11 @@ public class IMU extends SubsystemBase
   {
     // This method will be called once per scheduler run
     heading = pigeonIMU.getFusedHeading();
-    pigeonIMU.getAccelerometerAngles(accelAngles);
+    // pigeonIMU.getAccelerometerAngles(accelAngles);
 
-    SmartDashboard.putNumber("pigeon/fusedHeading", heading); 
-    SmartDashboard.putNumber("pigeon/roll", accelAngles[0]);
-    SmartDashboard.putNumber("pigeon/pitch", accelAngles[1]);
+    // SmartDashboard.putNumber("pigeon/fusedHeading", heading); 
+    // SmartDashboard.putNumber("pigeon/roll", accelAngles[0]);
+    // SmartDashboard.putNumber("pigeon/pitch", accelAngles[1]);
   }
 
   // Access gyro data read in periodic

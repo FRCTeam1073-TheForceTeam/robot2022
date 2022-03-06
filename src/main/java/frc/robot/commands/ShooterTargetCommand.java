@@ -26,25 +26,43 @@ public class ShooterTargetCommand extends CommandBase {
 
   InterpolatorTable flywheelTable = new InterpolatorTable(
     new InterpolatorTableEntry(0.0, 320),
+    new InterpolatorTableEntry(0.5, 350),
     new InterpolatorTableEntry(1.0, 350),
     new InterpolatorTableEntry(2.0, 370),
-    new InterpolatorTableEntry(3.0, 400),
-    new InterpolatorTableEntry(4.0, 437),
-    new InterpolatorTableEntry(5.0, 465)
-    // new InterpolatorTableEntry(0.5, 350),
-    // new InterpolatorTableEntry(1.0, 335),
-    // new InterpolatorTableEntry(2.0, 375),
-    // new InterpolatorTableEntry(3.0, 387),
-    // new InterpolatorTableEntry(4.0, 418)
+    new InterpolatorTableEntry(3.0, 387),
+    new InterpolatorTableEntry(4.0, 418),
+    new InterpolatorTableEntry(5.0, 460)
+
+    // new InterpolatorTableEntry(0.0, 320),
+    // new InterpolatorTableEntry(1.0, 350),
+    // new InterpolatorTableEntry(2.0, 370),
+    // new InterpolatorTableEntry(3.0, 400),
+    // new InterpolatorTableEntry(4.0, 437),
+    // new InterpolatorTableEntry(5.0, 465)
+
+    // // new InterpolatorTableEntry(0.5, 350),
+    // // new InterpolatorTableEntry(1.0, 335),
+    // // new InterpolatorTableEntry(2.0, 375),
+    // // new InterpolatorTableEntry(3.0, 387),
+    // // new InterpolatorTableEntry(4.0, 418)
   );
 
   InterpolatorTable hoodTable = new InterpolatorTable(
-    new InterpolatorTableEntry(0.0, 0.1),
-    new InterpolatorTableEntry(1.0, 0.23),
-    new InterpolatorTableEntry(2.0, 0.34),
-    new InterpolatorTableEntry(3.0, 0.385),
-    new InterpolatorTableEntry(4.0, 0.439),
-    new InterpolatorTableEntry(5.0, 0.470)
+    new InterpolatorTableEntry(0.0, 0.08),
+    new InterpolatorTableEntry(0.5, 0.16),
+    new InterpolatorTableEntry(1.0, 0.21),
+    new InterpolatorTableEntry(2.0, 0.26),
+    new InterpolatorTableEntry(3.0, 0.338),
+    new InterpolatorTableEntry(4.0, 0.41),
+    new InterpolatorTableEntry(5.0, 0.456)
+
+    // new InterpolatorTableEntry(0.0, 0.1),
+    // new InterpolatorTableEntry(1.0, 0.23),
+    // new InterpolatorTableEntry(2.0, 0.34),
+    // new InterpolatorTableEntry(3.0, 0.385),
+    // new InterpolatorTableEntry(4.0, 0.439),
+    // new InterpolatorTableEntry(5.0, 0.470)
+
     // new InterpolatorTableEntry(0.5, 0.16-0.03*0),
     // new InterpolatorTableEntry(1.0, 0.16-0.03*0),
     // new InterpolatorTableEntry(2.0, 0.26-0.03*0),

@@ -62,7 +62,7 @@ public class Dashboard extends SubsystemBase {
     drivetrain.getChassisSpeeds(chassisSpeeds);
     drivetrainVelocity.setDouble(Units.metersToFeet(chassisSpeeds.vxMetersPerSecond));
     drivetrainVelocityMetersPerSecond.setDouble(chassisSpeeds.vxMetersPerSecond);
-    drivetrainVelocityRaw.setDouble(drivetrain.getRawVelocity());
+    // drivetrainVelocityRaw.setDouble(drivetrain.getRawVelocity());
     tgtDrivetrainVelocity.setDouble(Units.metersToFeet(drivetrain.targetChassisSpeeds.vxMetersPerSecond));
   }
 }

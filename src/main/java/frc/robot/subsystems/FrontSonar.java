@@ -16,7 +16,7 @@ public class FrontSonar extends SubsystemBase {
 
   AnalogInput analog = new AnalogInput(0);
   double inputMeters = -1;
-  final double voltageRatio = 0.005/0.00488;
+  final double voltageRatio = 0.005 / 0.00488;
 
   /** Creates a new FrontSonar. */
   public FrontSonar() {

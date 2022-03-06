@@ -98,11 +98,12 @@ public class Shooter extends SubsystemBase {
   private final double maximumHoodAngle = 1.27;
 
   private final boolean FEEDER_TUNING_DEBUG = false;
-  private final boolean FLYWHEEL_TUNING_DEBUG = true;
-  private final boolean HOOD_TUNING_DEBUG = true;
+  private final boolean FLYWHEEL_TUNING_DEBUG = false;
+  private final boolean HOOD_TUNING_DEBUG = false;
 
   private double currentFeederVelocity = 0;
   private double currentFlywheelVelocity = 0;
+  private double currentHoodPosition = 0;
   
   public Shooter() {
     tof1Input = new DigitalInput(0);
@@ -220,16 +221,16 @@ public class Shooter extends SubsystemBase {
     feederMotor.set(ControlMode.Velocity, limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
     currentFeederVelocity = feederMotor.getSelectedSensorVelocity() * 10.0 / feederTicksPerRadian;
     
-    if (FEEDER_TUNING_DEBUG) {
-      SmartDashboard.putNumber("A", limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
-      SmartDashboard.putNumberArray("[Shooter] Feeder actual vs. target vel", new Double[] {
-        limitedFeederTargetVelocity,
-        currentFeederVelocity,
-        currentFeederVelocity-limitedFeederTargetVelocity
-      });
-      SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentFeederVelocity - limitedFeederTargetVelocity) / limitedFeederTargetVelocity);
-      SmartDashboard.putNumber("[Shooter] Feeder position", feederMotor.getSelectedSensorPosition() / feederTicksPerRadian);
-    }
+    // if (FEEDER_TUNING_DEBUG) {
+    //   SmartDashboard.putNumber("A", limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
+    //   SmartDashboard.putNumberArray("[Shooter] Feeder actual vs. target vel", new Double[] {
+    //     limitedFeederTargetVelocity,
+    //     currentFeederVelocity,
+    //     currentFeederVelocity-limitedFeederTargetVelocity
+    //   });
+    //   SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentFeederVelocity - limitedFeederTargetVelocity) / limitedFeederTargetVelocity);
+    //   SmartDashboard.putNumber("[Shooter] Feeder position", feederMotor.getSelectedSensorPosition() / feederTicksPerRadian);
+    // }
     
     // Flywheel periodic code
     limitedFlywheelTargetVelocity = flywheelRateLimiter.calculate(flywheelTargetVelocity);
@@ -247,12 +248,12 @@ public class Shooter extends SubsystemBase {
         limitedFlywheelTargetVelocity-currentFlywheelVelocity
       );
       SmartDashboard.putNumber("[Shooter] Flywheel error ratio", (currentFlywheelVelocity - limitedFlywheelTargetVelocity) / limitedFlywheelTargetVelocity);
-      SmartDashboard.putNumber("[Shooter] Flywheel rotations", flywheelMotor.getSelectedSensorPosition() / (2.0 * Math.PI * flywheelTicksPerRadian));        
-      SmartDashboard.putNumber("[Shooter] Flywheel Data/Raw vel", flywheelMotor.getSelectedSensorVelocity());
-      SmartDashboard.putNumber("[Shooter] Flywheel Data/Out", flywheelMotor.getMotorOutputPercent());
+      // SmartDashboard.putNumber("[Shooter] Flywheel rotations", flywheelMotor.getSelectedSensorPosition() / (2.0 * Math.PI * flywheelTicksPerRadian));        
+      // SmartDashboard.putNumber("[Shooter] Flywheel Data/Raw vel", flywheelMotor.getSelectedSensorVelocity());
+      // SmartDashboard.putNumber("[Shooter] Flywheel Data/Out", flywheelMotor.getMotorOutputPercent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Current", flywheelMotor.getSupplyCurrent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Temperature", flywheelMotor.getTemperature());
-      SmartDashboard.putNumber("[Shooter] Flywheel Data/Accumulator", flywheelMotor.getIntegralAccumulator());
+      // SmartDashboard.putNumber("[Shooter] Flywheel Data/Accumulator", flywheelMotor.getIntegralAccumulator());
     }
 
 
@@ -264,27 +265,28 @@ public class Shooter extends SubsystemBase {
       ControlMode.Position,
       previousState.position * hoodTicksPerRadian
     );
-    double currentHoodPos = hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+
+    currentHoodPosition = hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
 
     if (HOOD_TUNING_DEBUG) {
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Target pos",
-        previousState.position
-      );
+      // SmartDashboard.putNumber("[Shooter] Hood tuning/Target pos",
+      //   previousState.position
+      // );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Actual pos",
-        currentHoodPos
+      currentHoodPosition
       );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Error pos",
-        currentHoodPos-previousState.position
+        currentHoodPosition-previousState.position
       );
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Error ratio", (currentHoodPos - previousState.position) / previousState.position);
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Current",
-        hoodMotor.getSupplyCurrent()
-      );
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Accumulator",
-        hoodMotor.getIntegralAccumulator()
-      );
+      SmartDashboard.putNumber("[Shooter] Hood tuning/Error ratio", (currentHoodPosition - previousState.position) / previousState.position);
+      // SmartDashboard.putNumber("[Shooter] Hood tuning/Current",
+      //   hoodMotor.getSupplyCurrent()
+      // );
+      // SmartDashboard.putNumber("[Shooter] Hood tuning/Accumulator",
+      //   hoodMotor.getIntegralAccumulator()
+      // );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Degrees",
-        Units.radiansToDegrees(currentHoodPos)
+        Units.radiansToDegrees(currentHoodPosition)
       );
     }
 
@@ -338,7 +340,6 @@ public class Shooter extends SubsystemBase {
   public void setHoodPosition(double targetPosition){
     hoodTargetPosition = targetPosition;
     hoodMotor.setIntegralAccumulator(0);
-    System.out.println(getHoodPosition());
     hoodProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
     hoodProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
@@ -357,7 +358,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public double getHoodPosition() {
-    return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+    return currentHoodPosition;
   }
 
   public double getHoodTargetPosition() {

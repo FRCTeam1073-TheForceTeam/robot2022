@@ -16,7 +16,7 @@ import frc.robot.Robot;
 public class Indexer extends SubsystemBase {
   private double motorPower;
   private WPI_TalonSRX indexerMotor;
-  private LinearFilter filter;
+  // private LinearFilter filter;
   private double rawCurrent;
   private double filteredCurrent;
 
@@ -27,18 +27,13 @@ public class Indexer extends SubsystemBase {
 
     motorPower = 0.0;
 
-    filter = LinearFilter.singlePoleIIR(0.75, 0.02);
+    // filter = LinearFilter.singlePoleIIR(0.75, 0.02);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("o",OI.operatorController.getLeftY());
-
-    SmartDashboard.putNumber("[Indexer] Current (A)", indexerMotor.getStatorCurrent());
-    SmartDashboard.putNumber("[Indexer] Output power", indexerMotor.getMotorOutputPercent());
-
-    rawCurrent = indexerMotor.getStatorCurrent();
-    filteredCurrent = filter.calculate(rawCurrent);
+    // rawCurrent = indexerMotor.getStatorCurrent();
+    // filteredCurrent = filter.calculate(rawCurrent);
   }
 
   public void setPower(double power) {
@@ -70,8 +65,9 @@ public class Indexer extends SubsystemBase {
     return 0;
   }
 
-  public boolean isStalled(){
-    return 27.85 < Math.abs(getFilteredCurrent()); //Value copied from WPI sample code!
+  public boolean isStalled() {
+    return false;
+    // return 27.85 < Math.abs(getFilteredCurrent()); //Value copied from WPI sample code!
   }
 
   public double getFilteredCurrent(){
