@@ -374,12 +374,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isBallInIndexer() {
-    return ball1Stored;
+    return tof1Range < Constants.kTOF1_closed;
   }
 
   public boolean isBallInShooter() {
-    return ball2Stored;
-    // ^ This returns true if the time of flight sensor detects that the ball is in the wheels.
+    return tof2Range < Constants.kTOF2_closed;
   }
 
   public void setFeederVelocity(double velocity) {
@@ -426,7 +425,9 @@ public class Shooter extends SubsystemBase {
   public static class Constants {
     public static final double kAcceptableFlywheelVelocityError = 0.3; //Units: radians/second
     public static final double kAcceptableHoodPositionError = 0.005; //Units: radians
-    public static final double kTOF1_threshold = 0.07;
-    public static final double kTOF2_threshold = 0.1;
+    public static final double kTOF1_open = 0.20;
+    public static final double kTOF1_closed = 0.07;
+    public static final double kTOF2_open = 0.20;
+    public static final double kTOF2_closed = 0.1;
   }
 }

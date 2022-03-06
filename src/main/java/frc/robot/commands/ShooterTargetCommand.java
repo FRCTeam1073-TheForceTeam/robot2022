@@ -76,10 +76,6 @@ public class ShooterTargetCommand extends CommandBase {
   boolean overrideHubTracking;
   double overrideDistance;
 
-  double timeout = 8.0;
-
-  double startTime;
-
   /** Creates a new ShooterTargetCommand. */
   public ShooterTargetCommand(Shooter shooter_, HubTracking hubTracking_, boolean overrideHubTracking_, double overrideDistance_) {
     hubTracking = hubTracking_;
@@ -93,7 +89,6 @@ public class ShooterTargetCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    startTime = ((double) System.currentTimeMillis()) * 1e-3;
     range = 0;
     targetFlywheelVelocity = 0;
     targetHoodAngle = 0;
@@ -136,8 +131,7 @@ public class ShooterTargetCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (((double) System.currentTimeMillis()) * 1e-3 - startTime <= timeout)
-       || (Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
+    return (Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
         && Math.abs(shooter.getFlywheelTargetVelocity() - shooter.getFlywheelVelocity()) < Shooter.Constants.kAcceptableFlywheelVelocityError);
   }
 }

@@ -48,6 +48,6 @@ public class CollectCargoCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (shooter.getRange1() <= Shooter.Constants.kTOF1_threshold);
+    return (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
   }
 }
