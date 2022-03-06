@@ -425,6 +425,7 @@ public class Shooter extends SubsystemBase {
   public static class Constants {
     public static final double kAcceptableFlywheelVelocityError = 0.3; //Units: radians/second
     public static final double kAcceptableHoodPositionError = 0.005; //Units: radians
-    // public static final double kTOF1_threshold = 0.07;
+    public static final double kTOF1_threshold = 0.07;
+    public static final double kTOF2_threshold = 0.1;
   }
 }

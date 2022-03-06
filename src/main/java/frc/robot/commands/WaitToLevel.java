@@ -7,16 +7,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
 
-public class ShooterFeedCommand extends CommandBase {
+public class WaitToLevel extends CommandBase {
   Shooter shooter;
   double startTime;
   double timeout;
-  boolean prevSensor2;
-  boolean currSensor2;
-  boolean hasDetectedFallingEdge;
-
-  /** Creates a new ShooterFeedCommand. */
-  public ShooterFeedCommand(Shooter shooter_, double timeout_) {
+  /** Creates a new WaitToLevel. */
+  public WaitToLevel(Shooter shooter_, double timeout_) {
     shooter = shooter_;
     timeout = timeout_;
     addRequirements(shooter);
@@ -26,10 +22,7 @@ public class ShooterFeedCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    currSensor2 = shooter.isBallInShooter();
-    prevSensor2 = currSensor2;
-    startTime = ((double) System.currentTimeMillis()) / 1000.0;
-    shooter.setFeederVelocity(192);
+    startTime = ((double) System.currentTimeMillis()) * 1e-3;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -49,9 +42,6 @@ public class ShooterFeedCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //Check for falling edge on ToF sensor 2
-    double currentTime = ((double) System.currentTimeMillis()) / 1000.0;
-    System.out.println((currentTime - startTime));
-    return ((currentTime - startTime) >= timeout);
+    return ((((double) System.currentTimeMillis()) * 1e-3) - startTime >= timeout);
   }
 }

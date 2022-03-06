@@ -34,8 +34,8 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonFX rightMotorLeader;
   private WPI_TalonFX rightMotorFollower;
 
-  private double kP = 0.15;
-  private double kI = 0.002;
+  private double kP = 0.15 * 0.75;
+  private double kI = 0.002 * 0;
   private double kD = 0.0;
   private double kF = 0.052;
   //0.5: 10100, 0.75:
@@ -75,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
   SlewRateLimiter rightMotorLimiter;
   private DifferentialDriveWheelSpeeds limitedTargetWheelSpeeds;
 
-  private final double rateLimit = 5.0;
+  private final double rateLimit = 5.0 * 0.6;
   private DifferentialDriveWheelSpeeds targetWheelSpeeds;
   private int counter = 0;
 

@@ -12,7 +12,10 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -106,49 +109,49 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whenPressed(
+    new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whileActiveContinuous(
       new SequentialCommandGroup(
         new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
         new ShooterFeedCommand(shooter, 2.0),
         new ShooterSpinDownCommand(shooter)        
       )
     );
-    OI.getOperatorDPadDown().whenActive(
+    OI.getOperatorDPadDown().whileActiveContinuous(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new WaitCommand(2.0),
+        new WaitToLevel(shooter, 2.0),
         new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
-    OI.getOperatorDPadLeft().whenActive(
+    OI.getOperatorDPadLeft().whileActiveContinuous(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-        new WaitCommand(2.0),
+        new WaitToLevel(shooter, 2.0),
         new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
-    OI.getOperatorDPadUp().whenActive(
+    OI.getOperatorDPadUp().whileActiveContinuous(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
-        new WaitCommand(2.0),
+        new WaitToLevel(shooter, 2.0),
         new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
-    OI.getOperatorDPadRight().whenActive(
+    OI.getOperatorDPadRight().whileActiveContinuous(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
-        new WaitCommand(2.0),
+        new WaitToLevel(shooter, 2.0),
         new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
     );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whenPressed(
+    (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whileHeld(
       new SequentialCommandGroup(
         new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
-        new WaitCommand(2.0),
+        new WaitToLevel(shooter, 2.0),
         new ShooterFeedCommand(shooter, 2.5),
         new ShooterSpinDownCommand(shooter)
       )
@@ -162,8 +165,24 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     if (autoCheckBox.getBoolean(false)) {
-      return new DriveForwardCommand(drivetrain, 2.0, 1.5).andThen(
-        new WaitCommand(5.0)
+      //1-ball auto
+      return new SequentialCommandGroup(
+        new PrintCommand("DTC"),
+        new DriveTranslateCommand(drivetrain, 1.0, 2.0),
+        new PrintCommand("STC"),
+        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+        new PrintCommand("WTL"),
+        new WaitToLevel(shooter, 2.0),
+        new PrintCommand("SFC"),
+        new ShooterFeedCommand(shooter, 2.5),
+        new PrintCommand("SSDC"),
+        new ShooterSpinDownCommand(shooter),
+        new PrintCommand("TC"),
+        new TurnCommand(drivetrain, -Units.degreesToRadians(70.0), 1.0),
+        new PrintCommand("DTC2"),
+        new DriveTranslateCommand(drivetrain, 2.5, 2.0)
+        // Apparently this turns to the right angle for the two-ball auto? Neato.
+        // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
       );
     } else {
       return null;
