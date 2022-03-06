@@ -194,6 +194,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 1/Duty Cycle", tof1DutyCycle);
     SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
     SmartDashboard.putNumber("TOF 1/Range", tof1Range);
+    SmartDashboard.putBoolean("TOF 1/Closed", tof1Range < Constants.kTOF1_closed);
 
     if (tof1Range <= 0.04) {
       ball1Stored = true;
@@ -208,6 +209,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 2/Duty Cycle", tof2DutyCycle);
     SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
     SmartDashboard.putNumber("TOF 2/Range", tof2Range);
+    SmartDashboard.putBoolean("TOF 2/Closed", tof2Range < Constants.kTOF2_closed);
 
     if (tof2Range <= 0.07) {
       ball2Stored = true;
@@ -273,12 +275,11 @@ public class Shooter extends SubsystemBase {
       //   previousState.position
       // );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Actual pos",
-      currentHoodPosition
-      );
+          currentHoodPosition);
       SmartDashboard.putNumber("[Shooter] Hood tuning/Error pos",
-        currentHoodPosition-previousState.position
-      );
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Error ratio", (currentHoodPosition - previousState.position) / previousState.position);
+          currentHoodPosition - previousState.position);
+      SmartDashboard.putNumber("[Shooter] Hood tuning/Error ratio",
+          (currentHoodPosition - previousState.position) / previousState.position);
       // SmartDashboard.putNumber("[Shooter] Hood tuning/Current",
       //   hoodMotor.getSupplyCurrent()
       // );
@@ -286,10 +287,8 @@ public class Shooter extends SubsystemBase {
       //   hoodMotor.getIntegralAccumulator()
       // );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Degrees",
-        Units.radiansToDegrees(currentHoodPosition)
-      );
+          Units.radiansToDegrees(currentHoodPosition));
     }
-
 
     if (SmartDashboard.getBoolean("[Shooter] Update", false)) {
       feeder_kP = SmartDashboard.getNumber("[Shooter] feeder/kP", 0);
@@ -382,7 +381,12 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setFeederVelocity(double velocity) {
-    feederTargetVelocity = velocity;
+    if (velocity == 0) {
+      feederTargetVelocity = 0;
+      feederRateLimiter.reset(0);
+    } else {
+      feederTargetVelocity = velocity;
+    }
   }
 
   public void setFlywheelVelocity(double velocity) {
@@ -425,9 +429,9 @@ public class Shooter extends SubsystemBase {
   public static class Constants {
     public static final double kAcceptableFlywheelVelocityError = 0.3; //Units: radians/second
     public static final double kAcceptableHoodPositionError = 0.005; //Units: radians
-    public static final double kTOF1_open = 0.20;
+    public static final double kTOF1_open = 0.25;
     public static final double kTOF1_closed = 0.07;
-    public static final double kTOF2_open = 0.20;
-    public static final double kTOF2_closed = 0.1;
+    public static final double kTOF2_open = 0.29;
+    public static final double kTOF2_closed = 0.16;
   }
 }

@@ -110,18 +110,31 @@ public class RobotContainer {
       new FeedCommand(shooter).withTimeout(2.0)
     );
     autoChooser.addOption("Launch",
-      new FeederLaunchCommand(shooter).withTimeout(2.0)
-    );
-    autoChooser.addOption("IndexThenFeed",
-      new ParallelDeadlineGroup(
-        new WaitCommand(3.0),
-        new CollectCargoCommand(collector, indexer, shooter).andThen(
-          new ScheduleCommand(
-            new FeedCommand(shooter).withTimeout(2.0)
-          )
-        )
+      new SequentialCommandGroup(
+        new ShooterSpinUpCommand(shooter, 100, 0.3),
+        new FeederLaunchCommand(shooter).withTimeout(2.0),
+        new ShooterSpinDownCommand(shooter)
       )
     );
+    autoChooser.addOption("IndexThenFeed",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new WaitCommand(3.0),
+          new CollectCargoCommand(collector, indexer, shooter)
+        ),
+        new FeedCommand(shooter).withTimeout(2.0)
+      )
+    );
+    autoChooser.addOption("IndexFeedLaunch-0",
+      new SequentialCommandGroup(
+        new CollectCargoCommand(collector, indexer, shooter).withTimeout(3.0),
+        new FeedCommand(shooter).withTimeout(2.0),
+        new ShooterSpinUpCommand(shooter, 100, 0.3),
+        new FeederLaunchCommand(shooter).withTimeout(2.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+
     // Literally negative chance of working, but whatever.
     autoChooser.addOption("IndexFeedLaunch",
       new ParallelDeadlineGroup(

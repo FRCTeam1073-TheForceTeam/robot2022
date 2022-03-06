@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
 
@@ -11,7 +12,7 @@ public class FeedCommand extends CommandBase {
 
   Shooter shooter;
 
-  double feederVelocity = 192;
+  double feederVelocity = 50;
 
   boolean startTOF1Closed = false;
   boolean startTOF2Closed = false;
@@ -47,6 +48,10 @@ public class FeedCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    SmartDashboard.putBoolean("[FC] S1", startTOF1Closed);
+    SmartDashboard.putBoolean("[FC] S2", startTOF2Closed);
+    SmartDashboard.putBoolean("[FC] C1", currentTOF1Closed);
+    SmartDashboard.putBoolean("[FC] C2", currentTOF2Closed);
     currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
     currentTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
     // If the shooter *didn't* start with the bottom sensor closed and the top sensor open, end instantly.
