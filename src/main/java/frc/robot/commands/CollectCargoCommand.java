@@ -14,7 +14,7 @@ public class CollectCargoCommand extends CommandBase {
   Collector collector;
   Indexer indexer;
   Shooter shooter;
-  double collectorVelocity;
+  double collectorVelocity = 18;
 
   /** Creates a new CollectCargoCommand. */
   public CollectCargoCommand(Collector collector_, Indexer indexer_, Shooter shooter_) {

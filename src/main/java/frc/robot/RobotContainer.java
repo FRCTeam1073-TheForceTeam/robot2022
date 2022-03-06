@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -165,25 +166,59 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     if (autoCheckBox.getBoolean(false)) {
-      //1-ball auto
       return new SequentialCommandGroup(
         new PrintCommand("DTC"),
         new DriveTranslateCommand(drivetrain, 1.0, 2.0),
-        new PrintCommand("STC"),
-        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new PrintCommand("WTL"),
-        new WaitToLevel(shooter, 2.0),
-        new PrintCommand("SFC"),
-        new ShooterFeedCommand(shooter, 2.5),
-        new PrintCommand("SSDC"),
-        new ShooterSpinDownCommand(shooter),
+        new SequentialCommandGroup(
+          new PrintCommand("STC"),
+          new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+          new PrintCommand("WTL"),
+          new WaitToLevel(shooter, 2.0),
+          new PrintCommand("SFC"),
+          new ShooterFeedCommand(shooter, 2.5)            
+        ),
         new PrintCommand("TC"),
-        new TurnCommand(drivetrain, -Units.degreesToRadians(70.0), 1.0),
+        new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0),
         new PrintCommand("DTC2"),
-        new DriveTranslateCommand(drivetrain, 2.5, 2.0)
+        new ParallelCommandGroup(
+          new CollectCargoCommand(collector, indexer, shooter),
+          new DriveTranslateCommand(drivetrain, 0.75, 0.3)
+        ),
+        new TurnCommand(drivetrain, -Units.degreesToRadians(14.0), 1.0),
+        new SequentialCommandGroup(
+          new PrintCommand("STC2"),
+          new ShooterTargetCommand(shooter, hubTracking, true, Units.inchesToMeters(76)),
+          new PrintCommand("WTL2"),
+          new WaitToLevel(shooter, 2.0),
+          new PrintCommand("SFC2"),
+          new ShooterFeedCommand(shooter, 2.5)
+        ),
+        new PrintCommand("SSDC"),
+        new ShooterSpinDownCommand(shooter)
         // Apparently this turns to the right angle for the two-ball auto? Neato.
         // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
       );
+
+      // //1-ball auto
+      // return new SequentialCommandGroup(
+      //   new PrintCommand("DTC"),
+      //   new DriveTranslateCommand(drivetrain, 1.0, 2.0),
+      //   new PrintCommand("STC"),
+      //   new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+      //   new PrintCommand("WTL"),
+      //   new WaitToLevel(shooter, 2.0),
+      //   new PrintCommand("SFC"),
+      //   new ShooterFeedCommand(shooter, 2.5),
+      //   new PrintCommand("SSDC"),
+      //   new ShooterSpinDownCommand(shooter),
+      //   new PrintCommand("TC"),
+      //   new TurnCommand(drivetrain, -Units.degreesToRadians(70.0), 1.0),
+      //   new PrintCommand("DTC2"),
+      //   new DriveTranslateCommand(drivetrain, 2.5, 2.0)
+      //   // Apparently this turns to the right angle for the two-ball auto? Neato.
+      //   // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
+      // );
+
     } else {
       return null;
     }

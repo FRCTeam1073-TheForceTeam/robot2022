@@ -29,7 +29,7 @@ public class ShooterFeedCommand extends CommandBase {
     currSensor2 = shooter.isBallInShooter();
     prevSensor2 = currSensor2;
     startTime = ((double) System.currentTimeMillis()) / 1000.0;
-    shooter.setFeederVelocity(192);
+    shooter.setFeederVelocity(192 * 2);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,6 +44,7 @@ public class ShooterFeedCommand extends CommandBase {
       shooter.setHoodPosition(0);
       shooter.setFeederVelocity(0);
     }
+    shooter.setFeederVelocity(0);
   }
 
   // Returns true when the command should end.

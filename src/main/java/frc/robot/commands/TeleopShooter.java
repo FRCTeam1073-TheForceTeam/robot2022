@@ -19,7 +19,7 @@ public class TeleopShooter extends CommandBase {
   private double hoodPosition1 = 6.0; 
   private double hoodPosition2 = -6.0;
   
-  private double feederVelocity = 192;
+  private double feederVelocity = 192 * 2;
 
   /** Creates a new TeleopShooter. */
   public TeleopShooter(Shooter shooter) {
