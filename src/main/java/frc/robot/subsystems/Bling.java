@@ -71,13 +71,13 @@ public class Bling extends SubsystemBase {
     if (!cleared) {
       // LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
 
-      batteryBling(0, slotLength, 8.0, 12.5);
+      // batteryBling(0, slotLength, 8.0, 12.5);
 
-      // setColorRGBAll(255, 0, 0);
+      setColorRGBAll(255, 0, 0);
 
       // setSlot(5, 255, 0, 0);
 
-      reverseRange(0, slotLength, m_ledBuffer.getLength() / 2);
+      // duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2 + 1);
 
       m_led.setData(m_ledBuffer);
 
@@ -346,7 +346,15 @@ public class Bling extends SubsystemBase {
 
   public void reverseRange(int startRange, int numRange, int setRangeStart) {
     for (int i = 0; i < numRange; i++) {
-      m_ledBuffer.setLED(setRangeStart + numRange - i - 1, m_ledBuffer.getLED8Bit(i));
+      m_ledBuffer.setLED(setRangeStart + numRange - i - 1, m_ledBuffer.getLED8Bit(startRange + i));
+    }
+  }
+
+
+
+  public void duplicateRange(int startRange, int numRange, int setRangeStart) {
+    for (int i = 0; i < numRange; i++) {
+      m_ledBuffer.setLED(setRangeStart + i, m_ledBuffer.getLED8Bit(startRange + i));
     }
   }
 
