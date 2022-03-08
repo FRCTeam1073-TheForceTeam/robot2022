@@ -47,7 +47,7 @@ public class Bling extends SubsystemBase {
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
-    slotLength = m_ledBuffer.getLength()/8;
+    slotLength = (int) (m_ledBuffer.getLength()/16);
   }
 
   public void initialize() {
@@ -77,7 +77,7 @@ public class Bling extends SubsystemBase {
 
       // setSlot(5, 255, 0, 0);
 
-      // duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2 + 1);
+      duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2 + 1);
 
       m_led.setData(m_ledBuffer);
 
