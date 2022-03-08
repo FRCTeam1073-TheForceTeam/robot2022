@@ -34,11 +34,12 @@ public class Indexer extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("o",OI.operatorController.getLeftY());
 
-    SmartDashboard.putNumber("[Indexer] Current (A)", indexerMotor.getStatorCurrent());
-    SmartDashboard.putNumber("[Indexer] Output power", indexerMotor.getMotorOutputPercent());
+    // SmartDashboard.putNumber("[Indexer] Output power", indexerMotor.getMotorOutputPercent());
 
     rawCurrent = indexerMotor.getStatorCurrent();
     filteredCurrent = filter.calculate(rawCurrent);
+
+    SmartDashboard.putNumber("[Indexer] Current (A)", rawCurrent);
   }
 
   public void setPower(double power) {

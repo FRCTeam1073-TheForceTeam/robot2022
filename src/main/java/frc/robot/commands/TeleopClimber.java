@@ -28,8 +28,8 @@ public class TeleopClimber extends CommandBase {
     // climber.setSpoolVelocity(OI.operatorController.getLeftY());
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
 
-    climber.setSpoolPower(OI.operatorController.getLeftY() * .25);
-    climber.setExtensionPower(OI.operatorController.getRightY() * .25);
+    climber.setSpoolVelocity(OI.operatorController.getLeftY());
+    climber.setExtensionVelocity(OI.operatorController.getRightY());
   }
 
   // Called once the command ends or is interrupted.

@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.CANCoder;
+// import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,7 +27,7 @@ public class Climber extends SubsystemBase {
 
   // TODO: get actual values
   private final double spoolGearRatio = 56.25;
-  private final double extensionGearRatio = 25.0;
+  private final double extensionGearRatio = 50.0;
 
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
   private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
@@ -103,17 +103,28 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double spoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
-    double extensionVelocity = extensionFilter.calculate(targetExtensionVelocity);
+    // double spoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
+    // double extensionVelocity = extensionFilter.calculate(targetExtensionVelocity);
 
-    double rawSpoolVel = spoolVelocity * spoolTicksPerRadian * 0.1;
-    double rawExtensionVel = extensionVelocity * extensionTicksPerRadian * 0.1;
+    double rawSpoolVel = targetSpoolVelocity * spoolTicksPerRadian * 0.1;
+    double rawExtensionVel = targetExtensionVelocity * extensionTicksPerRadian * 0.1;
     
     // spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
     // extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
 
+    spoolMotorRight.set(ControlMode.PercentOutput, targetSpoolVelocity*0.5);
+    extensionMotorRight.set(ControlMode.PercentOutput, targetExtensionVelocity*0.5);
+
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
+
+    //debug
+    SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
+    SmartDashboard.putNumber("target extension velocity", targetExtensionVelocity);
+    SmartDashboard.putNumber("actual spool velocity", currentSpoolVelocity);
+    SmartDashboard.putNumber("actual extension velocity", currentExtensionVelocity);
+    // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
+    SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
 
     if(SmartDashboard.getBoolean("Update", false)){
       spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
