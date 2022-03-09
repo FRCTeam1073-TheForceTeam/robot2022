@@ -14,7 +14,7 @@ public class CollectCargoCommand extends CommandBase {
   Collector collector;
   Indexer indexer;
   Shooter shooter;
-  double collectorVelocity;
+  double collectorVelocity = 12;
 
   /** Creates a new CollectCargoCommand. */
   public CollectCargoCommand(Collector collector_, Indexer indexer_, Shooter shooter_) {
@@ -28,7 +28,7 @@ public class CollectCargoCommand extends CommandBase {
   @Override
   public void initialize() {
     collector.setLiftPosition(Collector.Constants.loweredCollectorPosition);
-    collector.setIntakeVelocity(collectorVelocity);
+    collector.setLinearIntakeVelocity(collectorVelocity);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -41,7 +41,7 @@ public class CollectCargoCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     collector.setLiftPosition(Collector.Constants.raisedCollectorPosition);
-    collector.setIntakeVelocity(0);
+    collector.setLinearIntakeVelocity(0);
     indexer.setPower(0);
   }
 

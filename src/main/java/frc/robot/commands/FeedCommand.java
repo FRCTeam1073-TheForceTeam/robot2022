@@ -12,7 +12,7 @@ public class FeedCommand extends CommandBase {
 
   Shooter shooter;
 
-  double feederVelocity = 50;
+  double feederVelocity = 8;
 
   boolean startTOF1Closed = false;
   boolean startTOF2Closed = false;
@@ -57,6 +57,6 @@ public class FeedCommand extends CommandBase {
     // If the shooter *didn't* start with the bottom sensor closed and the top sensor open, end instantly.
     // Otherwise, end only when the bottom sensor is open and the top sensor is closed.
     // TODO: Is !currentTOF1Closed necessary, or might it break things?
-    return !(startTOF1Closed && !startTOF2Closed) || (!currentTOF1Closed && currentTOF2Closed);
+    return !(startTOF1Closed && !startTOF2Closed) || (!currentTOF1Closed /*&& currentTOF2Closed*/);
   }
 }
