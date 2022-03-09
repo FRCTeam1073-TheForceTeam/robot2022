@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Allow the commands running in the robot to express themselves visually.
@@ -69,13 +71,14 @@ public class Bling extends SubsystemBase {
   public void periodic() {
     
     if (!cleared) {
+      if (OI.driverController.getRawButton(1)) {
+        setSlot(6, 0, 0, 255);
+      }
       // LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
 
       // batteryBling(0, slotLength, 8.0, 12.5);
 
       setColorRGBAll(255, 0, 0);
-
-      // setSlot(5, 255, 0, 0);
 
       duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2 + 1);
 
