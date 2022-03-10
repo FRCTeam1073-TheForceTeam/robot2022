@@ -11,20 +11,20 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.Drivetrain;
 
-public class DriveForwardCommand extends CommandBase {
+public class DriveTranslateCommand extends CommandBase {
   Drivetrain drivetrain;
   double targetDistance;
   double currentDistance;
-  double velocity;
+  double velocityScale;
   ChassisSpeeds chassisSpeeds;
   Pose2d startingPose;
   int blinkCounter = 0;
 
   /** Creates a new DriveForwardCommand. */
-  public DriveForwardCommand(Drivetrain drivetrain_, double targetDistance_, double velocity_) {
+  public DriveTranslateCommand(Drivetrain drivetrain_, double targetDistance_, double velocityScale_) {
     drivetrain = drivetrain_;
     targetDistance = targetDistance_;
-    velocity = velocity_;
+    velocityScale = velocityScale_;
     addRequirements(drivetrain);
   }
 
@@ -42,7 +42,7 @@ public class DriveForwardCommand extends CommandBase {
   @Override
   public void execute() {
     currentDistance = drivetrain.getPoseMeters().getTranslation().getDistance(startingPose.getTranslation());
-    chassisSpeeds.vxMetersPerSecond = velocity;
+    chassisSpeeds.vxMetersPerSecond = Math.signum(targetDistance - currentDistance) * velocityScale;
     chassisSpeeds.vyMetersPerSecond = 0;
     chassisSpeeds.omegaRadiansPerSecond = 0;
     drivetrain.setChassisSpeeds(chassisSpeeds);

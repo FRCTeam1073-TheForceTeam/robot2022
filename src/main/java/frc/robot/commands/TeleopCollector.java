@@ -15,10 +15,9 @@ public class TeleopCollector extends CommandBase
   Drivetrain drivetrain;
   Bling bling;
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
-  private double collectorVelocity = 12;
-  private double loweredCollectorPosition = 1.72;
-  private double raisedCollectorPosition = 0;
   boolean isCollectorDown = false;
+
+  private double collectorVelocity = 12;
  
   /** Creates a new TeleopCollector. */
   public TeleopCollector(Collector collector, Drivetrain drivetrain) 
@@ -46,10 +45,10 @@ public class TeleopCollector extends CommandBase
     // The collector raises when the A button (cross button on the PS4 controller) and goes back up when it's released.
     // The isCollectorDown variable is updated so the command knows which state it's in.
     if (OI.operatorController.getAButtonPressed()) {
-      collector.setLiftPosition(loweredCollectorPosition);
+      collector.setLiftPosition(Collector.Constants.loweredCollectorPosition);
       isCollectorDown=true;
     } else if (OI.operatorController.getAButtonReleased()) {
-      collector.setLiftPosition(raisedCollectorPosition);
+      collector.setLiftPosition(Collector.Constants.raisedCollectorPosition);
       isCollectorDown=false;
     }
     drivetrain.getChassisSpeeds(chassisSpeeds);

@@ -7,23 +7,22 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
 
-public class ShooterSpinUpCommand extends CommandBase {
+public class WaitToLevel extends CommandBase {
   Shooter shooter;
-  double velocity;
-  double hoodAngle;
-  /** Creates a new ShooterSpinUpCommand. */
-  public ShooterSpinUpCommand(Shooter shooter_, double velocity_, double hoodAngle_) {
+  double startTime;
+  double timeout;
+  /** Creates a new WaitToLevel. */
+  public WaitToLevel(Shooter shooter_, double timeout_) {
     shooter = shooter_;
-    velocity = velocity_;
-    hoodAngle = hoodAngle_;
+    timeout = timeout_;
     addRequirements(shooter);
+    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.setHoodPosition(hoodAngle);
-    shooter.setFlywheelVelocity(velocity);
+    startTime = ((double) System.currentTimeMillis()) * 1e-3;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,13 +31,17 @@ public class ShooterSpinUpCommand extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    if (interrupted) {
+      shooter.setFlywheelVelocity(0);
+      shooter.setHoodPosition(0);
+      shooter.setFeederVelocity(0);
+    }
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double currentVel = shooter.getFlywheelVelocity();
-    double currentAngle = shooter.getHoodPosition();
-    return (Math.abs(currentVel - velocity) < Shooter.Constants.kAcceptableFlywheelVelocityError) && (Math.abs(currentAngle - hoodAngle) < Shooter.Constants.kAcceptableHoodPositionError);
+    return ((((double) System.currentTimeMillis()) * 1e-3) - startTime >= timeout);
   }
 }

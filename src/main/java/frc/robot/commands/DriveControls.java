@@ -38,30 +38,19 @@ public class DriveControls extends CommandBase {
     if (OI.driverController.getRawButtonReleased(14)) {
       OI.zeroDriverController();
     }
-    // SmartDashboard.putNumber("[Left X]", OI.getDriverLeftX());
-    // SmartDashboard.putNumber("[Left Y]", OI.getDriverLeftY());
-    // SmartDashboard.putNumber("[Right Y]", OI.getDriverRightY());
-    // SmartDashboard.putNumber("[Right X]", OI.getDriverRightX());
-    
+
     double forward = deadzone(OI.getDriverLeftY());
     double rotate = -deadzone(OI.getDriverRightX());
     chassisSpeeds.vxMetersPerSecond = forward * 3.80;
     chassisSpeeds.omegaRadiansPerSecond = rotate * 4.40;
     drivetrain.setChassisSpeeds(chassisSpeeds);
-
-    // double fwd=0.5*OI.getDriverLeftY();
-    // double rot=0.5*OI.getDriverRightX();
-    // double fwd = SmartDashboard.getNumber("X", 0);
-    // drivetrain.setPower(fwd + rot, fwd - rot);
-    
-    // SmartDashboard.putNumber("Y", rotate);
-    // drivetrain.setPower((forward + rotate), (forward - rotate));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrain.setPower(0, 0);
+    chassisSpeeds = new ChassisSpeeds();
+    drivetrain.setChassisSpeeds(chassisSpeeds);
   }
 
   // Returns true when the command should end.
