@@ -26,7 +26,6 @@ public class IMU extends SubsystemBase
     pigeonIMU = new PigeonIMU(9);
     pigeonIMU.configFactoryDefault();
     pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_9_SixDeg_YPR, 50);
-    // pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 50);
     pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_10_SixDeg_Quat, 50);
     pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 50);
     pigeonIMU.setFusedHeading(0);
@@ -36,13 +35,8 @@ public class IMU extends SubsystemBase
   @Override
   public void periodic() 
   {
-    // This method will be called once per scheduler run
     heading = pigeonIMU.getFusedHeading();
     // pigeonIMU.getAccelerometerAngles(accelAngles);
-
-    // SmartDashboard.putNumber("pigeon/fusedHeading", heading); 
-    // SmartDashboard.putNumber("pigeon/roll", accelAngles[0]);
-    // SmartDashboard.putNumber("pigeon/pitch", accelAngles[1]);
   }
 
   // Access gyro data read in periodic

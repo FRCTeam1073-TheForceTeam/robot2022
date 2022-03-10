@@ -17,7 +17,6 @@ import frc.robot.Robot;
 public class Indexer extends SubsystemBase {
   private double motorPower;
   private WPI_TalonSRX indexerMotor;
-  // private LinearFilter filter;
   private double rawCurrent;
   private double filteredCurrent;
 
@@ -27,15 +26,10 @@ public class Indexer extends SubsystemBase {
     resetMotor();
 
     motorPower = 0.0;
-
-    // filter = LinearFilter.singlePoleIIR(0.75, 0.02);
   }
 
   @Override
-  public void periodic() {
-    // rawCurrent = indexerMotor.getStatorCurrent();
-    // filteredCurrent = filter.calculate(rawCurrent);
-  }
+  public void periodic() {}
 
   public void setPower(double power) {
     motorPower = power;
@@ -43,7 +37,7 @@ public class Indexer extends SubsystemBase {
   }
 
   public double getPower() {
-    return 0.0;
+    return motorPower;
   }
 
   public boolean isCurrentCargoThere(){
@@ -68,7 +62,6 @@ public class Indexer extends SubsystemBase {
 
   public boolean isStalled() {
     return false;
-    // return 27.85 < Math.abs(getFilteredCurrent()); //Value copied from WPI sample code!
   }
 
   public double getFilteredCurrent(){
@@ -85,9 +78,5 @@ public class Indexer extends SubsystemBase {
     indexerMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 10, 15, 0.5)); //Values copied from WPI sample code!
     indexerMotor.setNeutralMode(NeutralMode.Brake);
     indexerMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 50);
-    // indexerMotor.enableCurrentLimit(true);
-    // indexerMotor.configPeakCurrentLimit(28, 500);
-    // indexerMotor.configPeakCurrentDuration(750,500);
-    // indexerMotor.configContinuousCurrentLimit(15,500);
   }
 }

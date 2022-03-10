@@ -217,22 +217,20 @@ public class Shooter extends SubsystemBase {
       ball2Stored = false;
     }
 
-
     // Feeder periodic code
     limitedFeederTargetVelocity = feederRateLimiter.calculate(feederTargetVelocity);
     feederMotor.set(ControlMode.Velocity, limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
     currentFeederVelocity = feederMotor.getSelectedSensorVelocity() * 10.0 / feederTicksPerRadian;
     
-    // if (FEEDER_TUNING_DEBUG) {
-    //   SmartDashboard.putNumber("A", limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
-    //   SmartDashboard.putNumberArray("[Shooter] Feeder actual vs. target vel", new Double[] {
-    //     limitedFeederTargetVelocity,
-    //     currentFeederVelocity,
-    //     currentFeederVelocity-limitedFeederTargetVelocity
-    //   });
-    //   SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentFeederVelocity - limitedFeederTargetVelocity) / limitedFeederTargetVelocity);
-    //   SmartDashboard.putNumber("[Shooter] Feeder position", feederMotor.getSelectedSensorPosition() / feederTicksPerRadian);
-    // }
+    if (FEEDER_TUNING_DEBUG) {
+      SmartDashboard.putNumber("A", limitedFeederTargetVelocity * 0.1 * feederTicksPerRadian);
+      SmartDashboard.putNumberArray("[Shooter] Feeder actual vs. target vel", new Double[] {
+        limitedFeederTargetVelocity,
+        currentFeederVelocity,
+        currentFeederVelocity-limitedFeederTargetVelocity
+      });
+      SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentFeederVelocity - limitedFeederTargetVelocity) / limitedFeederTargetVelocity);
+    }
     
     // Flywheel periodic code
     limitedFlywheelTargetVelocity = flywheelRateLimiter.calculate(flywheelTargetVelocity);
@@ -250,14 +248,9 @@ public class Shooter extends SubsystemBase {
         limitedFlywheelTargetVelocity-currentFlywheelVelocity
       );
       SmartDashboard.putNumber("[Shooter] Flywheel error ratio", (currentFlywheelVelocity - limitedFlywheelTargetVelocity) / limitedFlywheelTargetVelocity);
-      // SmartDashboard.putNumber("[Shooter] Flywheel rotations", flywheelMotor.getSelectedSensorPosition() / (2.0 * Math.PI * flywheelTicksPerRadian));        
-      // SmartDashboard.putNumber("[Shooter] Flywheel Data/Raw vel", flywheelMotor.getSelectedSensorVelocity());
-      // SmartDashboard.putNumber("[Shooter] Flywheel Data/Out", flywheelMotor.getMotorOutputPercent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Current", flywheelMotor.getSupplyCurrent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Temperature", flywheelMotor.getTemperature());
-      // SmartDashboard.putNumber("[Shooter] Flywheel Data/Accumulator", flywheelMotor.getIntegralAccumulator());
     }
-
 
     // Hood periodic code
     previousState = hoodProfile.calculate(
