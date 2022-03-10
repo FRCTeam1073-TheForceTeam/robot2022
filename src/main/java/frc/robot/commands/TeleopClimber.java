@@ -9,7 +9,10 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.OI;
 
 public class TeleopClimber extends CommandBase {
-  Climber climber = new Climber();
+  Climber climber;
+
+  private double spoolMultiplier = 2.75;
+  private double extensionMultiplier = 0.6;
 
   /** Creates a new TeleopClimber. */
   public TeleopClimber(Climber climber) {
@@ -28,8 +31,8 @@ public class TeleopClimber extends CommandBase {
     // climber.setSpoolVelocity(OI.operatorController.getLeftY());
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
 
-    climber.setSpoolVelocity(OI.operatorController.getLeftY());
-    climber.setExtensionVelocity(OI.operatorController.getRightY());
+    climber.setSpoolVelocity(OI.operatorController.getLeftY() * spoolMultiplier);
+    climber.setExtensionVelocity(OI.operatorController.getRightY() * extensionMultiplier);
   }
 
   // Called once the command ends or is interrupted.
