@@ -72,15 +72,17 @@ public class Bling extends SubsystemBase {
     
     if (!cleared) {
       if (OI.driverController.getRawButton(1)) {
-        setSlot(6, 0, 0, 255);
+        setSlot(6, 255, 53, 184);
+      } else {
+        setSlot(6, 0, 0, 0);
       }
       // LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
 
-      // batteryBling(0, slotLength, 8.0, 12.5);
+      batteryBling(0, slotLength, 8.0, 12.5);
 
-      setColorRGBAll(255, 0, 0);
+      // setColorRGBAll(255, 0, 0);
 
-      duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2 + 1);
+      duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
 
       m_led.setData(m_ledBuffer);
 
