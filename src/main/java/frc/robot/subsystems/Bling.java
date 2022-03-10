@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Allow the commands running in the robot to express themselves visually.
@@ -43,11 +45,11 @@ public class Bling extends SubsystemBase {
 
   public Bling() {
     m_led = new AddressableLED(0);
-    m_ledBuffer = new AddressableLEDBuffer(8);
+    m_ledBuffer = new AddressableLEDBuffer(64);
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
-    slotLength = m_ledBuffer.getLength()/8;
+    slotLength = (int) (m_ledBuffer.getLength()/16);
   }
 
   public void initialize() {
@@ -69,13 +71,18 @@ public class Bling extends SubsystemBase {
   public void periodic() {
     
     if (!cleared) {
-      // LEDRainbow(0, 1, 10);
+      if (OI.driverController.getRawButton(1)) {
+        setSlot(6, 255, 53, 184);
+      } else {
+        setSlot(6, 0, 0, 0);
+      }
+      // LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
 
-      batteryBling(0, 1, 8.0, 12.5);
+      batteryBling(0, slotLength, 8.0, 12.5);
 
-      // setSlot(5, 255, 0, 0);
+      // setColorRGBAll(255, 0, 0);
 
-      // reverseRange(0, 40, 40);
+      duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
 
       m_led.setData(m_ledBuffer);
 
@@ -344,7 +351,15 @@ public class Bling extends SubsystemBase {
 
   public void reverseRange(int startRange, int numRange, int setRangeStart) {
     for (int i = 0; i < numRange; i++) {
-      m_ledBuffer.setLED(setRangeStart + numRange - i - 1, m_ledBuffer.getLED8Bit(i));
+      m_ledBuffer.setLED(setRangeStart + numRange - i - 1, m_ledBuffer.getLED8Bit(startRange + i));
+    }
+  }
+
+
+
+  public void duplicateRange(int startRange, int numRange, int setRangeStart) {
+    for (int i = 0; i < numRange; i++) {
+      m_ledBuffer.setLED(setRangeStart + i, m_ledBuffer.getLED8Bit(startRange + i));
     }
   }
 
