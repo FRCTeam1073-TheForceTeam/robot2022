@@ -53,8 +53,8 @@ public class Shooter extends SubsystemBase {
   private double flywheel_kP = 0.2;
   private double flywheel_kI = 0.004;
   private double flywheel_kD = 0;
-  private double flywheel_kF = 0.05;
-  private double flywheel_maxIntegrator = 6000;
+  private double flywheel_kF = 0.051;
+  private double flywheel_maxIntegrator = 8000;
   private double flywheelTicksPerRadian = 2048.0 / (2.0 * Math.PI);
 
   //Yes, I know it's not just a belt, there's a gearbox in there too, but I don't really care?
@@ -93,14 +93,17 @@ public class Shooter extends SubsystemBase {
   private final double maxHoodVelocity = 5.0; //Units :radians/s
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
 
+  private final double hoodAngleOffset = Units.degreesToRadians(3.0);
+
   private final double maximumHoodAngle = 1.27;
 
   private final boolean FEEDER_TUNING_DEBUG = false;
-  private final boolean FLYWHEEL_TUNING_DEBUG = true;
-  private final boolean HOOD_TUNING_DEBUG = true;
+  private final boolean FLYWHEEL_TUNING_DEBUG = false;
+  private final boolean HOOD_TUNING_DEBUG = false;
 
   private double currentFeederVelocity = 0;
   private double currentFlywheelVelocity = 0;
+  private double currentHoodPosition = 0;
   
   public Shooter() {
     tof1Input = new DigitalInput(0);
@@ -191,8 +194,9 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 1/Duty Cycle", tof1DutyCycle);
     SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
     SmartDashboard.putNumber("TOF 1/Range", tof1Range);
+    SmartDashboard.putBoolean("TOF 1/Closed", tof1Range < Constants.kTOF1_closed);
 
-    if (tof1Range < 0.03) {
+    if (tof1Range <= 0.04) {
       ball1Stored = true;
     } else {
       ball1Stored = false;
@@ -205,13 +209,13 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("TOF 2/Duty Cycle", tof2DutyCycle);
     SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
     SmartDashboard.putNumber("TOF 2/Range", tof2Range);
+    SmartDashboard.putBoolean("TOF 2/Closed", tof2Range < Constants.kTOF2_closed);
 
-    if (tof2Range < 0.1) {
+    if (tof2Range <= 0.07) {
       ball2Stored = true;
     } else {
       ball2Stored = false;
     }
-
 
     // Feeder periodic code
     limitedFeederTargetVelocity = feederRateLimiter.calculate(feederTargetVelocity);
@@ -226,7 +230,6 @@ public class Shooter extends SubsystemBase {
         currentFeederVelocity-limitedFeederTargetVelocity
       });
       SmartDashboard.putNumber("[Shooter] Feeder error ratio", (currentFeederVelocity - limitedFeederTargetVelocity) / limitedFeederTargetVelocity);
-      SmartDashboard.putNumber("[Shooter] Feeder position", feederMotor.getSelectedSensorPosition() / feederTicksPerRadian);
     }
     
     // Flywheel periodic code
@@ -245,13 +248,9 @@ public class Shooter extends SubsystemBase {
         limitedFlywheelTargetVelocity-currentFlywheelVelocity
       );
       SmartDashboard.putNumber("[Shooter] Flywheel error ratio", (currentFlywheelVelocity - limitedFlywheelTargetVelocity) / limitedFlywheelTargetVelocity);
-      SmartDashboard.putNumber("[Shooter] Flywheel rotations", flywheelMotor.getSelectedSensorPosition() / (2.0 * Math.PI * flywheelTicksPerRadian));        
-      SmartDashboard.putNumber("[Shooter] Flywheel Data/Raw vel", flywheelMotor.getSelectedSensorVelocity());
-      SmartDashboard.putNumber("[Shooter] Flywheel Data/Out", flywheelMotor.getMotorOutputPercent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Current", flywheelMotor.getSupplyCurrent());
       SmartDashboard.putNumber("[Shooter] Flywheel Data/Temperature", flywheelMotor.getTemperature());
     }
-
 
     // Hood periodic code
     previousState = hoodProfile.calculate(
@@ -261,30 +260,28 @@ public class Shooter extends SubsystemBase {
       ControlMode.Position,
       previousState.position * hoodTicksPerRadian
     );
-    double currentHoodPos = hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+
+    currentHoodPosition = hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
 
     if (HOOD_TUNING_DEBUG) {
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Target pos",
-        previousState.position
-      );
+      // SmartDashboard.putNumber("[Shooter] Hood tuning/Target pos",
+      //   previousState.position
+      // );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Actual pos",
-        currentHoodPos
-      );
+          currentHoodPosition);
       SmartDashboard.putNumber("[Shooter] Hood tuning/Error pos",
-        currentHoodPos-previousState.position
-      );
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Error ratio", (currentHoodPos - previousState.position) / previousState.position);
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Current",
-        hoodMotor.getSupplyCurrent()
-      );
-      SmartDashboard.putNumber("[Shooter] Hood tuning/Accumulator",
-        hoodMotor.getIntegralAccumulator()
-      );
+          currentHoodPosition - previousState.position);
+      SmartDashboard.putNumber("[Shooter] Hood tuning/Error ratio",
+          (currentHoodPosition - previousState.position) / previousState.position);
+      // SmartDashboard.putNumber("[Shooter] Hood tuning/Current",
+      //   hoodMotor.getSupplyCurrent()
+      // );
+      // SmartDashboard.putNumber("[Shooter] Hood tuning/Accumulator",
+      //   hoodMotor.getIntegralAccumulator()
+      // );
       SmartDashboard.putNumber("[Shooter] Hood tuning/Degrees",
-        Units.radiansToDegrees(currentHoodPos)
-      );
+          Units.radiansToDegrees(currentHoodPosition));
     }
-
 
     if (SmartDashboard.getBoolean("[Shooter] Update", false)) {
       feeder_kP = SmartDashboard.getNumber("[Shooter] feeder/kP", 0);
@@ -335,7 +332,6 @@ public class Shooter extends SubsystemBase {
   public void setHoodPosition(double targetPosition){
     hoodTargetPosition = targetPosition;
     hoodMotor.setIntegralAccumulator(0);
-    System.out.println(getHoodPosition());
     hoodProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
     hoodProfile = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(
@@ -353,8 +349,12 @@ public class Shooter extends SubsystemBase {
     );
   }
 
-  public double getHoodPosition(){
-    return hoodMotor.getSelectedSensorPosition() / hoodTicksPerRadian;
+  public double getHoodPosition() {
+    return currentHoodPosition;
+  }
+
+  public double getHoodTargetPosition() {
+    return hoodTargetPosition;
   }
 
   public double getRange1() {
@@ -366,20 +366,28 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isBallInIndexer() {
-    return ball1Stored;
+    return tof1Range < Constants.kTOF1_closed;
   }
 
   public boolean isBallInShooter() {
-    return ball2Stored;
-    // ^ This returns true if the time of flight sensor detects that the ball is in the wheels.
+    return tof2Range < Constants.kTOF2_closed;
   }
 
   public void setFeederVelocity(double velocity) {
-    feederTargetVelocity = velocity;
+    if (velocity == 0) {
+      feederTargetVelocity = 0;
+      feederRateLimiter.reset(0);
+    } else {
+      feederTargetVelocity = velocity;
+    }
   }
 
   public void setFlywheelVelocity(double velocity) {
     flywheelTargetVelocity = velocity;
+  }
+
+  public double getFlywheelTargetVelocity() {
+    return flywheelTargetVelocity;
   }
 
   public double getFlywheelVelocity() {
@@ -412,7 +420,11 @@ public class Shooter extends SubsystemBase {
   }
   
   public static class Constants {
-    public static final double ACCEPTABLE_FLYWHEEL_ERROR = 15.0; //Units: radians/second
-    public static final double ACCEPTABLE_HOOD_ERROR = 0.1; //Units: radians
+    public static final double kAcceptableFlywheelVelocityError = 0.6; //Units: radians/second
+    public static final double kAcceptableHoodPositionError = 0.0075; //Units: radians
+    public static final double kTOF1_open = 0.25;
+    public static final double kTOF1_closed = 0.07;
+    public static final double kTOF2_open = 0.29;
+    public static final double kTOF2_closed = 0.20;
   }
 }

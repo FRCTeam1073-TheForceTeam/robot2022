@@ -39,11 +39,13 @@ public class Robot extends TimedRobot
   public void robotPeriodic() 
   {
     CommandScheduler.getInstance().run();
+    OI.update();
   }
 
   @Override
   public void autonomousInit() 
   {
+    System.out.println("AAAAAAAAAaaaAAaaa");
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null)

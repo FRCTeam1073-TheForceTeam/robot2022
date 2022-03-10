@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix.CANifier;
+import com.ctre.phoenix.CANifierStatusFrame;
 import com.ctre.phoenix.CANifier.LEDChannel;
 
 public class HubTracking extends SubsystemBase {
@@ -46,6 +47,8 @@ public class HubTracking extends SubsystemBase {
 
     // Initialize the canifier variables:
     canifier = new CANifier(8);
+    canifier.configFactoryDefault();
+    canifier.setStatusFramePeriod(CANifierStatusFrame.Status_2_General, 100);
     lowerChannel = LEDChannel.LEDChannelA;
     upperChannel = LEDChannel.LEDChannelB;
   }

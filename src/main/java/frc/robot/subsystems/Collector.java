@@ -219,4 +219,9 @@ public class Collector extends SubsystemBase
     motor.config_kF(0, motor_kF);
     motor.configMaxIntegralAccumulator(0, 300);
   }
+
+  public static class Constants {
+    public static double loweredCollectorPosition = 1.72;
+    public static double raisedCollectorPosition = 0;
+  }
 }

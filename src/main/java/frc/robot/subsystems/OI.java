@@ -3,18 +3,28 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class OI 
 {
 
     public static Joystick driverController;
     public static XboxController operatorController;
+    public static DPadState dPadState;
 
     public static void init() 
     {
         driverController = new Joystick(0);
         zeroDriverController();
         operatorController = new XboxController(1);
+        dPadState = DPadState.OFF;
+    }
+
+    public static void update() {
+        updateOperatorDPadState();
+        SmartDashboard.putString("DPAD", dPadState.toString());
     }
 
     public static void zeroDriverController() {
@@ -56,5 +66,80 @@ public class OI
     public static double getDriverRightY() {
         return MathUtil.clamp(2.0 * (driverController.getRawAxis(4) - (RIGHT_Y_MAX + RIGHT_Y_MIN) * 0.5) / (RIGHT_Y_MAX - RIGHT_Y_MIN) - RIGHT_Y_ZERO, -1, 1);
     }
+    
+    public static Trigger getOperatorDPadDown() {
+        return getOperatorDPadTrigger(DPadState.DOWN);
+    }
 
+    public static Trigger getOperatorDPadUp() {
+        return getOperatorDPadTrigger(DPadState.UP);
+    }
+
+    public static Trigger getOperatorDPadLeft() {
+        return getOperatorDPadTrigger(DPadState.LEFT);
+    }
+
+    public static Trigger getOperatorDPadRight() {
+        return getOperatorDPadTrigger(DPadState.RIGHT);
+    }
+
+    private static void updateOperatorDPadState() {
+        int value = operatorController.getPOV();
+        if (value == -1) {
+            dPadState = DPadState.OFF;
+        } else if (value % 90 == 0) {
+            dPadState = DPadState.fromAngle(value);
+        } else if (dPadState.isOn() && Math.abs(((value - dPadState.angle) + 180) % 360 - 180) < 45) {
+            //dPadState = DPadState.fromAngle(value);
+        }
+    }
+    
+    public enum DPadState {
+        OFF(-1),
+        DOWN(180),
+        UP(0),
+        LEFT(270),
+        RIGHT(90);
+
+        public int angle;
+
+        DPadState(int angle_) {
+            angle = angle_;
+        }
+
+        public static DPadState fromAngle(int angle) {
+            switch (angle) {
+                case 180:
+                    return DPadState.DOWN;
+                case 0:
+                    return DPadState.UP;
+                case 270:
+                    return DPadState.LEFT;
+                case 90:
+                    return DPadState.RIGHT;
+                default:
+                    return DPadState.OFF;                
+            }
+        }
+        
+        public boolean isOn() {
+            return (angle != -1);
+        }
+
+        public boolean equals(DPadState other) {
+            return (other.angle == angle);
+        }
+
+        public String toString() {
+            return name() + "(" + angle + "degrees)";
+        }
+    }
+    
+    private static Trigger getOperatorDPadTrigger(DPadState state) {
+        return new Trigger(
+            ()->{
+                return (dPadState == state);
+            }
+        );
+    } 
 }

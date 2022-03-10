@@ -7,11 +7,9 @@ package frc.robot;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.*;
 
@@ -29,7 +27,6 @@ public class Dashboard extends SubsystemBase {
 
   NetworkTableEntry drivetrainVelocity;
   NetworkTableEntry drivetrainVelocityMetersPerSecond;
-  NetworkTableEntry drivetrainVelocityRaw;
   ChassisSpeeds chassisSpeeds;
   NetworkTableEntry tgtDrivetrainVelocity;
 
@@ -53,7 +50,6 @@ public class Dashboard extends SubsystemBase {
     drivetrainVelocity = driverStation.add("Drivetrain Speed (ft per s)", 0).getEntry();
     tgtDrivetrainVelocity = driverStation.add("Target Drivetrain Speed (ft per s)", 0).getEntry();
     drivetrainVelocityMetersPerSecond = driverStation.add("Drivetrain Speed (m per s)", 0).getEntry();
-    drivetrainVelocityRaw = driverStation.add("Drivetrain Speed (raw)", 0).getEntry();
     chassisSpeeds = new ChassisSpeeds(0, 0, 0);
   }
 
@@ -62,7 +58,6 @@ public class Dashboard extends SubsystemBase {
     drivetrain.getChassisSpeeds(chassisSpeeds);
     drivetrainVelocity.setDouble(Units.metersToFeet(chassisSpeeds.vxMetersPerSecond));
     drivetrainVelocityMetersPerSecond.setDouble(chassisSpeeds.vxMetersPerSecond);
-    drivetrainVelocityRaw.setDouble(drivetrain.getRawVelocity());
     tgtDrivetrainVelocity.setDouble(Units.metersToFeet(drivetrain.targetChassisSpeeds.vxMetersPerSecond));
   }
 }

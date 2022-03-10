@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 
 public class IMU extends SubsystemBase 
 {
@@ -23,6 +24,10 @@ public class IMU extends SubsystemBase
   public IMU() 
   {
     pigeonIMU = new PigeonIMU(9);
+    pigeonIMU.configFactoryDefault();
+    pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_9_SixDeg_YPR, 50);
+    pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_10_SixDeg_Quat, 50);
+    pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 50);
     pigeonIMU.setFusedHeading(0);
     accelAngles = new double[3];
   }
@@ -30,13 +35,8 @@ public class IMU extends SubsystemBase
   @Override
   public void periodic() 
   {
-    // This method will be called once per scheduler run
     heading = pigeonIMU.getFusedHeading();
-    pigeonIMU.getAccelerometerAngles(accelAngles);
-
-    SmartDashboard.putNumber("pigeon/fusedHeading", heading); 
-    SmartDashboard.putNumber("pigeon/roll", accelAngles[0]);
-    SmartDashboard.putNumber("pigeon/pitch", accelAngles[1]);
+    // pigeonIMU.getAccelerometerAngles(accelAngles);
   }
 
   // Access gyro data read in periodic
