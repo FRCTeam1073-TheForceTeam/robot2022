@@ -12,8 +12,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 // import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 
 public class Climber extends SubsystemBase {
 
@@ -32,6 +35,12 @@ public class Climber extends SubsystemBase {
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
   private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
 
+  private final DigitalInput DI1 = new DigitalInput(2);
+  private final DigitalInput DI2 = new DigitalInput(3);
+  private final DigitalInput DI3 = new DigitalInput(4);
+  private final DigitalInput DI4 = new DigitalInput(5);
+
+  // private final Bling bling = new Bling();
   
   SlewRateLimiter spoolFilter = new SlewRateLimiter(80.0);
   SlewRateLimiter extensionFilter = new SlewRateLimiter(80.0);
@@ -102,6 +111,30 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (DI1.get()) {
+      Robot.getBling().setSlot(1, 255, 0, 0);
+    } else {
+      Robot.getBling().setSlot(1, 0, 0, 0);
+    }
+
+    if (DI2.get()) {
+      Robot.getBling().setSlot(2, 0, 255, 0);
+    } else {
+      Robot.getBling().setSlot(2, 0, 0, 0);
+    }
+
+    if (DI3.get()) {
+      Robot.getBling().setSlot(3, 0, 0, 255);
+    } else {
+      Robot.getBling().setSlot(3, 0, 0, 0);
+    }
+
+    if (DI4.get()) {
+      Robot.getBling().setSlot(4, 255, 255, 255);
+    } else {
+      Robot.getBling().setSlot(4, 0, 0, 0);
+    }
+
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
     double limitedExtensionVelocity = extensionFilter.calculate(targetExtensionVelocity);

@@ -47,9 +47,9 @@ public class TeleopIndexer extends CommandBase {
 
     
     if (indexer.isStalled()) {
-      Robot.getBling().setSlot(2, 255, 0, 0);
+      // Robot.getBling().setSlot(2, 255, 0, 0);
     } else {
-      Robot.getBling().setSlot(2, 0, 0, 0);
+      // Robot.getBling().setSlot(2, 0, 0, 0);
     }
   }
 
