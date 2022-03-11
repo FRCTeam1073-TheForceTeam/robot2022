@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.CANCoder;
+// import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,7 +27,7 @@ public class Climber extends SubsystemBase {
 
   // TODO: get actual values
   private final double spoolGearRatio = 56.25;
-  private final double extensionGearRatio = 25.0;
+  private final double extensionGearRatio = 50.0;
 
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
   private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
@@ -42,13 +42,13 @@ public class Climber extends SubsystemBase {
   double currentSpoolVelocity = 0;
   double currentExtensionVelocity = 0;
 
-  private double spool_kP = 0.2;
+  private double spool_kP = 0.1;
   private double spool_kI = 0.001;
   private double spool_kD = 0;
-  private double spool_kF = 0;
+  private double spool_kF = 0.05;
 
   private double extension_kP = 0.2;
-  private double extension_kI = 0.001;
+  private double extension_kI = 0.003;
   private double extension_kD = 0;
   private double extension_kF = 0.05;
 
@@ -66,10 +66,10 @@ public class Climber extends SubsystemBase {
     resetSpoolMotor(spoolMotorLeft);
     resetExtensionMotor(extensionMotorLeft);
 
-    spoolMotorLeft.setInverted(true);
-    extensionMotorLeft.setInverted(true);
+    spoolMotorLeft.setInverted(false);
+    spoolMotorRight.setInverted(true);
 
-    spoolMotorRight.setInverted(false);
+    extensionMotorLeft.setInverted(true);
     extensionMotorRight.setInverted(false);
 
     spoolMotorLeft.follow(spoolMotorRight);
@@ -103,19 +103,32 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double spoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
-    double extensionVelocity = extensionFilter.calculate(targetExtensionVelocity);
+    double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
+    double limitedExtensionVelocity = extensionFilter.calculate(targetExtensionVelocity);
 
-    double rawSpoolVel = spoolVelocity * spoolTicksPerRadian * 0.1;
-    double rawExtensionVel = extensionVelocity * extensionTicksPerRadian * 0.1;
+    double rawSpoolVel = limitedSpoolVelocity * spoolTicksPerRadian * 0.1;
+    double rawExtensionVel = limitedExtensionVelocity * extensionTicksPerRadian * 0.1;
     
     // spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
     // extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
 
+    spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
+    extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
 
-    if(SmartDashboard.getBoolean("Update", false)){
+    //debug
+    SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
+    SmartDashboard.putNumber("target extension velocity", targetExtensionVelocity);
+    SmartDashboard.putNumber("actual spool velocity", currentSpoolVelocity);
+    SmartDashboard.putNumber("actual extension velocity", currentExtensionVelocity);
+    // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
+    SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
+    SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
+
+    if (SmartDashboard.getBoolean("Update", false)) 
+    {
       spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
       spool_kI = SmartDashboard.getNumber("climber-spool_kI", 0);
       spool_kD = SmartDashboard.getNumber("climber-spool_kD", 0);
