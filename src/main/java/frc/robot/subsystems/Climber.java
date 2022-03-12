@@ -12,6 +12,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 // import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -68,10 +70,10 @@ public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
   public Climber() {
     spoolMotorRight = new WPI_TalonFX(44);
-    extensionMotorRight = new WPI_TalonFX(17);
+    extensionMotorRight = new WPI_TalonFX(35);
     
     spoolMotorLeft = new WPI_TalonFX(32);
-    extensionMotorLeft = new WPI_TalonFX(35);
+    extensionMotorLeft = new WPI_TalonFX(17);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
@@ -82,8 +84,8 @@ public class Climber extends SubsystemBase {
     spoolMotorLeft.setInverted(false);
     spoolMotorRight.setInverted(true);
 
-    extensionMotorLeft.setInverted(true);
-    extensionMotorRight.setInverted(false);
+    extensionMotorLeft.setInverted(false);
+    extensionMotorRight.setInverted(true);
 
     spoolMotorLeft.follow(spoolMotorRight);
     extensionMotorLeft.follow(extensionMotorRight);
@@ -138,6 +140,8 @@ public class Climber extends SubsystemBase {
     } else {
       Robot.getBling().setSlot(4, 0, 0, 0);
     }
+    
+    SmartDashboard.putNumber("[Climber] Output", spoolMotorLeft.getMotorOutputPercent());
 
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);

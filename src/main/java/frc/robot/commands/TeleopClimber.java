@@ -23,7 +23,8 @@ public class TeleopClimber extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -31,14 +32,16 @@ public class TeleopClimber extends CommandBase {
     // climber.setSpoolVelocity(OI.operatorController.getLeftY());
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
     climber.setSpoolVelocity(OI.operatorController.getLeftY() * spoolMultiplier);
-    if (Math.abs(OI.operatorController.getRightY()) < 0.08) {
-      if(!climber.getExtensionMode()){climber.setExtensionBrake(true);}
-      climber.setExtensionVelocity(OI.operatorController.getRightY() * extensionMultiplier);      
-    } else {
-      if(climber.getExtensionMode()){
+    if (OI.operatorController.getRightTriggerAxis() > 0.5) {
+      if (climber.getExtensionMode()) {
         climber.setExtensionBrake(false);
       }
       climber.setExtensionPower(0);
+    } else {
+      if (!climber.getExtensionMode()) {
+        climber.setExtensionBrake(true);
+      }
+      climber.setExtensionVelocity(OI.operatorController.getRightY() * extensionMultiplier);
     }
   }
 
