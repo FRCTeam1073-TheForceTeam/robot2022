@@ -7,11 +7,13 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.*;
 
 /**
  * Allow the commands running in the robot to express themselves visually.
  */
 public class Bling extends SubsystemBase {
+  // Climber climber = new Climber();
   public AddressableLED m_led;
   public AddressableLEDBuffer m_ledBuffer;
   Collector collector;
@@ -38,6 +40,8 @@ public class Bling extends SubsystemBase {
   int gameR;
   int gameG;
   int gameB;
+
+  int targetRainbowTime = 5;
 
   public int[] rgbArr = { 0, 0, 0 };
 
@@ -69,6 +73,13 @@ public class Bling extends SubsystemBase {
 
   @Override
   public void periodic() {
+    counter_rainbow++;
+
+    if (counter_rainbow >= targetRainbowTime) {
+      move_rainbow++;
+      move_rainbow %= 12;
+      counter_rainbow = 0;
+    }
     
     if (!cleared) {
       if (OI.driverController.getRawButton(1)) {
@@ -76,13 +87,47 @@ public class Bling extends SubsystemBase {
       } else {
         setSlot(6, 0, 0, 0);
       }
-      // LEDRainbow(0, m_ledBuffer.getLength() / 2, 10);
 
       batteryBling(0, slotLength, 8.0, 12.5);
 
-      // setColorRGBAll(255, 0, 0);
+      if (OI.driverController.getRawButton(2)) {
+        duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2);
 
-      duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+        if (Climber.getSensorReading(2) && Climber.getSensorReading(3) && Climber.getSensorReading(4) && Climber.getSensorReading(5)) {
+          LEDRainbow(slotLength, slotLength * 7);
+          duplicateRange(slotLength, slotLength * 7, slotLength * 9);
+        } else {
+          if (Climber.getSensorReading(2)) {
+            rangeRGB(slotLength, slotLength * 3, 85, 85, 0);
+          } else {
+            rangeRGB(slotLength, slotLength * 3, 0, 0, 0);
+          }
+
+          rangeRGB(slotLength * 4, slotLength, 0, 0, 0);
+
+          if (Climber.getSensorReading(3)) {
+            rangeRGB(slotLength * 5, slotLength * 3, 0, 0, 255);
+          } else {
+            rangeRGB(slotLength * 5, slotLength * 3, 0, 0, 0);
+          }
+
+          if (Climber.getSensorReading(4)) {
+            rangeRGB(slotLength * 9, slotLength * 3, 85, 85, 0);
+          } else {
+            rangeRGB(slotLength * 9, slotLength * 3, 0, 0, 0);
+          }
+
+          rangeRGB(slotLength * 12, slotLength, 0, 0, 0);
+
+          if (Climber.getSensorReading(5)) {
+            rangeRGB(slotLength * 13, slotLength * 3, 0, 0, 255);
+          } else {
+            rangeRGB(slotLength * 13, slotLength * 3, 0, 0, 0);
+          }
+        }
+      } else {
+        duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+      }
 
       m_led.setData(m_ledBuffer);
 
@@ -265,13 +310,14 @@ public class Bling extends SubsystemBase {
 
 
   public void setSlot(int slotNum, int r, int g, int b) {
-    if (slotNum <= 7 && slotNum > 0) {
-      if (slotLength == 1) {
-        m_ledBuffer.setRGB(slotNum, r, g, b);
-      } else {
-        rangeRGB((slotNum * slotLength), slotLength, r, g, b);
+    if (!OI.driverController.getRawButton(2)) {
+      if (slotNum <= 7 && slotNum > 0) {
+        if (slotLength == 1) {
+          m_ledBuffer.setRGB(slotNum, r, g, b);
+        } else {
+          rangeRGB((slotNum * slotLength), slotLength, r, g, b);
+        }
       }
-      
     }
   }
 
@@ -308,42 +354,33 @@ public class Bling extends SubsystemBase {
 
 
 
-  public void LEDRainbow(int startLEDs, int numLEDs, int targetTime) {
-    if (counter_rainbow >= targetTime) {
-      move_rainbow++;
-      move_rainbow %= 12;
-      counter_rainbow = 0;
-
-      for (int i = startLEDs; i < (startLEDs + numLEDs); i++) {
-        int ledColor = (i + move_rainbow) % 12;
-        if (ledColor == 0 || ledColor == 1) {
-          // Sets first LED, then sets every 6 after it "red"
-          m_ledBuffer.setRGB(i, (int) (255 * brightness), 0, 0);
-          
-        } else if (ledColor == 2 || ledColor == 3) {
-          // Sets second LED, then sets every 6 after it "orange"
-          m_ledBuffer.setRGB(i, (int) (230 * brightness), (int) (55 * brightness), 0);
-          
-        } else if (ledColor == 4 || ledColor == 5) {
-          // Sets third LED, then sets every 6 after it "yellow"
-          m_ledBuffer.setRGB(i, (int) (252 * brightness), (int) (227 * brightness), 0);
-          
-        } else if (ledColor == 6 || ledColor == 7) {
-          // Sets fourth LED, then sets every 6 after it "green"
-          m_ledBuffer.setRGB(i, 0, (int) (255 * brightness), 0);
-          
-        } else if (ledColor == 8 || ledColor == 9) {
-          // Sets fifth LED, then sets every 6 after it "blue"
-          m_ledBuffer.setRGB(i, 0, 0, (int) (255 * brightness));
-          
-        } else if (ledColor == 10 || ledColor == 11) {
-          // Sets sixth LED, then sets every 6 after it "purple"
-          m_ledBuffer.setRGB(i, (int) (128 * brightness), 0, (int) (128 * brightness));
-        }
+  public void LEDRainbow(int startLEDs, int numLEDs) {
+    for (int i = startLEDs; i < (startLEDs + numLEDs); i++) {
+      int ledColor = (i + move_rainbow) % 12;
+      if (ledColor == 0 || ledColor == 1) {
+        // Sets first LED, then sets every 6 after it "red"
+        m_ledBuffer.setRGB(i, (int) (255 * brightness), 0, 0);
+        
+      } else if (ledColor == 2 || ledColor == 3) {
+        // Sets second LED, then sets every 6 after it "orange"
+        m_ledBuffer.setRGB(i, (int) (230 * brightness), (int) (55 * brightness), 0);
+        
+      } else if (ledColor == 4 || ledColor == 5) {
+        // Sets third LED, then sets every 6 after it "yellow"
+        m_ledBuffer.setRGB(i, (int) (252 * brightness), (int) (227 * brightness), 0);
+        
+      } else if (ledColor == 6 || ledColor == 7) {
+        // Sets fourth LED, then sets every 6 after it "green"
+        m_ledBuffer.setRGB(i, 0, (int) (255 * brightness), 0);
+        
+      } else if (ledColor == 8 || ledColor == 9) {
+        // Sets fifth LED, then sets every 6 after it "blue"
+        m_ledBuffer.setRGB(i, 0, 0, (int) (255 * brightness));
+        
+      } else if (ledColor == 10 || ledColor == 11) {
+        // Sets sixth LED, then sets every 6 after it "purple"
+        m_ledBuffer.setRGB(i, (int) (128 * brightness), 0, (int) (128 * brightness));
       }
-
-    } else {
-      counter_rainbow++;
     }
   }
 
