@@ -35,10 +35,10 @@ public class Climber extends SubsystemBase {
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
   private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
 
-  private final DigitalInput DI1 = new DigitalInput(2);
-  private final DigitalInput DI2 = new DigitalInput(3);
-  private final DigitalInput DI3 = new DigitalInput(4);
-  private final DigitalInput DI4 = new DigitalInput(5);
+  private static DigitalInput DI1 = new DigitalInput(2);
+  private static DigitalInput DI2 = new DigitalInput(3);
+  private static DigitalInput DI3 = new DigitalInput(4);
+  private static DigitalInput DI4 = new DigitalInput(5);
 
   // private final Bling bling = new Bling();
   
@@ -60,6 +60,11 @@ public class Climber extends SubsystemBase {
   private double extension_kI = 0.003;
   private double extension_kD = 0;
   private double extension_kF = 0.05;
+
+  private static boolean sensor1 = false;
+  private static boolean sensor2 = false;
+  private static boolean sensor3 = false;
+  private static boolean sensor4 = false;
 
   /** Creates a new Climber. */
   public Climber() {
@@ -111,29 +116,35 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (DI1.get()) {
-      Robot.getBling().setSlot(1, 255, 0, 0);
-    } else {
-      Robot.getBling().setSlot(1, 0, 0, 0);
-    }
+    // if (DI1.get()) {
+    //   Robot.getBling().setSlot(1, 255, 0, 0);
+    // } else {
+    //   Robot.getBling().setSlot(1, 0, 0, 0);
+    // }
 
-    if (DI2.get()) {
-      Robot.getBling().setSlot(2, 0, 255, 0);
-    } else {
-      Robot.getBling().setSlot(2, 0, 0, 0);
-    }
+    // if (DI2.get()) {
+    //   Robot.getBling().setSlot(2, 0, 255, 0);
+    // } else {
+    //   Robot.getBling().setSlot(2, 0, 0, 0);
+    // }
 
-    if (DI3.get()) {
-      Robot.getBling().setSlot(3, 0, 0, 255);
-    } else {
-      Robot.getBling().setSlot(3, 0, 0, 0);
-    }
+    // if (DI3.get()) {
+    //   Robot.getBling().setSlot(3, 0, 0, 255);
+    // } else {
+    //   Robot.getBling().setSlot(3, 0, 0, 0);
+    // }
 
-    if (DI4.get()) {
-      Robot.getBling().setSlot(4, 255, 255, 255);
-    } else {
-      Robot.getBling().setSlot(4, 0, 0, 0);
-    }
+    // if (DI4.get()) {
+    //   Robot.getBling().setSlot(4, 255, 255, 255);
+    // } else {
+    //   Robot.getBling().setSlot(4, 0, 0, 0);
+    // }
+
+    sensor1 = DI1.get();
+    sensor2 = DI2.get();
+    sensor3 = DI3.get();
+    sensor4 = DI4.get();
+
 
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
@@ -255,5 +266,23 @@ public class Climber extends SubsystemBase {
     motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setSelectedSensorPosition(0);
+  }
+
+  /**
+   * sensorNumbers: 2 - left hook | 3 - left extension | 4 - right hook | 5 - right extension
+   * @param sensorNum
+   * @return sensorReading
+   */
+  public static boolean getSensorReading(int sensorNum) {
+    if (sensorNum == 2) {
+      return sensor1;
+    } else if (sensorNum == 3) {
+      return sensor2;
+    } else if (sensorNum == 4) {
+      return sensor3;
+    } else if (sensorNum == 5) {
+      return sensor4;
+    }
+    return false;
   }
 }
