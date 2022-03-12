@@ -61,6 +61,10 @@ public class Climber extends SubsystemBase {
   private double extension_kD = 0;
   private double extension_kF = 0.05;
 
+  private boolean extensionBrake = true;
+
+  private boolean extensionVelocityMode = true;
+
   private static boolean sensor1 = false;
   private static boolean sensor2 = false;
   private static boolean sensor3 = false;
@@ -69,10 +73,10 @@ public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
   public Climber() {
     spoolMotorRight = new WPI_TalonFX(44);
-    extensionMotorRight = new WPI_TalonFX(17);
+    extensionMotorRight = new WPI_TalonFX(35);
     
     spoolMotorLeft = new WPI_TalonFX(32);
-    extensionMotorLeft = new WPI_TalonFX(35);
+    extensionMotorLeft = new WPI_TalonFX(17);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
@@ -83,8 +87,8 @@ public class Climber extends SubsystemBase {
     spoolMotorLeft.setInverted(false);
     spoolMotorRight.setInverted(true);
 
-    extensionMotorLeft.setInverted(true);
-    extensionMotorRight.setInverted(false);
+    extensionMotorLeft.setInverted(false);
+    extensionMotorRight.setInverted(true);
 
     spoolMotorLeft.follow(spoolMotorRight);
     extensionMotorLeft.follow(extensionMotorRight);
@@ -137,7 +141,9 @@ public class Climber extends SubsystemBase {
     // extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
 
     spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
-    extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+    if (extensionVelocityMode) {
+      extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+    }
 
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
@@ -176,6 +182,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void setExtensionVelocity(double angularVelocity){
+    extensionVelocityMode = true;
     targetExtensionVelocity = angularVelocity;
   }
 
@@ -184,6 +191,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void setExtensionPower(double power) {
+    extensionVelocityMode = false;
     extensionMotorRight.set(ControlMode.PercentOutput, power);
   }
 
@@ -195,15 +203,6 @@ public class Climber extends SubsystemBase {
     motor.setIntegralAccumulator(0);
     motor.configMaxIntegralAccumulator(0, max_integrator);
   }
-
-  /**
-   * Sets a *single* climber motor to a given angular velocity.
-   * This disables *all other motors*, and is meant to be used for indexing the climber.
-   * @param motor
-   * @param velocity
-   */
-  // public void setMotorVelocity(ClimberMotor motor, double velocity){
-  // }
 
   public boolean hasNotHung(){
     return true;
@@ -222,8 +221,6 @@ public class Climber extends SubsystemBase {
   public double getExtensionPosition(){
     return extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian;
   }
-
-
 
   // public double getMotorPosition(ClimberMotor motor){
   //   return 0;
@@ -248,7 +245,22 @@ public class Climber extends SubsystemBase {
     motor.setSelectedSensorPosition(0);
   }
 
-  /**
+  public void setExtensionBrake(boolean mode) {
+    extensionBrake = mode;
+    if (mode) {
+      extensionMotorRight.setNeutralMode(NeutralMode.Brake);
+      extensionMotorLeft.setNeutralMode(NeutralMode.Brake);
+    } else {
+      extensionMotorRight.setNeutralMode(NeutralMode.Coast);
+      extensionMotorLeft.setNeutralMode(NeutralMode.Coast);
+    }
+  }
+
+  public boolean getExtensionMode() {
+    return extensionBrake;
+  }
+
+   /**
    * sensorNumbers: 2 - left hook | 3 - left extension | 4 - right hook | 5 - right extension
    * @param sensorNum
    * @return sensorReading
