@@ -116,35 +116,15 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // if (DI1.get()) {
-    //   Robot.getBling().setSlot(1, 255, 0, 0);
-    // } else {
-    //   Robot.getBling().setSlot(1, 0, 0, 0);
-    // }
-
-    // if (DI2.get()) {
-    //   Robot.getBling().setSlot(2, 0, 255, 0);
-    // } else {
-    //   Robot.getBling().setSlot(2, 0, 0, 0);
-    // }
-
-    // if (DI3.get()) {
-    //   Robot.getBling().setSlot(3, 0, 0, 255);
-    // } else {
-    //   Robot.getBling().setSlot(3, 0, 0, 0);
-    // }
-
-    // if (DI4.get()) {
-    //   Robot.getBling().setSlot(4, 255, 255, 255);
-    // } else {
-    //   Robot.getBling().setSlot(4, 0, 0, 0);
-    // }
-
     sensor1 = DI1.get();
     sensor2 = DI2.get();
     sensor3 = DI3.get();
     sensor4 = DI4.get();
 
+    SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
+    SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
+    SmartDashboard.putBoolean("Climber Left Static Hook Moving", sensor2);
+    SmartDashboard.putBoolean("Climber Right Static Hook Moving", sensor4);
 
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
