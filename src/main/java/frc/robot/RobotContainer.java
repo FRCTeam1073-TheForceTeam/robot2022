@@ -57,7 +57,7 @@ public class RobotContainer {
 
   Indexer indexer = new Indexer();
 
-  Climber climber = new Climber();
+  // Climber climber = new Climber();
 
   Drivetrain drivetrain = new Drivetrain(imu);
 
@@ -80,7 +80,7 @@ public class RobotContainer {
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
-  TeleopClimber teleopClimber = new TeleopClimber(climber);
+  // TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
   HangStartPositioning hangStartPositioning = new HangStartPositioning(drivetrain, frontSonar);
@@ -98,7 +98,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
     shooter.setDefaultCommand(teleopShooter);
-    climber.setDefaultCommand(teleopClimber);
+    // climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
 
     autoChooser = new SendableChooser<Command>();
@@ -193,16 +193,16 @@ public class RobotContainer {
           ),
           new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
           new FeedCommand(shooter).withTimeout(2.0),
-          new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-          new FeederLaunchCommand(shooter).withTimeout(2.0),
-          new ShooterSpinDownCommand(shooter)
-        ),
-        new DriveTranslateCommand(drivetrain, -0.5, 2.0),
-        new TurnCommand(drivetrain, -Units.degreesToRadians(90.0), 1.0),
-        new DriveTranslateCommand(drivetrain, 1.5, 2.0)
-  
-        // Apparently this turns to the right angle for the two-ball auto? Neato.
-        // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
+          new InstantCommand(
+            ()->shooter.setFeederVelocity(0)
+          )
+          // new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
+          // new FeederLaunchCommand(shooter).withTimeout(2.0),
+          // new ShooterSpinDownCommand(shooter)
+        )
+        // new DriveTranslateCommand(drivetrain, -0.5, 2.0),
+        // new TurnCommand(drivetrain, -Units.degreesToRadians(90.0), 1.0),
+        // new DriveTranslateCommand(drivetrain, 1.5, 2.0)
       )
     );
 
