@@ -58,7 +58,7 @@ public class Climber extends SubsystemBase {
     extensionMotorRight = new WPI_TalonFX(17);
     
     spoolMotorLeft = new WPI_TalonFX(32);
-    extensionMotorLeft = new WPI_TalonFX(29);
+    extensionMotorLeft = new WPI_TalonFX(35);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
