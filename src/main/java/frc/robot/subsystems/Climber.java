@@ -258,6 +258,7 @@ public class Climber extends SubsystemBase {
 
   public boolean getExtensionMode() {
     return extensionBrake;
+  }
 
    /**
    * sensorNumbers: 2 - left hook | 3 - left extension | 4 - right hook | 5 - right extension
