@@ -6,13 +6,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Shooter;
 
 public class FeedCommand extends CommandBase {
 
+  Feeder feeder;
   Shooter shooter;
 
-  double feederVelocity = 8;
+  double feederVelocity = 400;
 
   boolean startTOF1Closed = false;
   boolean startTOF2Closed = false;
@@ -20,46 +22,48 @@ public class FeedCommand extends CommandBase {
   boolean currentTOF2Closed = false;
 
   /** Creates a new FeedCommand. */
-  public FeedCommand(Shooter shooter_) {
+  public FeedCommand(Feeder feeder_, Shooter shooter_) {
+    feeder = feeder_;
     shooter = shooter_;
-    addRequirements(shooter);
+    addRequirements(feeder);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    System.out.println("INIT");
     startTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
     startTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
     if (startTOF1Closed && !startTOF2Closed) {
-      shooter.setFeederVelocity(feederVelocity);      
+      System.out.println("START");
+      feeder.setFeederVelocity(feederVelocity);
     }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+  }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.setFeederVelocity(0);
-    for (int i = 0; i < 20; i++) {
-      System.out.println("STOP " + interrupted);
-    }
+    feeder.setFeederVelocity(0);
+    System.out.println("fSTOP " + interrupted);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
+    currentTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
     SmartDashboard.putBoolean("[FC] S1", startTOF1Closed);
     SmartDashboard.putBoolean("[FC] S2", startTOF2Closed);
     SmartDashboard.putBoolean("[FC] C1", currentTOF1Closed);
     SmartDashboard.putBoolean("[FC] C2", currentTOF2Closed);
-    currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
-    currentTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
-    // If the shooter *didn't* start with the bottom sensor closed and the top sensor open, end instantly.
+    // If the feeder *didn't* start with the bottom sensor closed and the top sensor open, end instantly.
     // Otherwise, end only when the bottom sensor is open and the top sensor is closed.
     // TODO: Is !currentTOF1Closed necessary, or might it break things?
-    return !(startTOF1Closed && !startTOF2Closed) || (!currentTOF1Closed /*&& currentTOF2Closed*/);
+    return (!startTOF1Closed) || (!currentTOF1Closed);
   }
 }

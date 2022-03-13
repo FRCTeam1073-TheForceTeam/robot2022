@@ -6,22 +6,21 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Collector;
-import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Shooter;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
-public class CollectCargoCommand extends CommandBase {
-
+/**
+ * Lowers the collector and runs wheels indefinitely. Raises and stops wheels on end.
+ * This command does not end itself, so please put in a timeout or in a ParallelDeadLineGroup
+ * or it won't stop!
+ */
+public class CollectCommand extends CommandBase {
   Collector collector;
-  Indexer indexer;
-  Shooter shooter;
   double collectorVelocity = 12;
 
-  /** Creates a new CollectCargoCommand. */
-  public CollectCargoCommand(Collector collector_, Indexer indexer_, Shooter shooter_) {
+  /** Creates a new CollectCommand. */
+  public CollectCommand(Collector collector_) {
     collector = collector_;
-    indexer = indexer_;
-    shooter = shooter_;
-    addRequirements(collector, indexer);
+    addRequirements(collector);
   }
 
   // Called when the command is initially scheduled.
@@ -33,21 +32,18 @@ public class CollectCargoCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    indexer.setPower(0.8);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     collector.setLiftPosition(Collector.Constants.raisedCollectorPosition);
     collector.setLinearIntakeVelocity(0);
-    indexer.setPower(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
+    return false;
   }
 }

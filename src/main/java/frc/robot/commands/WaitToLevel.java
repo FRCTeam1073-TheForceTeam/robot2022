@@ -5,17 +5,20 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Shooter;
 
 public class WaitToLevel extends CommandBase {
+  Feeder feeder;
   Shooter shooter;
   double startTime;
   double timeout;
   /** Creates a new WaitToLevel. */
-  public WaitToLevel(Shooter shooter_, double timeout_) {
+  public WaitToLevel(Feeder feeder_, Shooter shooter_, double timeout_) {
+    feeder = feeder_;
     shooter = shooter_;
     timeout = timeout_;
-    addRequirements(shooter);
+    addRequirements(feeder, shooter);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -35,7 +38,7 @@ public class WaitToLevel extends CommandBase {
     if (interrupted) {
       shooter.setFlywheelVelocity(0);
       shooter.setHoodPosition(0);
-      shooter.setFeederVelocity(0);
+      feeder.zeroFeeder();
     }
   }
 
