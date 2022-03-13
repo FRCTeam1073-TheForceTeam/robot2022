@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class OI 
 {
+    public static final boolean debug = false;
 
     public static Joystick driverController;
     public static XboxController operatorController;
@@ -24,7 +25,9 @@ public class OI
 
     public static void update() {
         updateOperatorDPadState();
-        SmartDashboard.putString("DPAD", dPadState.toString());
+        if (debug){
+            SmartDashboard.putString("DPAD", dPadState.toString());
+        }
     }
 
     public static void zeroDriverController() {
