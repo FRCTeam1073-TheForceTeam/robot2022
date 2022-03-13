@@ -205,6 +205,23 @@ public class RobotContainer {
         // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
       )
     );
+    autoChooser.addOption("Feed without shoot",
+      new SequentialCommandGroup(
+        // new ParallelDeadlineGroup(
+        //   new CollectCargoCommand(collector, indexer, shooter).withTimeout(6.0),
+        //   new DriveTranslateCommand(drivetrain,0.8,0.5)
+        // ),
+        // new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
+        new CollectCargoCommand(collector, indexer, shooter).withTimeout(2.0),
+        new FeedCommand(shooter).withTimeout(2.0),
+        new InstantCommand(
+          ()->shooter.setFeederVelocity(0)
+        )
+        // new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
+        // new FeederLaunchCommand(shooter).withTimeout(2.0),
+        // new ShooterSpinDownCommand(shooter)
+      )
+    );
 
     SmartDashboard.putData("Init/Auto Selector", autoChooser);
     configureButtonBindings();

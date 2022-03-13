@@ -43,6 +43,9 @@ public class FeedCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     shooter.setFeederVelocity(0);
+    for (int i = 0; i < 20; i++) {
+      System.out.println("STOP " + interrupted);
+    }
   }
 
   // Returns true when the command should end.
