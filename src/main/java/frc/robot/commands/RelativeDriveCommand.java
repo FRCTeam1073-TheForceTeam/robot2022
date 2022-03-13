@@ -65,8 +65,8 @@ public class RelativeDriveCommand extends CommandBase {
   public void execute() {
     robotPose = drivetrain.getPoseMeters();
     distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
-    offsetVector.x=targetPose.getTranslation().minus(robotPose.getTranslation()).getX();
-    offsetVector.y=targetPose.getTranslation().minus(robotPose.getTranslation()).getY();
+    offsetVector.x = targetPose.getTranslation().minus(robotPose.getTranslation()).getX() / distance;
+    offsetVector.y = targetPose.getTranslation().minus(robotPose.getTranslation()).getY() / distance;
     double robotAngle = robotPose.getRotation().getRadians();
 
     x_robot.x = Math.cos(robotAngle);
@@ -74,26 +74,25 @@ public class RelativeDriveCommand extends CommandBase {
     y_robot.x = Math.cos(robotAngle + Math.PI * 0.5);
     y_robot.y = Math.sin(robotAngle + Math.PI * 0.5);
 
-    double forwardValue = x_robot.dot(x_target);
-    double rotationValue = x_robot.dot(y_target);
-
-    double targetVelocity = maxVelocity * velocityScale * rangeFunction(distance) * directionFunction(forwardValue);
-    double targetRotation = maxAngularVelocity * rotationScale * angleFunction(rotationValue);
+    double targetVelocity = maxVelocity * velocityScale * rangeFunction() * directionFunction();
+    double targetRotation = maxAngularVelocity * rotationScale * angleFunction();
     chassisSpeeds.vxMetersPerSecond = targetVelocity;
     chassisSpeeds.omegaRadiansPerSecond = targetRotation;
     drivetrain.setChassisSpeeds(chassisSpeeds);
   }
 
-  double rangeFunction(double value) {
-    return 1.0 - Math.exp(-2.0 * value);
+  double rangeFunction() {
+    return 1.0 - Math.exp(-2.0 * distance);
   }
   
-  double directionFunction(double value) {
-    return Math.max(0, value);
+  double directionFunction() {
+    return Math.max(0, x_robot.dot(x_target));
   }
 
-  double angleFunction(double value) {
-    return value;
+  double angleFunction() {
+    double orientationValue = x_robot.dot(y_target);
+    double directionValue = x_robot.dot(offsetVector);
+    return 0;
   }
 
   // Called once the command ends or is interrupted.
