@@ -52,9 +52,9 @@ public class DriveTranslateCommand extends CommandBase {
     SmartDashboard.putNumber("[DF_C] Target velocity (meters per second)", targetDistance - currentDistance);
     blinkCounter++;
     if (((int) (blinkCounter / 10)) % 2 == 0) {
-      Robot.getBling().setSlot(1, 255, 0, 255);
+      // Robot.getBling().setSlot(1, 255, 0, 255);
     } else {
-      Robot.getBling().setSlot(1, 0, 0, 0);
+      // Robot.getBling().setSlot(1, 0, 0, 0);
     }
   }
 

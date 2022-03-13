@@ -12,8 +12,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 // import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 
 public class Climber extends SubsystemBase {
 
@@ -32,6 +35,12 @@ public class Climber extends SubsystemBase {
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
   private final double extensionTicksPerRadian = 2048.0 * extensionGearRatio / (2.0 * Math.PI);
 
+  private static DigitalInput DI1 = new DigitalInput(2);
+  private static DigitalInput DI2 = new DigitalInput(3);
+  private static DigitalInput DI3 = new DigitalInput(4);
+  private static DigitalInput DI4 = new DigitalInput(5);
+
+  // private final Bling bling = new Bling();
   
   SlewRateLimiter spoolFilter = new SlewRateLimiter(80.0);
   SlewRateLimiter extensionFilter = new SlewRateLimiter(80.0);
@@ -52,13 +61,22 @@ public class Climber extends SubsystemBase {
   private double extension_kD = 0;
   private double extension_kF = 0.05;
 
+  private boolean extensionBrake = true;
+
+  private boolean extensionVelocityMode = true;
+
+  private static boolean sensor1 = false;
+  private static boolean sensor2 = false;
+  private static boolean sensor3 = false;
+  private static boolean sensor4 = false;
+
   /** Creates a new Climber. */
   public Climber() {
     spoolMotorRight = new WPI_TalonFX(44);
-    extensionMotorRight = new WPI_TalonFX(17);
+    extensionMotorRight = new WPI_TalonFX(35);
     
     spoolMotorLeft = new WPI_TalonFX(32);
-    extensionMotorLeft = new WPI_TalonFX(29);
+    extensionMotorLeft = new WPI_TalonFX(17);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
@@ -69,8 +87,8 @@ public class Climber extends SubsystemBase {
     spoolMotorLeft.setInverted(false);
     spoolMotorRight.setInverted(true);
 
-    extensionMotorLeft.setInverted(true);
-    extensionMotorRight.setInverted(false);
+    extensionMotorLeft.setInverted(false);
+    extensionMotorRight.setInverted(true);
 
     spoolMotorLeft.follow(spoolMotorRight);
     extensionMotorLeft.follow(extensionMotorRight);
@@ -102,6 +120,16 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
+    sensor1 = DI1.get();
+    sensor2 = DI2.get();
+    sensor3 = DI3.get();
+    sensor4 = DI4.get();
+
+    SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
+    SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
+    SmartDashboard.putBoolean("Climber Left Moving Hook Engaged", sensor2);
+    SmartDashboard.putBoolean("Climber Right Moving Hook Engaged", sensor4);
+
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
     double limitedExtensionVelocity = extensionFilter.calculate(targetExtensionVelocity);
@@ -113,7 +141,9 @@ public class Climber extends SubsystemBase {
     // extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
 
     spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
-    extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+    if (extensionVelocityMode) {
+      extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+    }
 
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
@@ -152,6 +182,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void setExtensionVelocity(double angularVelocity){
+    extensionVelocityMode = true;
     targetExtensionVelocity = angularVelocity;
   }
 
@@ -160,6 +191,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void setExtensionPower(double power) {
+    extensionVelocityMode = false;
     extensionMotorRight.set(ControlMode.PercentOutput, power);
   }
 
@@ -171,15 +203,6 @@ public class Climber extends SubsystemBase {
     motor.setIntegralAccumulator(0);
     motor.configMaxIntegralAccumulator(0, max_integrator);
   }
-
-  /**
-   * Sets a *single* climber motor to a given angular velocity.
-   * This disables *all other motors*, and is meant to be used for indexing the climber.
-   * @param motor
-   * @param velocity
-   */
-  // public void setMotorVelocity(ClimberMotor motor, double velocity){
-  // }
 
   public boolean hasNotHung(){
     return true;
@@ -198,8 +221,6 @@ public class Climber extends SubsystemBase {
   public double getExtensionPosition(){
     return extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian;
   }
-
-
 
   // public double getMotorPosition(ClimberMotor motor){
   //   return 0;
@@ -222,5 +243,38 @@ public class Climber extends SubsystemBase {
     motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 20, 25, 0.25));
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     motor.setSelectedSensorPosition(0);
+  }
+
+  public void setExtensionBrake(boolean mode) {
+    extensionBrake = mode;
+    if (mode) {
+      extensionMotorRight.setNeutralMode(NeutralMode.Brake);
+      extensionMotorLeft.setNeutralMode(NeutralMode.Brake);
+    } else {
+      extensionMotorRight.setNeutralMode(NeutralMode.Coast);
+      extensionMotorLeft.setNeutralMode(NeutralMode.Coast);
+    }
+  }
+
+  public boolean getExtensionMode() {
+    return extensionBrake;
+  }
+
+   /**
+   * sensorNumbers: 2 - left hook | 3 - left extension | 4 - right hook | 5 - right extension
+   * @param sensorNum
+   * @return sensorReading
+   */
+  public static boolean getSensorReading(int sensorNum) {
+    if (sensorNum == 2) {
+      return sensor1;
+    } else if (sensorNum == 3) {
+      return sensor2;
+    } else if (sensorNum == 4) {
+      return sensor3;
+    } else if (sensorNum == 5) {
+      return sensor4;
+    }
+    return false;
   }
 }
