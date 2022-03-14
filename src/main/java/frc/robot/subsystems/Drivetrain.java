@@ -29,6 +29,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
+  // DEBUG:
+  private final boolean debug = false;
+  
   private WPI_TalonFX leftMotorLeader;
   private WPI_TalonFX leftMotorFollower;
   private WPI_TalonFX rightMotorLeader;
@@ -167,10 +170,12 @@ public class Drivetrain extends SubsystemBase {
     }
 
     field.setRobotPose(robotPose);
-    SmartDashboard.putData(field);
-    SmartDashboard.putNumber("[Drivetrain] Robot pose/X position (meters)", robotPose.getTranslation().getX());
-    SmartDashboard.putNumber("[Drivetrain] Robot pose/Y position (meters)", robotPose.getTranslation().getY());
-    SmartDashboard.putNumber("[Drivetrain] Robot pose/Angle (radians)", robotPose.getRotation().getDegrees());
+    if (debug){
+      SmartDashboard.putData(field);
+      SmartDashboard.putNumber("[Drivetrain] Robot pose/X position (meters)", robotPose.getTranslation().getX());
+      SmartDashboard.putNumber("[Drivetrain] Robot pose/Y position (meters)", robotPose.getTranslation().getY());
+      SmartDashboard.putNumber("[Drivetrain] Robot pose/Angle (radians)", robotPose.getRotation().getDegrees());
+    }  
   }
 
   public void setPower(double leftPower, double rightPower)

@@ -18,6 +18,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Collector extends SubsystemBase 
 {
+  // DEBUG:
+  private final boolean debug = false;
+  private final boolean PIDTuning = false;
+
   WPI_TalonFX liftMotor;
   WPI_TalonFX collectMotor;
 
@@ -76,17 +80,19 @@ public class Collector extends SubsystemBase
         previousState,
         previousState);
     liftProfileStartTime = System.currentTimeMillis() / 1000.0;
-    SmartDashboard.putNumber("collector-lift_kP", lift_kP);
-    SmartDashboard.putNumber("collector-lift_kI", lift_kI);
-    SmartDashboard.putNumber("collector-lift_kD", lift_kD);
-    SmartDashboard.putNumber("collector-lift_kF", lift_kF);
 
-    SmartDashboard.putNumber("collector-collect_kP", collect_kP);
-    SmartDashboard.putNumber("collector-collect_kI", collect_kI);
-    SmartDashboard.putNumber("collector-collect_kD", collect_kD);
-    SmartDashboard.putNumber("collector-collect_kF", collect_kF);
-    SmartDashboard.putBoolean("Update", false);
+    if (PIDTuning){
+      SmartDashboard.putNumber("collector-lift_kP", lift_kP);
+      SmartDashboard.putNumber("collector-lift_kI", lift_kI);
+      SmartDashboard.putNumber("collector-lift_kD", lift_kD);
+      SmartDashboard.putNumber("collector-lift_kF", lift_kF);
 
+      SmartDashboard.putNumber("collector-collect_kP", collect_kP);
+      SmartDashboard.putNumber("collector-collect_kI", collect_kI);
+      SmartDashboard.putNumber("collector-collect_kD", collect_kD);
+      SmartDashboard.putNumber("collector-collect_kF", collect_kF);
+      SmartDashboard.putBoolean("Update", false);
+    }
   }
 
   int ctr=0;
@@ -102,30 +108,33 @@ public class Collector extends SubsystemBase
     );
     SmartDashboard.putNumber("VALUE", collectMotor.getMotorOutputPercent());
     currentLiftPosition = liftMotor.getSelectedSensorPosition() / liftTicksPerRadian;
-    if(SmartDashboard.getBoolean("Update", false)){
-      lift_kP=SmartDashboard.getNumber("collector-lift_kP",0);
-      lift_kI=SmartDashboard.getNumber("collector-lift_kI",0);
-      lift_kD=SmartDashboard.getNumber("collector-lift_kD",0);
-      lift_kF=SmartDashboard.getNumber("collector-lift_kF",0);
-    
-      collect_kP=SmartDashboard.getNumber("collector-collect_kP",0);
-      collect_kI=SmartDashboard.getNumber("collector-collect_kI",0);
-      collect_kD=SmartDashboard.getNumber("collector-collect_kD",0);
-      collect_kF=SmartDashboard.getNumber("collector-collect_kF",0);
 
-      liftMotor.config_kP(0,lift_kP);
-      liftMotor.config_kI(0,lift_kI);
-      liftMotor.config_kD(0,lift_kD);
-      liftMotor.config_kF(0,lift_kF);
-      liftMotor.setIntegralAccumulator(0);
+    if (PIDTuning){
+      if(SmartDashboard.getBoolean("Update", false)){
+        lift_kP=SmartDashboard.getNumber("collector-lift_kP",0);
+        lift_kI=SmartDashboard.getNumber("collector-lift_kI",0);
+        lift_kD=SmartDashboard.getNumber("collector-lift_kD",0);
+        lift_kF=SmartDashboard.getNumber("collector-lift_kF",0);
+      
+        collect_kP=SmartDashboard.getNumber("collector-collect_kP",0);
+        collect_kI=SmartDashboard.getNumber("collector-collect_kI",0);
+        collect_kD=SmartDashboard.getNumber("collector-collect_kD",0);
+        collect_kF=SmartDashboard.getNumber("collector-collect_kF",0);
 
-      collectMotor.config_kP(0,collect_kP);
-      collectMotor.config_kI(0,collect_kI);
-      collectMotor.config_kD(0,collect_kD);
-      collectMotor.config_kF(0,collect_kF);
-      collectMotor.setIntegralAccumulator(0);
+        liftMotor.config_kP(0,lift_kP);
+        liftMotor.config_kI(0,lift_kI);
+        liftMotor.config_kD(0,lift_kD);
+        liftMotor.config_kF(0,lift_kF);
+        liftMotor.setIntegralAccumulator(0);
 
-      SmartDashboard.putBoolean("Update", false);
+        collectMotor.config_kP(0,collect_kP);
+        collectMotor.config_kI(0,collect_kI);
+        collectMotor.config_kD(0,collect_kD);
+        collectMotor.config_kF(0,collect_kF);
+        collectMotor.setIntegralAccumulator(0);
+
+        SmartDashboard.putBoolean("Update", false);
+      }  
     }
     double intakeVel = collectFilter.calculate(targetIntakeVelocity);
     double rawIntakeVel = intakeVel * intakeTicksPerRadian * 0.1;
@@ -133,16 +142,17 @@ public class Collector extends SubsystemBase
     collectMotor.set(ControlMode.Velocity, rawIntakeVel);
 
     currentIntakeVelocity = collectMotor.getSelectedSensorVelocity() / intakeTicksPerRadian * 10.0;
-
-    SmartDashboard.putNumber("[Collector] RAW lift position", liftMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumberArray("[Collector] Lift position vs target position (radians)", new Double[]{currentLiftPosition, targetLiftPosition});
-    SmartDashboard.putNumber("[Collector] Lift position (radians)", currentLiftPosition);
-    SmartDashboard.putNumber("[Collector] Lift error ratio", (currentLiftPosition - targetLiftPosition) / targetLiftPosition);
-    SmartDashboard.putNumber("[Collector] TrapezoidProfile position", previousState.position);
-    SmartDashboard.putNumber("[Collector] TrapezoidProfile velocity", previousState.velocity);
-    SmartDashboard.putNumberArray("[Collector] Intake velocity vs target velocity (radians per second)", new Double[]{intakeVel, currentIntakeVelocity});
-    SmartDashboard.putNumber("[Collector] Intake velocity error ratio",
-        (intakeVel - currentIntakeVelocity) / intakeVel);
+    if (debug){
+      SmartDashboard.putNumber("[Collector] RAW lift position", liftMotor.getSelectedSensorPosition());
+      SmartDashboard.putNumberArray("[Collector] Lift position vs target position (radians)", new Double[]{currentLiftPosition, targetLiftPosition});
+      SmartDashboard.putNumber("[Collector] Lift position (radians)", currentLiftPosition);
+      SmartDashboard.putNumber("[Collector] Lift error ratio", (currentLiftPosition - targetLiftPosition) / targetLiftPosition);
+      SmartDashboard.putNumber("[Collector] TrapezoidProfile position", previousState.position);
+      SmartDashboard.putNumber("[Collector] TrapezoidProfile velocity", previousState.velocity);
+      SmartDashboard.putNumberArray("[Collector] Intake velocity vs target velocity (radians per second)", new Double[]{intakeVel, currentIntakeVelocity});
+      SmartDashboard.putNumber("[Collector] Intake velocity error ratio",
+          (intakeVel - currentIntakeVelocity) / intakeVel);
+    }
   }
 
   public void setLiftPosition(double targetPosition) {

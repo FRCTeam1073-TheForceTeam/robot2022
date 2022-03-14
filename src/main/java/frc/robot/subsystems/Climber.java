@@ -19,6 +19,8 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class Climber extends SubsystemBase {
+  // DEBUG:
+  private final boolean debug = false;
 
   private WPI_TalonFX spoolMotorRight;
   private WPI_TalonFX extensionMotorRight;
@@ -61,6 +63,10 @@ public class Climber extends SubsystemBase {
   private double extension_kD = 0;
   private double extension_kF = 0.05;
 
+  private boolean extensionBrake = true;
+
+  private boolean extensionVelocityMode = true;
+
   private static boolean sensor1 = false;
   private static boolean sensor2 = false;
   private static boolean sensor3 = false;
@@ -69,10 +75,10 @@ public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
   public Climber() {
     spoolMotorRight = new WPI_TalonFX(44);
-    extensionMotorRight = new WPI_TalonFX(17);
+    extensionMotorRight = new WPI_TalonFX(35);
     
     spoolMotorLeft = new WPI_TalonFX(32);
-    extensionMotorLeft = new WPI_TalonFX(35);
+    extensionMotorLeft = new WPI_TalonFX(17);
 
     resetSpoolMotor(spoolMotorRight);
     resetExtensionMotor(extensionMotorRight);
@@ -83,8 +89,8 @@ public class Climber extends SubsystemBase {
     spoolMotorLeft.setInverted(false);
     spoolMotorRight.setInverted(true);
 
-    extensionMotorLeft.setInverted(true);
-    extensionMotorRight.setInverted(false);
+    extensionMotorLeft.setInverted(false);
+    extensionMotorRight.setInverted(true);
 
     spoolMotorLeft.follow(spoolMotorRight);
     extensionMotorLeft.follow(extensionMotorRight);
@@ -97,17 +103,18 @@ public class Climber extends SubsystemBase {
 
     // spooler encoder
     // spoolCANCoderRight = new CANCoder(0);
+    if (debug) {
+      SmartDashboard.putNumber("climber-spool_kP", spool_kP);
+      SmartDashboard.putNumber("climber-spool_kI", spool_kI);
+      SmartDashboard.putNumber("climber-spool_kD", spool_kD);
+      SmartDashboard.putNumber("climber-spool_kF", spool_kF);
 
-    SmartDashboard.putNumber("climber-spool_kP", spool_kP);
-    SmartDashboard.putNumber("climber-spool_kI", spool_kI);
-    SmartDashboard.putNumber("climber-spool_kD", spool_kD);
-    SmartDashboard.putNumber("climber-spool_kF", spool_kF);
-
-    SmartDashboard.putNumber("climber-extension_kP", extension_kP);
-    SmartDashboard.putNumber("climber-extension_kI", extension_kI);
-    SmartDashboard.putNumber("climber-extension_kD", extension_kD);
-    SmartDashboard.putNumber("climber-extension_kF", extension_kF);
-    SmartDashboard.putBoolean("Update", false);
+      SmartDashboard.putNumber("climber-extension_kP", extension_kP);
+      SmartDashboard.putNumber("climber-extension_kI", extension_kI);
+      SmartDashboard.putNumber("climber-extension_kD", extension_kD);
+      SmartDashboard.putNumber("climber-extension_kF", extension_kF);
+      SmartDashboard.putBoolean("Update", false);
+    }
 
     setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
     setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
@@ -116,35 +123,17 @@ public class Climber extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // if (DI1.get()) {
-    //   Robot.getBling().setSlot(1, 255, 0, 0);
-    // } else {
-    //   Robot.getBling().setSlot(1, 0, 0, 0);
-    // }
-
-    // if (DI2.get()) {
-    //   Robot.getBling().setSlot(2, 0, 255, 0);
-    // } else {
-    //   Robot.getBling().setSlot(2, 0, 0, 0);
-    // }
-
-    // if (DI3.get()) {
-    //   Robot.getBling().setSlot(3, 0, 0, 255);
-    // } else {
-    //   Robot.getBling().setSlot(3, 0, 0, 0);
-    // }
-
-    // if (DI4.get()) {
-    //   Robot.getBling().setSlot(4, 255, 255, 255);
-    // } else {
-    //   Robot.getBling().setSlot(4, 0, 0, 0);
-    // }
-
     sensor1 = DI1.get();
     sensor2 = DI2.get();
     sensor3 = DI3.get();
     sensor4 = DI4.get();
 
+    if (debug) {
+      SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
+      SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
+      SmartDashboard.putBoolean("Climber Left Moving Hook Engaged", sensor2);
+      SmartDashboard.putBoolean("Climber Right Moving Hook Engaged", sensor4);
+    }
 
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
@@ -157,37 +146,40 @@ public class Climber extends SubsystemBase {
     // extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
 
     spoolMotorRight.set(ControlMode.Velocity, rawSpoolVel);
-    extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+    if (extensionVelocityMode) {
+      extensionMotorRight.set(ControlMode.Velocity, rawExtensionVel);
+    }
 
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
 
     //debug
-    SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
-    SmartDashboard.putNumber("target extension velocity", targetExtensionVelocity);
-    SmartDashboard.putNumber("actual spool velocity", currentSpoolVelocity);
-    SmartDashboard.putNumber("actual extension velocity", currentExtensionVelocity);
-    // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
-    SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
-    SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
+    if (debug) {
+      SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
+      SmartDashboard.putNumber("target extension velocity", targetExtensionVelocity);
+      SmartDashboard.putNumber("actual spool velocity", currentSpoolVelocity);
+      SmartDashboard.putNumber("actual extension velocity", currentExtensionVelocity);
+      // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
+      SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
+      SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
 
-    if (SmartDashboard.getBoolean("Update", false)) 
-    {
-      spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
-      spool_kI = SmartDashboard.getNumber("climber-spool_kI", 0);
-      spool_kD = SmartDashboard.getNumber("climber-spool_kD", 0);
-      spool_kF = SmartDashboard.getNumber("climber-spool_kF", 0);
+      if (SmartDashboard.getBoolean("Update", false)) 
+      {
+        spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
+        spool_kI = SmartDashboard.getNumber("climber-spool_kI", 0);
+        spool_kD = SmartDashboard.getNumber("climber-spool_kD", 0);
+        spool_kF = SmartDashboard.getNumber("climber-spool_kF", 0);
 
-      extension_kP = SmartDashboard.getNumber("climber-extension_kP", 0);
-      extension_kI = SmartDashboard.getNumber("climber-extension_kI", 0);
-      extension_kD = SmartDashboard.getNumber("climber-extension_kD", 0);
-      extension_kF = SmartDashboard.getNumber("climber-extension_kF", 0);
+        extension_kP = SmartDashboard.getNumber("climber-extension_kP", 0);
+        extension_kI = SmartDashboard.getNumber("climber-extension_kI", 0);
+        extension_kD = SmartDashboard.getNumber("climber-extension_kD", 0);
+        extension_kF = SmartDashboard.getNumber("climber-extension_kF", 0);
 
-      // TODO: someone plz tell me what the 1000 does plz
-      setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
-      setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
+        setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
+        setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
 
-      SmartDashboard.putBoolean("Update", false);
+        SmartDashboard.putBoolean("Update", false);
+      }
     }
   }
 
@@ -196,6 +188,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void setExtensionVelocity(double angularVelocity){
+    extensionVelocityMode = true;
     targetExtensionVelocity = angularVelocity;
   }
 
@@ -204,6 +197,7 @@ public class Climber extends SubsystemBase {
   }
 
   public void setExtensionPower(double power) {
+    extensionVelocityMode = false;
     extensionMotorRight.set(ControlMode.PercentOutput, power);
   }
 
@@ -215,15 +209,6 @@ public class Climber extends SubsystemBase {
     motor.setIntegralAccumulator(0);
     motor.configMaxIntegralAccumulator(0, max_integrator);
   }
-
-  /**
-   * Sets a *single* climber motor to a given angular velocity.
-   * This disables *all other motors*, and is meant to be used for indexing the climber.
-   * @param motor
-   * @param velocity
-   */
-  // public void setMotorVelocity(ClimberMotor motor, double velocity){
-  // }
 
   public boolean hasNotHung(){
     return true;
@@ -242,8 +227,6 @@ public class Climber extends SubsystemBase {
   public double getExtensionPosition(){
     return extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian;
   }
-
-
 
   // public double getMotorPosition(ClimberMotor motor){
   //   return 0;
@@ -268,7 +251,22 @@ public class Climber extends SubsystemBase {
     motor.setSelectedSensorPosition(0);
   }
 
-  /**
+  public void setExtensionBrake(boolean mode) {
+    extensionBrake = mode;
+    if (mode) {
+      extensionMotorRight.setNeutralMode(NeutralMode.Brake);
+      extensionMotorLeft.setNeutralMode(NeutralMode.Brake);
+    } else {
+      extensionMotorRight.setNeutralMode(NeutralMode.Coast);
+      extensionMotorLeft.setNeutralMode(NeutralMode.Coast);
+    }
+  }
+
+  public boolean getExtensionMode() {
+    return extensionBrake;
+  }
+
+   /**
    * sensorNumbers: 2 - left hook | 3 - left extension | 4 - right hook | 5 - right extension
    * @param sensorNum
    * @return sensorReading

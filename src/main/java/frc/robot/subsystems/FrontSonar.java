@@ -9,6 +9,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FrontSonar extends SubsystemBase {
+  // DEBUG:
+  private final boolean debug = false;
+
+
+
   // https://www.maxbotix.com/ultrasonic_sensors/mb1043.htm
   // https://docs.wpilib.org/en/stable/docs/software/hardware-apis/sensors/analog-inputs-software.html
 
@@ -31,7 +36,7 @@ public class FrontSonar extends SubsystemBase {
     // The sensor doesn't measure beyond five meters
     if (inputMeters > 5) {
       inputMeters = -1;
-    } else {
+    } else if (debug) {
       SmartDashboard.putNumber("Sonar Range", inputMeters);
     }
   }
