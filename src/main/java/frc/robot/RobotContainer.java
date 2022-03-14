@@ -217,53 +217,76 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whileActiveContinuous(
+    // new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)        
+    //   )
+    // );
+    // OI.getOperatorDPadDown().whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
+    OI.getOperatorDPadDown().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 1.0)
+    );
+    OI.getOperatorDPadLeft().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 2.0)
+    );
+    OI.getOperatorDPadUp().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 3.0)
+    );
+    OI.getOperatorDPadRight().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 4.0)
+    );
+    (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
-        new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
-        new ShooterFeedCommand(feeder, shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)        
+        new FeedCommand(feeder, shooter),
+        new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI))
       )
     );
-    OI.getOperatorDPadDown().whileActiveContinuous(
+    (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new WaitToLevel(feeder, shooter, 2.0),
-        new ShooterFeedCommand(feeder, shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
+        new IndexCommand(indexer, shooter).withTimeout(1.0).withInterrupt(OI.operatorController::getYButtonReleased),
+        new FeederLaunchCommand(feeder, shooter)
       )
     );
-    OI.getOperatorDPadLeft().whileActiveContinuous(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-        new WaitToLevel(feeder, shooter, 2.0),
-        new ShooterFeedCommand(feeder, shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
+    (new JoystickButton(OI.operatorController,XboxController.Button.kRightBumper.value)).whenPressed(
+      new  ShooterSpinDownCommand(shooter)
     );
-    OI.getOperatorDPadUp().whileActiveContinuous(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
-        new WaitToLevel(feeder, shooter, 2.0),
-        new ShooterFeedCommand(feeder, shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
-    OI.getOperatorDPadRight().whileActiveContinuous(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
-        new WaitToLevel(feeder, shooter, 2.0),
-        new ShooterFeedCommand(feeder, shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whileHeld(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
-        new WaitToLevel(feeder, shooter, 2.0),
-        new ShooterFeedCommand(feeder, shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
+        // new FeederLaunchCommand(feeder, shooter),
+        // new InstantCommand(feeder::zeroFeeder),
+        // new WaitCommand(0.5),
+        // new ShooterSpinDownCommand(shooter)
+    // OI.getOperatorDPadUp().whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
+    // OI.getOperatorDPadRight().whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
+    // (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whileHeld(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
   }
 
   /**
