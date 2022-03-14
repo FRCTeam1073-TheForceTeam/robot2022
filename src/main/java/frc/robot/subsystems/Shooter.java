@@ -195,12 +195,12 @@ public class Shooter extends SubsystemBase {
     tof1Freq = tof1DutyCycleInput.getFrequency();
     tof1DutyCycle = tof1DutyCycleInput.getOutput();
     tof1Range = tof1ScaleFactor * (tof1DutyCycle / tof1Freq - 0.001);
+    SmartDashboard.putBoolean("TOF 1/Closed", tof1Range < Constants.kTOF1_closed);
     SmartDashboard.putNumber("TOF 1/Range", tof1Range);
     if (debug) {
       SmartDashboard.putNumber("TOF 1/Frequency", tof1Freq);
       SmartDashboard.putNumber("TOF 1/Duty Cycle", tof1DutyCycle);
       SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
-      SmartDashboard.putBoolean("TOF 1/Closed", tof1Range < Constants.kTOF1_closed);
     }
 
     if (tof1Range <= 0.04) {
@@ -212,13 +212,12 @@ public class Shooter extends SubsystemBase {
     tof2Freq = tof2DutyCycleInput.getFrequency();
     tof2DutyCycle = tof2DutyCycleInput.getOutput();
     tof2Range = tof2ScaleFactor * (tof2DutyCycle / tof2Freq - 0.001);
+    SmartDashboard.putBoolean("TOF 2/Closed", tof2Range < Constants.kTOF2_closed);
     SmartDashboard.putNumber("TOF 2/Range", tof2Range);
-
     if (debug) {
       SmartDashboard.putNumber("TOF 2/Frequency", tof2Freq);
       SmartDashboard.putNumber("TOF 2/Duty Cycle", tof2DutyCycle);
       SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
-      SmartDashboard.putBoolean("TOF 2/Closed", tof2Range < Constants.kTOF2_closed);
     }
 
     if (tof2Range <= 0.07) {
