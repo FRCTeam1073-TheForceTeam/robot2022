@@ -61,6 +61,7 @@ public class HubTracking extends SubsystemBase {
     canifier.setStatusFramePeriod(CANifierStatusFrame.Status_2_General, 100);
     lowerChannel = LEDChannel.LEDChannelA;
     upperChannel = LEDChannel.LEDChannelB;
+    ntinst = NetworkTableInstance.getDefault();
 
     outputX = ntinst.getTable("HUB").getEntry("Output X");
     outputY = ntinst.getTable("HUB").getEntry("Output Y");
