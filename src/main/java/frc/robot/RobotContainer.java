@@ -52,8 +52,6 @@ public class RobotContainer {
   IMU imu = new IMU();
   
   // Subsystems: Add subsystems.
-  HubTracking hubTracking;
-
   FrontSonar frontSonar = new FrontSonar();
 
   Indexer indexer = new Indexer();
@@ -70,7 +68,7 @@ public class RobotContainer {
 
   Feeder feeder = new Feeder();
 
-  HubTracking hubTracker = new HubTracking();
+  HubTracking hubTracking = new HubTracking();
   
   CargoTracking cargoTracker = new CargoTracking();
 
@@ -82,8 +80,8 @@ public class RobotContainer {
   DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
+  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracking);
   TeleopFeeder teleopFeeder = new TeleopFeeder(feeder);
-  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
@@ -96,7 +94,7 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracker.setDefaultCommand(teleopHubTracking);
+    hubTracking.setDefaultCommand(teleopHubTracking);
     cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
@@ -259,7 +257,14 @@ public class RobotContainer {
     (new JoystickButton(OI.operatorController,XboxController.Button.kRightBumper.value)).whenPressed(
       new  ShooterSpinDownCommand(shooter)
     );
-        // new FeederLaunchCommand(feeder, shooter),
+
+    (new JoystickButton(OI.driverController,4)).whileHeld(
+      new SequentialCommandGroup(
+        new AlignToHub(drivetrain, hubTracking)
+      )
+    );
+
+    // new FeederLaunchCommand(feeder, shooter),
         // new InstantCommand(feeder::zeroFeeder),
         // new WaitCommand(0.5),
         // new ShooterSpinDownCommand(shooter)
