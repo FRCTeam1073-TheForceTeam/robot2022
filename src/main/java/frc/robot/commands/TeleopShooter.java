@@ -12,15 +12,9 @@ import frc.robot.subsystems.OI;
 import frc.robot.subsystems.Shooter;
 
 public class TeleopShooter extends CommandBase {
-  private double hoodVelocity = 20;
 
   private Shooter shooter;
-
-  private double hoodPosition1 = 6.0; 
-  private double hoodPosition2 = -6.0;
   
-  private double feederVelocity = 192;
-
   /** Creates a new TeleopShooter. */
   public TeleopShooter(Shooter shooter) {
     this.shooter = shooter;
@@ -50,12 +44,6 @@ public class TeleopShooter extends CommandBase {
       shooter.setFlywheelVelocity(SmartDashboard.getNumber("[T-Sh] Flywheel vel (rad.s)", 0));
       shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0));
       SmartDashboard.putBoolean("[T-Sh] Update", false);
-    }
-
-    if (OI.operatorController.getXButton()) {
-      shooter.setFeederVelocity(feederVelocity);
-    } else {
-      shooter.setFeederVelocity(0);
     }
 
     // if (OI.operatorController.getXButtonPressed()) {

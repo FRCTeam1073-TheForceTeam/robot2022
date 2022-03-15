@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -65,6 +66,8 @@ public class RobotContainer {
 
   Shooter shooter = new Shooter();
 
+  Feeder feeder = new Feeder();
+
   HubTracking hubTracking = new HubTracking();
   
   CargoTracking cargoTracker = new CargoTracking();
@@ -78,6 +81,7 @@ public class RobotContainer {
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
   TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracking);
+  TeleopFeeder teleopFeeder = new TeleopFeeder(feeder);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
@@ -96,113 +100,109 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDrivetrain);
     indexer.setDefaultCommand(teleopIndexer);
     shooter.setDefaultCommand(teleopShooter);
+    feeder.setDefaultCommand(teleopFeeder);
     climber.setDefaultCommand(teleopClimber);
     collector.setDefaultCommand(teleopCollector);
 
     autoChooser = new SendableChooser<Command>();
     autoChooser.setDefaultOption("<Select a command>", null);
-    autoChooser.addOption("Index",
-      new CollectCargoCommand(collector, indexer, shooter).withTimeout(3.0)
-    );
-    autoChooser.addOption("Feed",
-      new FeedCommand(shooter).withTimeout(2.0)
-    );
-    autoChooser.addOption("Launch",
-      new SequentialCommandGroup(
-        new ShooterSpinUpCommand(shooter, 100, 0.3),
-        new FeederLaunchCommand(shooter).withTimeout(2.0),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
-    autoChooser.addOption("IndexThenFeed",
-      new SequentialCommandGroup(
-        new ParallelDeadlineGroup(
-          new WaitCommand(3.0),
-          new CollectCargoCommand(collector, indexer, shooter)
-        ),
-        new FeedCommand(shooter).withTimeout(2.0)
-      )
-    );
-    autoChooser.addOption("IndexFeedLaunch-0",
-      new SequentialCommandGroup(
-        new CollectCargoCommand(collector, indexer, shooter).withTimeout(3.0),
-        new FeedCommand(shooter).withTimeout(2.0),
-        new ShooterSpinUpCommand(shooter, 100, 0.3),
-        new FeederLaunchCommand(shooter).withTimeout(2.0),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
-
-    // Literally negative chance of working, but whatever.
-    autoChooser.addOption("IndexFeedLaunch",
-      new ParallelDeadlineGroup(
-        new WaitCommand(3.0),
-        new CollectCargoCommand(collector, indexer, shooter).andThen(
-          new ScheduleCommand(
-            new ParallelDeadlineGroup(
-              new WaitCommand(2.0),
-              new FeedCommand(shooter).andThen(
-                new ScheduleCommand(
-                  new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-                  new WaitToLevel(shooter, 2.5),
-                  new FeederLaunchCommand(shooter).withTimeout(1.0),
-                  new ShooterSpinDownCommand(shooter)
-                )
-              )
-            )
-          )
-        )
-      )
-    );
-
-    autoChooser.addOption("Auto-1Ball",
-      new SequentialCommandGroup(
-        new PrintCommand("DTC"),
-        new DriveTranslateCommand(drivetrain, 1.0, 2.0),
-        new PrintCommand("STC"),
-        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new PrintCommand("WTL"),
-        new WaitToLevel(shooter, 2.0),
-        new PrintCommand("SFC"),
-        new ShooterFeedCommand(shooter, 2.5),
-        new PrintCommand("SSDC"),
-        new ShooterSpinDownCommand(shooter),
-        new PrintCommand("TC"),
-        new TurnCommand(drivetrain, -Units.degreesToRadians(70.0), 1.0),
-        new PrintCommand("DTC2"),
-        new DriveTranslateCommand(drivetrain, 2.5, 2.0)
-        // Apparently this turns to the right angle for the two-ball auto? Neato.
-        // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
-      )
-    );
 
     autoChooser.addOption("Auto-2Ball",
       new SequentialCommandGroup(
-        new DriveTranslateCommand(drivetrain, 1.0, 2.0),
-        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new WaitToLevel(shooter, 2.0),
-        new ShooterFeedCommand(shooter, 2.5),
-        new ShooterSpinDownCommand(shooter),
-        new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0),
-        new SequentialCommandGroup(
-          new ParallelDeadlineGroup(
-            new CollectCargoCommand(collector, indexer, shooter).withTimeout(6.0),
-            new DriveTranslateCommand(drivetrain,0.8,0.5)
-          ),
-          new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
-          new FeedCommand(shooter).withTimeout(2.0),
-          new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-          new FeederLaunchCommand(shooter).withTimeout(2.0),
-          new ShooterSpinDownCommand(shooter)
+        new ParallelCommandGroup(
+          new TurnCommand(drivetrain, Units.degreesToRadians(20.0), 1.0).andThen(new PrintCommand("Finished Turning")),
+          new SequentialCommandGroup(
+            new IndexCommand(indexer, shooter),
+            new FeedCommand(feeder, shooter),
+            new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI)),
+            new InstantCommand(feeder::zeroFeeder)
+          ).andThen(new PrintCommand("Finished Feeding")),
+          new ShooterTargetCommand(shooter, hubTracking, true, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
         ),
-        new DriveTranslateCommand(drivetrain, -0.5, 2.0),
-        new TurnCommand(drivetrain, -Units.degreesToRadians(90.0), 1.0),
-        new DriveTranslateCommand(drivetrain, 1.5, 2.0)
+        new ParallelDeadlineGroup(
+          new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new SequentialCommandGroup(
+          new FeederLaunchCommand(feeder, shooter),
+          new InstantCommand(feeder::zeroFeeder),
+          new IndexCommand(indexer, shooter),
+          new FeedCommand(feeder, shooter),
+          new FeederLaunchCommand(feeder, shooter),
+          new InstantCommand(feeder::zeroFeeder),
+          new WaitCommand(0.5)
+        ),
+        new ShooterSpinDownCommand(shooter)
+      )
+
+    // new SequentialCommandGroup(
+      //   new DriveTranslateCommand(drivetrain, 1.0, 2.0),
+      //   new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+      //   new WaitToLevel(shooter, 2.0),
+      //   new ShooterFeedCommand(shooter, 2.5),
+      //   new ShooterSpinDownCommand(shooter),
+      //   new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0),
+      //   new SequentialCommandGroup(
+      //     new ParallelDeadlineGroup(
+      //       new CollectCargoCommand(collector, indexer, shooter).withTimeout(6.0),
+      //       new DriveTranslateCommand(drivetrain,0.8,0.5)
+      //     ),
+      //     new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
+      //     new FeedCommand(shooter).withTimeout(2.0),
+      //     new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
+      //     new FeederLaunchCommand(shooter).withTimeout(2.0),
+      //     new ShooterSpinDownCommand(shooter)
+      //   ),
+      //   new DriveTranslateCommand(drivetrain, -0.5, 2.0),
+      //   new TurnCommand(drivetrain, -Units.degreesToRadians(90.0), 1.0),
+      //   new DriveTranslateCommand(drivetrain, 1.5, 2.0)
   
-        // Apparently this turns to the right angle for the two-ball auto? Neato.
-        // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
+      //   // Apparently this turns to the right angle for the two-ball auto? Neato.
+      //   // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
+      // )
+    );
+    autoChooser.addOption("IndexFeedShoot-SensorBased",
+      new SequentialCommandGroup(
+        // new ParallelDeadlineGroup(
+        //   new CollectCargoCommand(collector, indexer, shooter).withTimeout(6.0),
+        //   new DriveTranslateCommand(drivetrain,0.8,0.5)
+        // ),
+        // new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
+        new ParallelDeadlineGroup(
+          new IndexCommand(indexer, shooter),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new FeedCommand(feeder, shooter),
+        new InstantCommand(feeder::zeroFeeder),
+        new FeederAdvanceCommand(feeder, 0.2),
+        new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
+        new FeederLaunchCommand(feeder, shooter),
+        new WaitCommand(0.5),
+        new ShooterSpinDownCommand(shooter)
       )
     );
+
+    autoChooser.addOption("IndexFeed",
+      new SequentialCommandGroup(
+        new IndexCommand(indexer, shooter),
+        new FeedCommand(feeder, shooter),
+        new FeederAdvanceCommand(feeder, 1.5*(2.0*Math.PI)),
+        new InstantCommand(feeder::zeroFeeder)
+      )
+    );
+
+    autoChooser.addOption("IndexFeedCollectIndex",
+    new SequentialCommandGroup(
+      new IndexCommand(indexer, shooter),
+      new FeedCommand(feeder, shooter),
+      new FeederAdvanceCommand(feeder, 1.5*(2.0*Math.PI)),
+      new InstantCommand(feeder::zeroFeeder),
+      new ParallelDeadlineGroup(
+        new IndexCommand(indexer, shooter),
+        new CollectCommand(collector, drivetrain)
+      )
+    )
+  );
 
     SmartDashboard.putData("Init/Auto Selector", autoChooser);
     configureButtonBindings();
@@ -215,58 +215,83 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whileActiveContinuous(
+    // new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)        
+    //   )
+    // );
+    // OI.getOperatorDPadDown().whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
+    OI.getOperatorDPadDown().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 1.0)
+    );
+    OI.getOperatorDPadLeft().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 2.0)
+    );
+    OI.getOperatorDPadUp().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 3.0)
+    );
+    OI.getOperatorDPadRight().whenActive(
+        new ShooterTargetCommand(shooter, hubTracking, true, 4.0)
+    );
+    (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
-        new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
-        new ShooterFeedCommand(shooter, 2.0),
-        new ShooterSpinDownCommand(shooter)        
+        new FeedCommand(feeder, shooter),
+        new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI))
       )
     );
-    OI.getOperatorDPadDown().whileActiveContinuous(
+    (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-        new WaitToLevel(shooter, 2.0),
-        new ShooterFeedCommand(shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
+        new IndexCommand(indexer, shooter).withTimeout(1.0).withInterrupt(OI.operatorController::getYButtonReleased),
+        new FeederLaunchCommand(feeder, shooter)
       )
     );
-    OI.getOperatorDPadLeft().whileActiveContinuous(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-        new WaitToLevel(shooter, 2.0),
-        new ShooterFeedCommand(shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
+    (new JoystickButton(OI.operatorController,XboxController.Button.kRightBumper.value)).whenPressed(
+      new  ShooterSpinDownCommand(shooter)
     );
-    OI.getOperatorDPadUp().whileActiveContinuous(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
-        new WaitToLevel(shooter, 2.0),
-        new ShooterFeedCommand(shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
-    OI.getOperatorDPadRight().whileActiveContinuous(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
-        new WaitToLevel(shooter, 2.0),
-        new ShooterFeedCommand(shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whileHeld(
-      new SequentialCommandGroup(
-        new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
-        new WaitToLevel(shooter, 2.0),
-        new ShooterFeedCommand(shooter, 2.5),
-        new ShooterSpinDownCommand(shooter)
-      )
-    );
+
     (new JoystickButton(OI.driverController,4)).whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
       )
     );
+
+    // new FeederLaunchCommand(feeder, shooter),
+        // new InstantCommand(feeder::zeroFeeder),
+        // new WaitCommand(0.5),
+        // new ShooterSpinDownCommand(shooter)
+    // OI.getOperatorDPadUp().whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
+    // OI.getOperatorDPadRight().whileActiveContinuous(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
+    // (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whileHeld(
+    //   new SequentialCommandGroup(
+    //     new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
+    //     new WaitToLevel(feeder, shooter, 2.0),
+    //     new ShooterFeedCommand(feeder, shooter, 2.5),
+    //     new ShooterSpinDownCommand(shooter)
+    //   )
+    // );
   }
 
   /**

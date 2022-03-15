@@ -5,9 +5,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Shooter;
 
 public class ShooterFeedCommand extends CommandBase {
+  Feeder feeder;
   Shooter shooter;
   double startTime;
   double timeout;
@@ -16,10 +18,11 @@ public class ShooterFeedCommand extends CommandBase {
   boolean hasDetectedFallingEdge;
 
   /** Creates a new ShooterFeedCommand. */
-  public ShooterFeedCommand(Shooter shooter_, double timeout_) {
+  public ShooterFeedCommand(Feeder feeder_, Shooter shooter_, double timeout_) {
+    feeder = feeder_;
     shooter = shooter_;
     timeout = timeout_;
-    addRequirements(shooter);
+    addRequirements(feeder, shooter);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -29,7 +32,7 @@ public class ShooterFeedCommand extends CommandBase {
     currSensor2 = shooter.isBallInShooter();
     prevSensor2 = currSensor2;
     startTime = ((double) System.currentTimeMillis()) / 1000.0;
-    shooter.setFeederVelocity(192);
+    feeder.setFeederVelocity(192);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -42,7 +45,7 @@ public class ShooterFeedCommand extends CommandBase {
     if (interrupted) {
       shooter.setFlywheelVelocity(0);
       shooter.setHoodPosition(0);
-      shooter.setFeederVelocity(0);
+      feeder.zeroFeeder();
     }
   }
 

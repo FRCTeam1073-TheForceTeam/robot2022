@@ -6,30 +6,31 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Feeder;
-import frc.robot.subsystems.Shooter;
 
-public class FeederLaunchCommand extends CommandBase {
-  Shooter shooter;
+public class FeederAdvanceCommand extends CommandBase {
+
   Feeder feeder;
+  double startPosition;
+  double targetRotation;
+  double velocity;
 
-  double feederVelocity = 192;
+  public FeederAdvanceCommand(Feeder feeder_, double targetRotation_) {
+    this(feeder_, targetRotation_, 400);
+  }
 
-  boolean prevTOF2Closed = false;
-  boolean currentTOF2Closed = false;
-
-  /** Creates a new FeedCommand. */
-  public FeederLaunchCommand(Feeder feeder_, Shooter shooter_) {
+  /** Creates a new FeederAdvanceCommand. */
+  public FeederAdvanceCommand(Feeder feeder_, double targetRotation_, double velocity_) {
     feeder = feeder_;
-    shooter = shooter_;
+    targetRotation = targetRotation_;
+    velocity = velocity_;
     addRequirements(feeder);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    feeder.setFeederVelocity(feederVelocity);
-    prevTOF2Closed = false;
-    currentTOF2Closed = false;
+    startPosition = feeder.getFeederPosition();
+    feeder.setFeederVelocity(velocity);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,16 +40,12 @@ public class FeederLaunchCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    feeder.zeroFeeder();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    currentTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
-    if ((!currentTOF2Closed) && prevTOF2Closed) {
-      return true;
-    }
-    prevTOF2Closed = currentTOF2Closed;
-    return false;
+    return Math.abs(feeder.getFeederPosition() - startPosition) > Math.abs(targetRotation);
   }
 }
