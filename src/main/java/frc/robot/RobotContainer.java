@@ -264,6 +264,11 @@ public class RobotContainer {
         new ShooterSpinDownCommand(shooter)
       )
     );
+    (new JoystickButton(OI.driverController,3)).whileHeld(
+      new SequentialCommandGroup(
+        new AlignToHub(drivetrain, hubTracking)
+      )
+    );
   }
 
   /**
