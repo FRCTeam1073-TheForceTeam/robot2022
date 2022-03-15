@@ -18,6 +18,7 @@ public class TeleopCollector extends CommandBase
   boolean isCollectorDown = false;
 
   private double collectorVelocity = 12;
+  private double extraCollectorVelocity = 4.0;
  
   /** Creates a new TeleopCollector. */
   public TeleopCollector(Collector collector, Drivetrain drivetrain) 
@@ -60,7 +61,7 @@ public class TeleopCollector extends CommandBase
       if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
         collector.setLinearIntakeVelocity(-collectorVelocity);
       } else {
-        collector.setLinearIntakeVelocity(collectorVelocity);
+        collector.setLinearIntakeVelocity(chassisSpeeds.vxMetersPerSecond * 2.0 + extraCollectorVelocity);
       }
     } else {
       collector.setLinearIntakeVelocity(0);

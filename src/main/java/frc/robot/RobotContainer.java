@@ -122,8 +122,8 @@ public class RobotContainer {
           new ShooterTargetCommand(shooter, hubTracking, true, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new ParallelDeadlineGroup(
-          new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 1.0)),
-          new CollectCommand(collector)
+          new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
+          new CollectCommand(collector, drivetrain)
         ),
         new SequentialCommandGroup(
           new FeederLaunchCommand(feeder, shooter),
@@ -172,7 +172,7 @@ public class RobotContainer {
         // new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
         new ParallelDeadlineGroup(
           new IndexCommand(indexer, shooter),
-          new CollectCommand(collector)
+          new CollectCommand(collector, drivetrain)
         ),
         new FeedCommand(feeder, shooter),
         new InstantCommand(feeder::zeroFeeder),
@@ -201,7 +201,7 @@ public class RobotContainer {
       new InstantCommand(feeder::zeroFeeder),
       new ParallelDeadlineGroup(
         new IndexCommand(indexer, shooter),
-        new CollectCommand(collector)
+        new CollectCommand(collector, drivetrain)
       )
     )
   );
