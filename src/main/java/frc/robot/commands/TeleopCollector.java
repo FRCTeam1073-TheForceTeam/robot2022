@@ -17,9 +17,11 @@ public class TeleopCollector extends CommandBase
   ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
   boolean isCollectorDown = false;
 
-  private double ejectCollectorVelocity = 12;
-  private double extraCollectorVelocity = 4.0;
- 
+  private double ejectCollectorVelocity = 24;
+  private double extraCollectorVelocity = 4;
+  private double collectorVelocityScale = 2.0;
+  private final double maxCollectorVelocity = 25.0;
+
   /** Creates a new TeleopCollector. */
   public TeleopCollector(Collector collector, Drivetrain drivetrain) 
   {
@@ -61,7 +63,7 @@ public class TeleopCollector extends CommandBase
       if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
         collector.setLinearIntakeVelocity(-ejectCollectorVelocity);
       } else {
-        collector.setLinearIntakeVelocity(chassisSpeeds.vxMetersPerSecond * 2.0 + extraCollectorVelocity);
+        collector.setLinearIntakeVelocity(Math.min(chassisSpeeds.vxMetersPerSecond * collectorVelocityScale + extraCollectorVelocity, maxCollectorVelocity));
       }
     } else {
       collector.setLinearIntakeVelocity(0);

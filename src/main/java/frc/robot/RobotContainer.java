@@ -52,7 +52,6 @@ public class RobotContainer {
   IMU imu = new IMU();
   
   // Subsystems: Add subsystems.
-  HubTracking hubTracking;
 
   FrontSonar frontSonar = new FrontSonar();
 
@@ -70,7 +69,7 @@ public class RobotContainer {
 
   Feeder feeder = new Feeder();
 
-  HubTracking hubTracker = new HubTracking();
+  HubTracking hubTracking = new HubTracking();
   
   CargoTracking cargoTracker = new CargoTracking();
 
@@ -83,7 +82,7 @@ public class RobotContainer {
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
   TeleopFeeder teleopFeeder = new TeleopFeeder(feeder);
-  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
+  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracking);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
@@ -96,7 +95,7 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracker.setDefaultCommand(teleopHubTracking);
+    hubTracking.setDefaultCommand(teleopHubTracking);
     cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
