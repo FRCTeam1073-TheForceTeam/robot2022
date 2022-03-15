@@ -127,7 +127,6 @@ public class HubTracking extends SubsystemBase {
 
   public void setLEDIntensity(double percent){
     //System.out.println("Set Intensity: "+percent);
-    percent = 85;
     canifier.setLEDOutput(percent, lowerChannel);
     canifier.setLEDOutput(percent, upperChannel);
   }
