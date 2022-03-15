@@ -128,12 +128,10 @@ public class Climber extends SubsystemBase {
     sensor3 = DI3.get();
     sensor4 = DI4.get();
 
-    if (debug) {
-      SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
-      SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
-      SmartDashboard.putBoolean("Climber Left Moving Hook Engaged", sensor2);
-      SmartDashboard.putBoolean("Climber Right Moving Hook Engaged", sensor4);
-    }
+    SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
+    SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
+    SmartDashboard.putBoolean("Climber Left Moving Hook Engaged", sensor2);
+    SmartDashboard.putBoolean("Climber Right Moving Hook Engaged", sensor4);
 
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
