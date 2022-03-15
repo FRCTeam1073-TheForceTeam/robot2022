@@ -21,6 +21,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Collector.Constants;
 
 public class Shooter extends SubsystemBase {
+  // DEBUG:
+  private final boolean debug = false;
+  private final boolean PIDtesting = false;
   //ToF sensors
   
   private DigitalInput tof1Input;
@@ -141,17 +144,19 @@ public class Shooter extends SubsystemBase {
     );
     hoodProfileStartTime = System.currentTimeMillis() / 1000.0;
 
-    SmartDashboard.putBoolean("[Shooter] Update", false);
+    if (PIDtesting){
+      SmartDashboard.putBoolean("[Shooter] Update", false);
 
-    SmartDashboard.putNumber("[Shooter] flywheel/kP", flywheel_kP);
-    SmartDashboard.putNumber("[Shooter] flywheel/kI", flywheel_kI);
-    SmartDashboard.putNumber("[Shooter] flywheel/kD", flywheel_kD);
-    SmartDashboard.putNumber("[Shooter] flywheel/kF", flywheel_kF);
+      SmartDashboard.putNumber("[Shooter] flywheel/kP", flywheel_kP);
+      SmartDashboard.putNumber("[Shooter] flywheel/kI", flywheel_kI);
+      SmartDashboard.putNumber("[Shooter] flywheel/kD", flywheel_kD);
+      SmartDashboard.putNumber("[Shooter] flywheel/kF", flywheel_kF);
 
-    SmartDashboard.putNumber("[Shooter] hood/kP", hood_kP);
-    SmartDashboard.putNumber("[Shooter] hood/kI", hood_kI);
-    SmartDashboard.putNumber("[Shooter] hood/kD", hood_kD);
-    SmartDashboard.putNumber("[Shooter] hood/kF", hood_kF);
+      SmartDashboard.putNumber("[Shooter] hood/kP", hood_kP);
+      SmartDashboard.putNumber("[Shooter] hood/kI", hood_kI);
+      SmartDashboard.putNumber("[Shooter] hood/kD", hood_kD);
+      SmartDashboard.putNumber("[Shooter] hood/kF", hood_kF);
+    }
   }
 
   @Override
@@ -160,11 +165,13 @@ public class Shooter extends SubsystemBase {
     tof1Freq = tof1DutyCycleInput.getFrequency();
     tof1DutyCycle = tof1DutyCycleInput.getOutput();
     tof1Range = tof1ScaleFactor * (tof1DutyCycle / tof1Freq - 0.001);
-    SmartDashboard.putNumber("TOF 1/Frequency", tof1Freq);
-    SmartDashboard.putNumber("TOF 1/Duty Cycle", tof1DutyCycle);
-    SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
-    SmartDashboard.putNumber("TOF 1/Range", tof1Range);
     SmartDashboard.putBoolean("TOF 1/Closed", tof1Range < Constants.kTOF1_closed);
+    SmartDashboard.putNumber("TOF 1/Range", tof1Range);
+    if (debug) {
+      SmartDashboard.putNumber("TOF 1/Frequency", tof1Freq);
+      SmartDashboard.putNumber("TOF 1/Duty Cycle", tof1DutyCycle);
+      SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
+    }
 
     if (tof1Range <= Constants.kTOF1_closed) {
       ball1Stored = true;
@@ -175,11 +182,13 @@ public class Shooter extends SubsystemBase {
     tof2Freq = tof2DutyCycleInput.getFrequency();
     tof2DutyCycle = tof2DutyCycleInput.getOutput();
     tof2Range = tof2ScaleFactor * (tof2DutyCycle / tof2Freq - 0.001);
-    SmartDashboard.putNumber("TOF 2/Frequency", tof2Freq);
-    SmartDashboard.putNumber("TOF 2/Duty Cycle", tof2DutyCycle);
-    SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
-    SmartDashboard.putNumber("TOF 2/Range", tof2Range);
     SmartDashboard.putBoolean("TOF 2/Closed", tof2Range < Constants.kTOF2_closed);
+    SmartDashboard.putNumber("TOF 2/Range", tof2Range);
+    if (debug) {
+      SmartDashboard.putNumber("TOF 2/Frequency", tof2Freq);
+      SmartDashboard.putNumber("TOF 2/Duty Cycle", tof2DutyCycle);
+      SmartDashboard.putNumber("TOF 2/Time", tof2DutyCycle / tof2Freq);
+    }
 
     if (tof2Range <= Constants.kTOF2_closed) {
       ball2Stored = true;
