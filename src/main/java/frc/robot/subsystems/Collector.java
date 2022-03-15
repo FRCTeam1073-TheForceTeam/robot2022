@@ -231,7 +231,7 @@ public class Collector extends SubsystemBase
   }
 
   public static class Constants {
-    public static double loweredCollectorPosition = 1.70;
+    public static double loweredCollectorPosition = 1.78;
     public static double raisedCollectorPosition = 0;
   }
 }
