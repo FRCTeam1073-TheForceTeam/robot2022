@@ -15,7 +15,7 @@ public class AlignToHub extends CommandBase {
   HubData data;
   double hubAzimuth;
   ChassisSpeeds chassisSpeeds;
-  double scaleFactor = 0.3;
+  double scaleFactor = -2.5;
   double azimuthTolerance = 0.1;
   int timeoutCounter = 0;
 
@@ -37,6 +37,8 @@ public class AlignToHub extends CommandBase {
     chassisSpeeds = new ChassisSpeeds();
     drivetrain.setChassisSpeeds(chassisSpeeds);
     timeoutCounter = 0;
+    data = new HubData();
+    System.out.println("AlignToHub initialized");
   }
 
   // Called every time the scheduler runs while the command is scheduled.

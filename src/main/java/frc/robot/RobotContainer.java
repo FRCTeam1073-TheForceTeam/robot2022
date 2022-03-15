@@ -51,8 +51,6 @@ public class RobotContainer {
   IMU imu = new IMU();
   
   // Subsystems: Add subsystems.
-  HubTracking hubTracking;
-
   FrontSonar frontSonar = new FrontSonar();
 
   Indexer indexer = new Indexer();
@@ -67,7 +65,7 @@ public class RobotContainer {
 
   Shooter shooter = new Shooter();
 
-  HubTracking hubTracker = new HubTracking();
+  HubTracking hubTracking = new HubTracking();
   
   CargoTracking cargoTracker = new CargoTracking();
 
@@ -79,7 +77,7 @@ public class RobotContainer {
   DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
   TeleopShooter teleopShooter = new TeleopShooter(shooter);
-  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracker);
+  TeleopHubTracking teleopHubTracking = new TeleopHubTracking(hubTracking);
   TeleopClimber teleopClimber = new TeleopClimber(climber);
   TeleopCargoTracking teleopCargoTracking = new TeleopCargoTracking(cargoTracker);
   TeleopCollector teleopCollector = new TeleopCollector(collector, drivetrain);
@@ -92,7 +90,7 @@ public class RobotContainer {
     // Initialize static OI class:
     OI.init();
 
-    hubTracker.setDefaultCommand(teleopHubTracking);
+    hubTracking.setDefaultCommand(teleopHubTracking);
     cargoTracker.setDefaultCommand(teleopCargoTracking);
 
     drivetrain.setDefaultCommand(teleopDrivetrain);
@@ -264,7 +262,7 @@ public class RobotContainer {
         new ShooterSpinDownCommand(shooter)
       )
     );
-    (new JoystickButton(OI.driverController,3)).whileHeld(
+    (new JoystickButton(OI.driverController,4)).whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
       )

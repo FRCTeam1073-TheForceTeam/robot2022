@@ -63,9 +63,9 @@ public class HubTracking extends SubsystemBase {
     upperChannel = LEDChannel.LEDChannelB;
     ntinst = NetworkTableInstance.getDefault();
 
-    outputX = ntinst.getTable("HUB").getEntry("Output X");
-    outputY = ntinst.getTable("HUB").getEntry("Output Y");
-    outputArea = ntinst.getTable("HUB").getEntry("Output Area");
+    outputX = ntinst.getTable("HUB").getEntry("Hub X");
+    outputY = ntinst.getTable("HUB").getEntry("Hub Y");
+    outputArea = ntinst.getTable("HUB").getEntry("Hub Area");
     
     hubData = new HubData();
     rangeInterpolator = new InterpolatorTable(
@@ -119,7 +119,6 @@ public class HubTracking extends SubsystemBase {
     data.azimuth = hubData.azimuth;
     data.elevation = hubData.elevation;
     data.timestamp = hubData.timestamp;
-
   }
 
   public boolean isHubVisible(){
