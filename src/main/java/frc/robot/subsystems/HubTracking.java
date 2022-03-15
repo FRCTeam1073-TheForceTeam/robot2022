@@ -49,6 +49,7 @@ public class HubTracking extends SubsystemBase {
   private HubData hubData;
   private boolean hubVisible;
   private InterpolatorTable rangeInterpolator;
+  private InterpolatorTable elevationInterpolator;
 
   /** Creates a new HubTracking. */
   public HubTracking() {
@@ -78,6 +79,18 @@ public class HubTracking extends SubsystemBase {
       new InterpolatorTableEntry(426, 5.0),
       new InterpolatorTableEntry(447, 5.5)
     );
+    elevationInterpolator = new InterpolatorTable(
+      new InterpolatorTableEntry(9, 1.12),
+      new InterpolatorTableEntry(119, 0.94),
+      new InterpolatorTableEntry(194, 0.8),
+      new InterpolatorTableEntry(256, 0.69),
+      new InterpolatorTableEntry(302, 0.6),
+      new InterpolatorTableEntry(340, 0.53),
+      new InterpolatorTableEntry(375, 0.48),
+      new InterpolatorTableEntry(398, 0.43),
+      new InterpolatorTableEntry(426, 0.39),
+      new InterpolatorTableEntry(447, 0.35)
+    );
   }
 
   @Override
@@ -87,12 +100,14 @@ public class HubTracking extends SubsystemBase {
     hubData.area = outputArea.getNumber(0).intValue();
     hubData.azimuth = (hubData.cx - 320)/320.0;
     hubData.range = rangeInterpolator.getValue(hubData.cy);
+    hubData.elevation = elevationInterpolator.getValue(hubData.cy);
     hubData.timestamp = System.currentTimeMillis();
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cx);
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cy);
     SmartDashboard.putNumber("Hub Tracker/area", hubData.area);
     SmartDashboard.putNumber("Hub Tracker/azimuth", hubData.azimuth);
     SmartDashboard.putNumber("Hub Tracker/range", hubData.range);
+    SmartDashboard.putNumber("Hub Tracker/elevation", hubData.elevation);
   }
 
   public void sampleHubData(HubData data){
@@ -112,6 +127,7 @@ public class HubTracking extends SubsystemBase {
 
   public void setLEDIntensity(double percent){
     //System.out.println("Set Intensity: "+percent);
+    percent = 85;
     canifier.setLEDOutput(percent, lowerChannel);
     canifier.setLEDOutput(percent, upperChannel);
   }
