@@ -19,6 +19,8 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class Climber extends SubsystemBase {
+  // DEBUG:
+  private final boolean debug = false;
 
   private WPI_TalonFX spoolMotorRight;
   private WPI_TalonFX extensionMotorRight;
@@ -101,17 +103,18 @@ public class Climber extends SubsystemBase {
 
     // spooler encoder
     // spoolCANCoderRight = new CANCoder(0);
+    if (debug) {
+      SmartDashboard.putNumber("climber-spool_kP", spool_kP);
+      SmartDashboard.putNumber("climber-spool_kI", spool_kI);
+      SmartDashboard.putNumber("climber-spool_kD", spool_kD);
+      SmartDashboard.putNumber("climber-spool_kF", spool_kF);
 
-    SmartDashboard.putNumber("climber-spool_kP", spool_kP);
-    SmartDashboard.putNumber("climber-spool_kI", spool_kI);
-    SmartDashboard.putNumber("climber-spool_kD", spool_kD);
-    SmartDashboard.putNumber("climber-spool_kF", spool_kF);
-
-    SmartDashboard.putNumber("climber-extension_kP", extension_kP);
-    SmartDashboard.putNumber("climber-extension_kI", extension_kI);
-    SmartDashboard.putNumber("climber-extension_kD", extension_kD);
-    SmartDashboard.putNumber("climber-extension_kF", extension_kF);
-    SmartDashboard.putBoolean("Update", false);
+      SmartDashboard.putNumber("climber-extension_kP", extension_kP);
+      SmartDashboard.putNumber("climber-extension_kI", extension_kI);
+      SmartDashboard.putNumber("climber-extension_kD", extension_kD);
+      SmartDashboard.putNumber("climber-extension_kF", extension_kF);
+      SmartDashboard.putBoolean("Update", false);
+    }
 
     setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
     setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
@@ -125,10 +128,12 @@ public class Climber extends SubsystemBase {
     sensor3 = DI3.get();
     sensor4 = DI4.get();
 
-    SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
-    SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
-    SmartDashboard.putBoolean("Climber Left Moving Hook Engaged", sensor2);
-    SmartDashboard.putBoolean("Climber Right Moving Hook Engaged", sensor4);
+    if (debug) {
+      SmartDashboard.putBoolean("Climber Left Static Hook Engaged", sensor1);
+      SmartDashboard.putBoolean("Climber Right Static Hook Engaged", sensor3);
+      SmartDashboard.putBoolean("Climber Left Moving Hook Engaged", sensor2);
+      SmartDashboard.putBoolean("Climber Right Moving Hook Engaged", sensor4);
+    }
 
     // This method will be called once per scheduler run
     double limitedSpoolVelocity = spoolFilter.calculate(targetSpoolVelocity);
@@ -149,31 +154,32 @@ public class Climber extends SubsystemBase {
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
 
     //debug
-    SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
-    SmartDashboard.putNumber("target extension velocity", targetExtensionVelocity);
-    SmartDashboard.putNumber("actual spool velocity", currentSpoolVelocity);
-    SmartDashboard.putNumber("actual extension velocity", currentExtensionVelocity);
-    // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
-    SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
-    SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
+    if (debug) {
+      SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
+      SmartDashboard.putNumber("target extension velocity", targetExtensionVelocity);
+      SmartDashboard.putNumber("actual spool velocity", currentSpoolVelocity);
+      SmartDashboard.putNumber("actual extension velocity", currentExtensionVelocity);
+      // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
+      SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
+      SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
 
-    if (SmartDashboard.getBoolean("Update", false)) 
-    {
-      spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
-      spool_kI = SmartDashboard.getNumber("climber-spool_kI", 0);
-      spool_kD = SmartDashboard.getNumber("climber-spool_kD", 0);
-      spool_kF = SmartDashboard.getNumber("climber-spool_kF", 0);
+      if (SmartDashboard.getBoolean("Update", false)) 
+      {
+        spool_kP = SmartDashboard.getNumber("climber-spool_kP", 0);
+        spool_kI = SmartDashboard.getNumber("climber-spool_kI", 0);
+        spool_kD = SmartDashboard.getNumber("climber-spool_kD", 0);
+        spool_kF = SmartDashboard.getNumber("climber-spool_kF", 0);
 
-      extension_kP = SmartDashboard.getNumber("climber-extension_kP", 0);
-      extension_kI = SmartDashboard.getNumber("climber-extension_kI", 0);
-      extension_kD = SmartDashboard.getNumber("climber-extension_kD", 0);
-      extension_kF = SmartDashboard.getNumber("climber-extension_kF", 0);
+        extension_kP = SmartDashboard.getNumber("climber-extension_kP", 0);
+        extension_kI = SmartDashboard.getNumber("climber-extension_kI", 0);
+        extension_kD = SmartDashboard.getNumber("climber-extension_kD", 0);
+        extension_kF = SmartDashboard.getNumber("climber-extension_kF", 0);
 
-      // TODO: someone plz tell me what the 1000 does plz
-      setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
-      setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
+        setPIDs(spoolMotorRight, spool_kP, spool_kI, spool_kD, spool_kF, 1000);
+        setPIDs(extensionMotorRight, extension_kP, extension_kI, extension_kD, extension_kF, 1000);
 
-      SmartDashboard.putBoolean("Update", false);
+        SmartDashboard.putBoolean("Update", false);
+      }
     }
   }
 
