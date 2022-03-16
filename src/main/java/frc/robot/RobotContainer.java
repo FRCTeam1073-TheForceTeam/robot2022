@@ -117,7 +117,7 @@ public class RobotContainer {
             new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI)),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
-          new ShooterTargetCommand(shooter, hubTracking, true, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
+          new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new ParallelDeadlineGroup(
           new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
@@ -175,7 +175,7 @@ public class RobotContainer {
         new FeedCommand(feeder, shooter),
         new InstantCommand(feeder::zeroFeeder),
         new FeederAdvanceCommand(feeder, 0.2),
-        new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
+        new ShooterTargetCommand(shooter, 2.0),
         new FeederLaunchCommand(feeder, shooter),
         new WaitCommand(0.5),
         new ShooterSpinDownCommand(shooter)
@@ -231,16 +231,16 @@ public class RobotContainer {
     //   )
     // );
     OI.getOperatorDPadDown().whenActive(
-        new ShooterTargetCommand(shooter, hubTracking, true, 1.0)
+        new ShooterTargetCommand(shooter, 1.0)
     );
     OI.getOperatorDPadLeft().whenActive(
-        new ShooterTargetCommand(shooter, hubTracking, true, 2.0)
+        new ShooterTargetCommand(shooter, 2.0)
     );
     OI.getOperatorDPadUp().whenActive(
-        new ShooterTargetCommand(shooter, hubTracking, true, 3.0)
+        new ShooterTargetCommand(shooter, 3.0)
     );
     OI.getOperatorDPadRight().whenActive(
-        new ShooterTargetCommand(shooter, hubTracking, true, 4.0)
+        new ShooterTargetCommand(shooter, 4.0)
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
@@ -249,7 +249,7 @@ public class RobotContainer {
       )
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
-      new ShooterTargetCommand(shooter, hubTracking)
+      new ShooterRangeTargetCommand(shooter, hubTracking)
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new SequentialCommandGroup(
