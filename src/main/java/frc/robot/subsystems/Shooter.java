@@ -281,7 +281,10 @@ public class Shooter extends SubsystemBase {
     }
   }
 
-  public void setHoodPosition(double targetPosition){
+  public void setHoodPosition(double targetPosition) {
+    if (targetPosition == 0) {
+      System.out.println(targetPosition);
+    }
     hoodTargetPosition = targetPosition;
     hoodMotor.setIntegralAccumulator(0);
     hoodProfileStartTime = (double) (System.currentTimeMillis() / 1000.0);
