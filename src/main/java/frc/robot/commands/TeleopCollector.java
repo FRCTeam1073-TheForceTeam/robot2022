@@ -18,7 +18,7 @@ public class TeleopCollector extends CommandBase
   boolean isCollectorDown = false;
 
   private double ejectCollectorVelocity = 12;
-  private double extraCollectorVelocity = 4.0;
+  private double extraCollectorVelocity = 10.0;
  
   /** Creates a new TeleopCollector. */
   public TeleopCollector(Collector collector, Drivetrain drivetrain) 

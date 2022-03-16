@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Collector extends SubsystemBase 
 {
   // DEBUG:
-  private final boolean debug = false;
+  private final boolean debug = true;
   private final boolean PIDTuning = false;
 
   WPI_TalonFX liftMotor;
@@ -231,7 +231,7 @@ public class Collector extends SubsystemBase
   }
 
   public static class Constants {
-    public static double loweredCollectorPosition = 1.81;
+    public static double loweredCollectorPosition = 1.6;
     public static double raisedCollectorPosition = 0;
   }
 }
