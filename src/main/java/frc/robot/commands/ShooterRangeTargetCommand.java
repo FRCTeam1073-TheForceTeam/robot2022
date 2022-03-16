@@ -27,13 +27,11 @@ public class ShooterRangeTargetCommand extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
+  public void initialize() {
     SmartDashboard.putBoolean("VISIBLE", hubTracking.isHubVisible());
     SmartDashboard.putNumber("RANGE", range);
+    SmartDashboard.putNumber("FLYWHEEL", shooter.getFlywheelTargetVelocity());
+    SmartDashboard.putNumber("HOOD", shooter.getHoodTargetPosition());
     if (hubTracking.isHubVisible()) {
       hubTracking.sampleHubData(data);
       range = data.range;
@@ -41,8 +39,12 @@ public class ShooterRangeTargetCommand extends CommandBase {
       double targetHoodAngle = ShooterTargetCommand.hoodTable.getValue(range);
       shooter.setFlywheelVelocity(targetFlywheelVelocity);
       shooter.setHoodPosition(targetHoodAngle);
-    } else {
     }
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
   }
 
   // Called once the command ends or is interrupted.
