@@ -253,7 +253,7 @@ public class RobotContainer {
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new SequentialCommandGroup(
-        new IndexCommand(indexer, shooter).withTimeout(1.0).withInterrupt(OI.operatorController::getYButtonReleased),
+        new IndexCommand(indexer, shooter).withTimeout(1.5),
         new FeederLaunchCommand(feeder, shooter)
       )
     );
