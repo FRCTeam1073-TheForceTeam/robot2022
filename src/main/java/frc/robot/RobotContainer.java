@@ -248,6 +248,9 @@ public class RobotContainer {
         new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI))
       )
     );
+    (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
+      new ShooterTargetCommand(shooter, hubTracking)
+    );
     (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new SequentialCommandGroup(
         new IndexCommand(indexer, shooter).withTimeout(1.0).withInterrupt(OI.operatorController::getYButtonReleased),

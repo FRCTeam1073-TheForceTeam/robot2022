@@ -22,7 +22,7 @@ public class ShooterTargetCommand extends CommandBase {
   Shooter shooter;
   HubData data;
   double range = 0;
-  boolean dataCollected = false;
+  boolean shouldCancel = false;
 
   InterpolatorTable flywheelTable = new InterpolatorTable(
     new InterpolatorTableEntry(0.0, 320),
@@ -86,13 +86,17 @@ public class ShooterTargetCommand extends CommandBase {
     addRequirements(shooter);
   }
 
+  public ShooterTargetCommand(Shooter shooter_, HubTracking hubTracking_){
+    this(shooter_, hubTracking_, false, 0);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     range = 0;
     targetFlywheelVelocity = 0;
     targetHoodAngle = 0;
-    dataCollected = false;
+    shouldCancel = false;
     if (overrideHubTracking) {
       range = overrideDistance;
       targetFlywheelVelocity = flywheelTable.getValue(range);
@@ -106,15 +110,17 @@ public class ShooterTargetCommand extends CommandBase {
   @Override
   public void execute() {
     SmartDashboard.putNumberArray("[S-TC] Target vel, Target angle",new Double[]{targetFlywheelVelocity, targetHoodAngle});
-    if (!overrideHubTracking && !dataCollected) {
+    if (!overrideHubTracking) {
       hubTracking.sampleHubData(data);
       range = data.range;
-      if (range > 0) {
-        dataCollected = true;
+      if (hubTracking.isHubVisible()) {
         targetFlywheelVelocity = flywheelTable.getValue(range);
         targetHoodAngle = hoodTable.getValue(range);
         shooter.setFlywheelVelocity(targetFlywheelVelocity);
         shooter.setHoodPosition(targetHoodAngle);
+      }
+      else {
+        shouldCancel = true;
       }
     }
   }
@@ -131,7 +137,7 @@ public class ShooterTargetCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
+    return shouldCancel||(Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
         && Math.abs(shooter.getFlywheelTargetVelocity() - shooter.getFlywheelVelocity()) < Shooter.Constants.kAcceptableFlywheelVelocityError);
   }
 }
