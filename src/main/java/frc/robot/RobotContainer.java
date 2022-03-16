@@ -261,7 +261,7 @@ public class RobotContainer {
       new  ShooterSpinDownCommand(shooter)
     );
 
-    (new JoystickButton(OI.driverController,4)).whileHeld(
+    (new JoystickButton(OI.driverController,9)).whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
       )
