@@ -50,6 +50,7 @@ public class HubTracking extends SubsystemBase {
   private boolean hubVisible;
   private InterpolatorTable rangeInterpolator;
   private InterpolatorTable elevationInterpolator;
+  private boolean hubVisibility;
 
   /** Creates a new HubTracking. */
   public HubTracking() {
@@ -109,6 +110,8 @@ public class HubTracking extends SubsystemBase {
     SmartDashboard.putNumber("Hub Tracker/azimuth", hubData.azimuth);
     SmartDashboard.putNumber("Hub Tracker/range", hubData.range);
     SmartDashboard.putNumber("Hub Tracker/elevation", hubData.elevation);
+    SmartDashboard.putNumber("Hub Tracker/timestamp", hubData.timestamp);
+    SmartDashboard.putBoolean("Hub Visibility", isHubVisible());
   }
 
   public void sampleHubData(HubData data){
@@ -121,7 +124,8 @@ public class HubTracking extends SubsystemBase {
     data.timestamp = hubData.timestamp;
   }
 
-  public boolean isHubVisible(){
+  public boolean isHubVisible()
+  {
     return hubData.area > 0;
   }
 
