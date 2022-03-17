@@ -110,6 +110,7 @@ public class HubTracking extends SubsystemBase {
     SmartDashboard.putNumber("Hub Tracker/azimuth", hubData.azimuth);
     SmartDashboard.putNumber("Hub Tracker/range", hubData.range);
     SmartDashboard.putNumber("Hub Tracker/elevation", hubData.elevation);
+    SmartDashboard.putNumber("Hub Tracker/timestamp", hubData.timestamp);
     SmartDashboard.putBoolean("Hub Visibility", isHubVisible());
   }
 
@@ -123,7 +124,8 @@ public class HubTracking extends SubsystemBase {
     data.timestamp = hubData.timestamp;
   }
 
-  public boolean isHubVisible(){
+  public boolean isHubVisible()
+  {
     return hubData.area > 0;
   }
 
