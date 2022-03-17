@@ -14,6 +14,8 @@ public class FeederLaunchCommand extends CommandBase {
 
   double feederVelocity = 192;
 
+  int initialClosedCount = 0;
+
   boolean prevTOF2Closed = false;
   boolean currentTOF2Closed = false;
 
@@ -27,6 +29,7 @@ public class FeederLaunchCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    initialClosedCount = 0;
     feeder.setFeederVelocity(feederVelocity);
     prevTOF2Closed = false;
     currentTOF2Closed = false;
@@ -45,10 +48,15 @@ public class FeederLaunchCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     currentTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
-    if ((!currentTOF2Closed) && prevTOF2Closed) {
+    if (currentTOF2Closed) {
+      initialClosedCount++;
+    } else {
+      initialClosedCount = 0;
+    }
+    if ((initialClosedCount > 5) && (!currentTOF2Closed) && prevTOF2Closed) {
       return true;
     }
-    prevTOF2Closed = currentTOF2Closed;
+    prevTOF2Closed = currentTOF2Closed;        
     return false;
   }
 }

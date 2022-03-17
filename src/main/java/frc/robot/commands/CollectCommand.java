@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 public class CollectCommand extends CommandBase {
   Collector collector;
   Drivetrain drivetrain;
-  double extraCollectorVelocity = 4;
+  double extraCollectorVelocity = 12;
   ChassisSpeeds chassisSpeeds;
 
   /** Creates a new CollectCommand. */
