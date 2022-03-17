@@ -74,6 +74,8 @@ public class RobotContainer {
 
   Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
 
+  SequentialCommandGroup autoIndexFeedLaunch;
+
   SendableChooser<Command> autoChooser;
 
   // Controls: Add controls here.
@@ -134,78 +136,38 @@ public class RobotContainer {
         ),
         new ShooterSpinDownCommand(shooter)
       )
-
-    // new SequentialCommandGroup(
-      //   new DriveTranslateCommand(drivetrain, 1.0, 2.0),
-      //   new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-      //   new WaitToLevel(shooter, 2.0),
-      //   new ShooterFeedCommand(shooter, 2.5),
-      //   new ShooterSpinDownCommand(shooter),
-      //   new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0),
-      //   new SequentialCommandGroup(
-      //     new ParallelDeadlineGroup(
-      //       new CollectCargoCommand(collector, indexer, shooter).withTimeout(6.0),
-      //       new DriveTranslateCommand(drivetrain,0.8,0.5)
-      //     ),
-      //     new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
-      //     new FeedCommand(shooter).withTimeout(2.0),
-      //     new ShooterTargetCommand(shooter, hubTracking, true, 2.0),
-      //     new FeederLaunchCommand(shooter).withTimeout(2.0),
-      //     new ShooterSpinDownCommand(shooter)
-      //   ),
-      //   new DriveTranslateCommand(drivetrain, -0.5, 2.0),
-      //   new TurnCommand(drivetrain, -Units.degreesToRadians(90.0), 1.0),
-      //   new DriveTranslateCommand(drivetrain, 1.5, 2.0)
-  
-      //   // Apparently this turns to the right angle for the two-ball auto? Neato.
-      //   // new TurnCommand(drivetrain, Units.degreesToRadians(21.0), 1.0)
-      // )
     );
-    autoChooser.addOption("IndexFeedShoot-SensorBased",
+
+    autoChooser.addOption("Auto-1Ball",
       new SequentialCommandGroup(
-        // new ParallelDeadlineGroup(
-        //   new CollectCargoCommand(collector, indexer, shooter).withTimeout(6.0),
-        //   new DriveTranslateCommand(drivetrain,0.8,0.5)
-        // ),
-        // new TurnCommand(drivetrain, Units.degreesToRadians(-21.0), 1.0),
-        new ParallelDeadlineGroup(
-          new IndexCommand(indexer, shooter),
-          new CollectCommand(collector, drivetrain)
+        new ParallelCommandGroup(
+          new DriveTranslateCommand(drivetrain, 1.0, 2.0),
+          new SequentialCommandGroup(
+            new IndexCommand(indexer, shooter),
+            new FeedCommand(feeder, shooter),
+            new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI)),
+            new InstantCommand(feeder::zeroFeeder)
+          ).andThen(new PrintCommand("Finished Feeding")),
+          new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
         ),
-        new FeedCommand(feeder, shooter),
-        new InstantCommand(feeder::zeroFeeder),
-        new FeederAdvanceCommand(feeder, 0.2),
-        new ShooterTargetCommand(shooter, 2.0),
-        new FeederLaunchCommand(feeder, shooter),
-        new WaitCommand(0.5),
+        new SequentialCommandGroup(
+          new FeederLaunchCommand(feeder, shooter),
+          new WaitCommand(0.5)
+        ),
         new ShooterSpinDownCommand(shooter)
       )
     );
 
-    autoChooser.addOption("IndexFeed",
-      new SequentialCommandGroup(
-        new IndexCommand(indexer, shooter),
-        new FeedCommand(feeder, shooter),
-        new FeederAdvanceCommand(feeder, 1.5*(2.0*Math.PI)),
-        new InstantCommand(feeder::zeroFeeder)
-      )
+    SmartDashboard.putData("Init/Auto Selector", autoChooser);
+    SmartDashboard.putNumber("Init/Auto Delay", 0);
+
+    autoIndexFeedLaunch = new SequentialCommandGroup(
+      // new IndexCommand(indexer, shooter),
+      new FeederLaunchCommand(feeder, shooter)
     );
 
-    autoChooser.addOption("IndexFeedCollectIndex",
-    new SequentialCommandGroup(
-      new IndexCommand(indexer, shooter),
-      new FeedCommand(feeder, shooter),
-      new FeederAdvanceCommand(feeder, 1.5*(2.0*Math.PI)),
-      new InstantCommand(feeder::zeroFeeder),
-      new ParallelDeadlineGroup(
-        new IndexCommand(indexer, shooter),
-        new CollectCommand(collector, drivetrain)
-      )
-    )
-  );
-
-    SmartDashboard.putData("Init/Auto Selector", autoChooser);
     configureButtonBindings();
+
   }
 
   /**
@@ -245,21 +207,22 @@ public class RobotContainer {
     (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
         new FeedCommand(feeder, shooter),
-        new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI))
+        new FeederAdvanceCommand(feeder, 0.1*(2.0*Math.PI))
       )
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
       new ShooterRangeTargetCommand(shooter, hubTracking)
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
-      new SequentialCommandGroup(
-        new IndexCommand(indexer, shooter).withTimeout(1.5),
-        new FeederLaunchCommand(feeder, shooter)
-      )
+      autoIndexFeedLaunch
     );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kRightBumper.value)).whenPressed(
-      new  ShooterSpinDownCommand(shooter)
+    (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
+      autoIndexFeedLaunch
     );
+    (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
+      new ShooterSpinDownCommand(shooter)
+    );
+
 
     (new JoystickButton(OI.driverController,9)).whileHeld(
       new SequentialCommandGroup(
@@ -303,7 +266,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return (new WaitCommand(SmartDashboard.getNumber("Init/Auto Delay", 0))).andThen(
+      autoChooser.getSelected()
+    );
     // if (autoCheckBox.getBoolean(false)) {
     //   //1-ball auto
     // } else {
