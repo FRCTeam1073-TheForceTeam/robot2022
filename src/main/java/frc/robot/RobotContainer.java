@@ -8,8 +8,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
@@ -78,6 +80,8 @@ public class RobotContainer {
 
   SendableChooser<Command> autoChooser;
 
+  SequentialCommandGroup fullAuto;
+
   // Controls: Add controls here.
   DriveControls teleopDrivetrain = new DriveControls(drivetrain);
   TeleopIndexer teleopIndexer = new TeleopIndexer(indexer, shooter);
@@ -115,8 +119,7 @@ public class RobotContainer {
           new TurnCommand(drivetrain, Units.degreesToRadians(20.0), 1.0).andThen(new PrintCommand("Finished Turning")),
           new SequentialCommandGroup(
             new IndexCommand(indexer, shooter),
-            new FeedCommand(feeder, shooter),
-            new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI)),
+            new FeedCommand(feeder, shooter, indexer),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
           new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
@@ -129,7 +132,7 @@ public class RobotContainer {
           new FeederLaunchCommand(feeder, shooter),
           new InstantCommand(feeder::zeroFeeder),
           new IndexCommand(indexer, shooter),
-          new FeedCommand(feeder, shooter),
+          new FeedCommand(feeder, shooter, indexer),
           new FeederLaunchCommand(feeder, shooter),
           new InstantCommand(feeder::zeroFeeder),
           new WaitCommand(0.5)
@@ -144,8 +147,7 @@ public class RobotContainer {
           new DriveTranslateCommand(drivetrain, 1.0, 2.0),
           new SequentialCommandGroup(
             new IndexCommand(indexer, shooter),
-            new FeedCommand(feeder, shooter),
-            new FeederAdvanceCommand(feeder, 0.4*(2.0*Math.PI)),
+            new FeedCommand(feeder, shooter, indexer),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
           new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
@@ -163,7 +165,9 @@ public class RobotContainer {
 
     autoIndexFeedLaunch = new SequentialCommandGroup(
       // new IndexCommand(indexer, shooter),
-      new FeederLaunchCommand(feeder, shooter)
+      new FeederLaunchCommand(feeder, shooter),
+      new InstantCommand(feeder::zeroFeeder),
+      new WaitCommand(0.2)
     );
 
     configureButtonBindings();
@@ -206,8 +210,8 @@ public class RobotContainer {
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
-        new FeedCommand(feeder, shooter),
-        new FeederAdvanceCommand(feeder, 0.1*(2.0*Math.PI))
+        new FeedCommand(feeder, shooter, indexer),
+        new InstantCommand(feeder::zeroFeeder)
       )
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
@@ -222,13 +226,34 @@ public class RobotContainer {
     (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
       new ShooterSpinDownCommand(shooter)
     );
-
+    (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whileHeld(
+      new IndexCommand(indexer, shooter)
+    );
 
     (new JoystickButton(OI.driverController,9)).whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
       )
     );
+
+    (new JoystickButton(OI.driverController,9)).whenPressed(
+      new SequentialCommandGroup(
+        new InstantCommand(()->{
+          OI.operatorController.setRumble(RumbleType.kLeftRumble, 0.4);
+          OI.operatorController.setRumble(RumbleType.kRightRumble, 0.4);
+        }),
+        new WaitCommand(0.1),
+        new InstantCommand(()->{
+          OI.operatorController.setRumble(RumbleType.kLeftRumble, 0);
+          OI.operatorController.setRumble(RumbleType.kRightRumble, 0);
+        })
+      )
+    );
+
+    (new JoystickButton(OI.driverController, 9)).whenReleased(
+        () -> SmartDashboard.putBoolean("AlignToHub on", false)
+    );
+
 
     // new FeederLaunchCommand(feeder, shooter),
         // new InstantCommand(feeder::zeroFeeder),
@@ -266,9 +291,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return (new WaitCommand(SmartDashboard.getNumber("Init/Auto Delay", 0))).andThen(
+    fullAuto = (new WaitCommand(SmartDashboard.getNumber("Init/Auto Delay", 0))).andThen(
       autoChooser.getSelected()
     );
+    return fullAuto; 
     // if (autoCheckBox.getBoolean(false)) {
     //   //1-ball auto
     // } else {

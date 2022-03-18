@@ -39,9 +39,7 @@ public class TeleopIndexer extends CommandBase {
     //Otherwise, it sets power to zero.
     if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
       indexer.setPower(-0.8);
-    }else if (OI.operatorController.getLeftBumper()) {
-      indexer.setPower(0.8);
-    }else{
+    } else {
       indexer.setPower(0);
     }
 

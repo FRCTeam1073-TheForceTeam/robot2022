@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.HubTracking;
@@ -22,6 +23,8 @@ public class AlignToHub extends CommandBase {
   private HubTracking hubTracking;
   private Drivetrain drivetrain;
 
+  private static boolean blinkToggle = false;
+
   /** Creates a new AlignToHub. */
   public AlignToHub(Drivetrain drivetrain, HubTracking hubTracking) {
     this.drivetrain = drivetrain;
@@ -38,7 +41,8 @@ public class AlignToHub extends CommandBase {
     drivetrain.setChassisSpeeds(chassisSpeeds);
     timeoutCounter = 0;
     data = new HubData();
-    System.out.println("AlignToHub initialized");
+    blinkToggle = !blinkToggle;
+    SmartDashboard.putBoolean("AlignToHub on", blinkToggle);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -67,6 +71,6 @@ public class AlignToHub extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (Math.abs(hubAzimuth) < azimuthTolerance) || (timeoutCounter > 10);
+    return (Math.abs(hubAzimuth) < azimuthTolerance) || (timeoutCounter > 200);
   }
 }
