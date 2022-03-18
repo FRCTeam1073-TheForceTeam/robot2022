@@ -126,11 +126,14 @@ public class RobotContainer {
         ),
         new ParallelDeadlineGroup(
           new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
-          new CollectCommand(collector, drivetrain)
+          new CollectCommand(collector, drivetrain).alongWith(
+            new IndexCommand(indexer, shooter)
+          )
         ),
         new SequentialCommandGroup(
           new FeederLaunchCommand(feeder, shooter),
           new InstantCommand(feeder::zeroFeeder),
+          new WaitCommand(0.5),
           new IndexCommand(indexer, shooter),
           new FeedCommand(feeder, shooter, indexer),
           new FeederLaunchCommand(feeder, shooter),
@@ -144,7 +147,7 @@ public class RobotContainer {
     autoChooser.addOption("Auto-1Ball",
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new DriveTranslateCommand(drivetrain, 1.0, 2.0),
+          new DriveTranslateCommand(drivetrain, 1.0, 2.57),
           new SequentialCommandGroup(
             new IndexCommand(indexer, shooter),
             new FeedCommand(feeder, shooter, indexer),
