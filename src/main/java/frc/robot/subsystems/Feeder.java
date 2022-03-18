@@ -23,7 +23,7 @@ public class Feeder extends SubsystemBase {
   private double feeder_maxIntegrator = 1000;
   private double feederTicksPerRadian = 2048.0 / (2.0 * Math.PI);
 
-  private final double feederRateLimit = 120;
+  private final double feederRateLimit = 10000;
 
   private double feederTargetVelocity = 0;
   private SlewRateLimiter feederRateLimiter = new SlewRateLimiter(feederRateLimit);

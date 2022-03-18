@@ -17,6 +17,7 @@ public class IndexCommand extends CommandBase {
   boolean risingEdge = false;
   boolean currentTOF1Closed = false;
   int numClosed = 0;
+  boolean ballAlreadyInShooter = false;
 
   /** Creates a new CollectCargoCommand. */
   public IndexCommand(Indexer indexer_, Shooter shooter_) {
@@ -31,9 +32,6 @@ public class IndexCommand extends CommandBase {
     numClosed = 0;
     currentTOF1Closed = false;
     risingEdge = false;
-    for (int i = 0; i < 4; i++) {
-      System.out.println(System.currentTimeMillis()+"IDX_START");
-    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -46,21 +44,22 @@ public class IndexCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     indexer.setPower(0);
-    for (int i = 0; i < 10; i++) {
-      System.out.println(System.currentTimeMillis()+"IDX_STOP");
-    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
+    ballAlreadyInShooter = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
+    if (ballAlreadyInShooter) {
+      currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed_withTopBall);
+    } else {
+      currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
+    }
     if (currentTOF1Closed) {
       numClosed++;
     } else {
       numClosed = 0;
     }
-    System.out.println("\t\tC"+numClosed);
     return (numClosed >= 4);
   }
 }

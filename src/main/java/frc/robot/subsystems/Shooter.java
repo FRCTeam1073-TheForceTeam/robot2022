@@ -379,7 +379,8 @@ public class Shooter extends SubsystemBase {
     public static final double kAcceptableHoodPositionError = 0.0075; //Units: radians
     public static final double kTOF1_open = 0.25;
     public static final double kTOF1_closed = 0.075;
+    public static final double kTOF1_closed_withTopBall = 0.1;
     public static final double kTOF2_open = 0.29;
-    public static final double kTOF2_closed = 0.20;
+    public static final double kTOF2_closed = 0.19;
   }
 }
