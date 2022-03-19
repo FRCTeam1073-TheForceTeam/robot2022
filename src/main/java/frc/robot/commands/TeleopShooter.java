@@ -42,7 +42,7 @@ public class TeleopShooter extends CommandBase {
 
     if(SmartDashboard.getBoolean("[T-Sh] Update", false)) {
       shooter.setFlywheelVelocity(SmartDashboard.getNumber("[T-Sh] Flywheel vel (rad.s)", 0));
-      shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0));
+      shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0) + Shooter.additionalHoodAngle);
       SmartDashboard.putBoolean("[T-Sh] Update", false);
     }
 

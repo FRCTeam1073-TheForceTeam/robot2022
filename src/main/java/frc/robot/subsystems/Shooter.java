@@ -84,9 +84,9 @@ public class Shooter extends SubsystemBase {
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
 
   // private final double hoodAngleOffset = Units.degreesToRadians(3.0);
-  public static double additionalHoodAngle = 0.0;
+  public static double additionalHoodAngle = 0.08;
 
-  private final double maximumHoodAngle = 1.27;
+  public static final double maximumHoodAngle = 1.27;
 
   private final boolean FLYWHEEL_TUNING_DEBUG = true;
   private final boolean HOOD_TUNING_DEBUG = true;
@@ -159,7 +159,7 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("[Shooter] hood/kF", hood_kF);
     }
     
-    additionalHoodAngle = SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0);
+    // additionalHoodAngle = SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0);
     SmartDashboard.putNumber("ShooterTargeting/Additional Hood Angle", additionalHoodAngle);
   }
 

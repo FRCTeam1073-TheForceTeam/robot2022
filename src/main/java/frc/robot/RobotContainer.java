@@ -111,7 +111,7 @@ public class RobotContainer {
     collector.setDefaultCommand(teleopCollector);
 
     autoChooser = new SendableChooser<Command>();
-    autoChooser.setDefaultOption("<Select a command>", null);
+    autoChooser.setDefaultOption("<Select a command>", new InstantCommand());
 
     autoChooser.addOption("Auto-2Ball",
       new SequentialCommandGroup(
@@ -231,6 +231,9 @@ public class RobotContainer {
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whileHeld(
       new IndexCommand(indexer, shooter)
+    );
+    (new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
+      new ShooterSpinUpCommand(shooter, 170, (0.25-0.08))
     );
 
     (new JoystickButton(OI.driverController,9)).whileHeld(
