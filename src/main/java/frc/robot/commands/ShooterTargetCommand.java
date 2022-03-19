@@ -82,7 +82,7 @@ public class ShooterTargetCommand extends CommandBase {
   @Override
   public void initialize() {
     targetFlywheelVelocity = flywheelTable.getValue(range);
-    targetHoodAngle = hoodTable.getValue(range);
+    targetHoodAngle = hoodTable.getValue(range) + Shooter.additionalHoodAngle;
     shooter.setFlywheelVelocity(targetFlywheelVelocity);
     shooter.setHoodPosition(targetHoodAngle);
   }
