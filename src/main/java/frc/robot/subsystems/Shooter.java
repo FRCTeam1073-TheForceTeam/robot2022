@@ -84,7 +84,7 @@ public class Shooter extends SubsystemBase {
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
 
   // private final double hoodAngleOffset = Units.degreesToRadians(3.0);
-  public static double additionalHoodAngle = 0.08;
+  public static double additionalHoodAngle = 0.0775;
 
   public static final double maximumHoodAngle = 1.27;
 

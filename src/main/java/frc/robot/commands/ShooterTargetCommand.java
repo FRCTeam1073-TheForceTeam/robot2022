@@ -25,6 +25,7 @@ public class ShooterTargetCommand extends CommandBase {
     new InterpolatorTableEntry(1.0, 350),
     new InterpolatorTableEntry(2.0, 370),
     new InterpolatorTableEntry(3.0, 387),
+    new InterpolatorTableEntry(3.5, 407),
     new InterpolatorTableEntry(4.0, 418),
     new InterpolatorTableEntry(5.0, 460)
   );
@@ -47,6 +48,7 @@ public class ShooterTargetCommand extends CommandBase {
     new InterpolatorTableEntry(1.0, 0.21),
     new InterpolatorTableEntry(2.0, 0.26),
     new InterpolatorTableEntry(3.0, 0.338),
+    new InterpolatorTableEntry(3.5, 0.36),
     new InterpolatorTableEntry(4.0, 0.41),
     new InterpolatorTableEntry(5.0, 0.456)
   );

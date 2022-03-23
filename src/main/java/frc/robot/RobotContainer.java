@@ -122,7 +122,7 @@ public class RobotContainer {
             new FeedCommand(feeder, shooter, indexer),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
-          new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
+          new ShooterTargetCommand(shooter, 2.4).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new ParallelDeadlineGroup(
           new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
@@ -153,7 +153,7 @@ public class RobotContainer {
             new FeedCommand(feeder, shooter, indexer),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
-          new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
+          new ShooterTargetCommand(shooter, 2.65).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new SequentialCommandGroup(
           new FeederLaunchCommand(feeder, shooter),
