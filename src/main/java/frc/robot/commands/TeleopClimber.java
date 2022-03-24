@@ -11,8 +11,8 @@ import frc.robot.subsystems.OI;
 public class TeleopClimber extends CommandBase {
   Climber climber;
 
-  private double spoolMultiplier = 8.5;
-  private double extensionMultiplier = 0.75;
+  private double spoolMultiplier = 5.9;
+  private double extensionMultiplier = 3;
 
   /** Creates a new TeleopClimber. */
   public TeleopClimber(Climber climber) {
