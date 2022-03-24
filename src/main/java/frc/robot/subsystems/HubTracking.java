@@ -93,6 +93,10 @@ public class HubTracking extends SubsystemBase {
       new InterpolatorTableEntry(426, 0.39),
       new InterpolatorTableEntry(447, 0.35)
     );
+
+    canifier.setLEDOutput(255/255, CANifier.LEDChannel.LEDChannelA);
+    canifier.setLEDOutput(20/255, CANifier.LEDChannel.LEDChannelB);
+    canifier.setLEDOutput(147/255, CANifier.LEDChannel.LEDChannelC);
   }
 
   @Override
