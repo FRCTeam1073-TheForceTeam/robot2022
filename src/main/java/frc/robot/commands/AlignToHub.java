@@ -19,6 +19,8 @@ public class AlignToHub extends CommandBase {
   double scaleFactor = -2.5;
   double azimuthTolerance = 0.1;
   int timeoutCounter = 0;
+  double minVelocity = 1.0;
+  double minError = minVelocity / scaleFactor;
 
   private HubTracking hubTracking;
   private Drivetrain drivetrain;
@@ -56,8 +58,18 @@ public class AlignToHub extends CommandBase {
     else {
       timeoutCounter ++;
     }
-    
-    chassisSpeeds.omegaRadiansPerSecond = hubAzimuth * scaleFactor;
+  
+    if (Math.abs(hubAzimuth) < minError) {
+      if (hubAzimuth < 0) {
+        chassisSpeeds.omegaRadiansPerSecond = minVelocity;
+      }
+      else {
+        chassisSpeeds.omegaRadiansPerSecond = -1 * minVelocity;
+      }
+    }
+    else {
+      chassisSpeeds.omegaRadiansPerSecond = hubAzimuth * scaleFactor;
+    }
     drivetrain.setChassisSpeeds(chassisSpeeds);
   }
 
@@ -65,6 +77,8 @@ public class AlignToHub extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     chassisSpeeds = new ChassisSpeeds();
+
+
     drivetrain.setChassisSpeeds(chassisSpeeds);
   }
 
