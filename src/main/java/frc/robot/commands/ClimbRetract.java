@@ -3,15 +3,15 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 
-public class ClimbExtend extends CommandBase
+public class ClimbRetract extends CommandBase
 {
     Climber climber;
-    private double currentPosition = 0;
-    private double targetPosition = 5;
+    private double currentPosition = 5;
+    private double targetPosition = 0;
     private double velocityScale = 1.0;
     private double errorTolerance = 0.1;
 
-    public ClimbExtend(Climber climber_)
+    public ClimbRetract(Climber climber_)
     {
         climber = climber_;
 
@@ -38,9 +38,7 @@ public class ClimbExtend extends CommandBase
     @Override
     public boolean isFinished()
     {
-        if (Math.abs(targetPosition - currentPosition) < errorTolerance 
-                || Climber.getSensorReading(3) && Climber.getSensorReading(5)
-                && !Climber.getSensorReading(2) && !Climber.getSensorReading(4))
+        if (Math.abs(targetPosition - currentPosition) < errorTolerance)
         {
             return true;
         }
