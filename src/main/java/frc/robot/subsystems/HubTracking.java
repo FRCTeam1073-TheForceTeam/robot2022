@@ -40,8 +40,6 @@ public class HubTracking extends SubsystemBase {
   // CANifier - https://docs.ctre-phoenix.com/en/stable/ch12_BringUpCANifier.html
   // setLEDOutput() - https://store.ctr-electronics.com/content/api/java/html/classcom_1_1ctre_1_1phoenix_1_1_c_a_nifier.html
   private final CANifier canifier;
-  private final LEDChannel lowerChannel;
-  private final LEDChannel upperChannel;
   private NetworkTableEntry outputX;
   private NetworkTableEntry outputY;
   private NetworkTableEntry outputArea;
@@ -60,8 +58,6 @@ public class HubTracking extends SubsystemBase {
     canifier = new CANifier(8);
     canifier.configFactoryDefault();
     canifier.setStatusFramePeriod(CANifierStatusFrame.Status_2_General, 100);
-    lowerChannel = LEDChannel.LEDChannelA;
-    upperChannel = LEDChannel.LEDChannelB;
     ntinst = NetworkTableInstance.getDefault();
 
     outputX = ntinst.getTable("HUB").getEntry("Hub X");
@@ -93,10 +89,6 @@ public class HubTracking extends SubsystemBase {
       new InterpolatorTableEntry(426, 0.39),
       new InterpolatorTableEntry(447, 0.35)
     );
-
-    canifier.setLEDOutput(255/255, CANifier.LEDChannel.LEDChannelA);
-    canifier.setLEDOutput(20/255, CANifier.LEDChannel.LEDChannelB);
-    canifier.setLEDOutput(147/255, CANifier.LEDChannel.LEDChannelC);
   }
 
   @Override
@@ -134,8 +126,8 @@ public class HubTracking extends SubsystemBase {
   }
 
   public void setLEDIntensity(double percent){
-    //System.out.println("Set Intensity: "+percent);
-    canifier.setLEDOutput(percent, lowerChannel);
-    canifier.setLEDOutput(percent, upperChannel);
+    canifier.setLEDOutput(255/255 * percent * 2.5/12, CANifier.LEDChannel.LEDChannelA);
+    canifier.setLEDOutput(20/255 * percent * 2.5/12, CANifier.LEDChannel.LEDChannelB);
+    canifier.setLEDOutput(147/255 * percent * 2.5/12, CANifier.LEDChannel.LEDChannelC);
   }
 }
