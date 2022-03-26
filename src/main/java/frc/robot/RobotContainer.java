@@ -111,7 +111,7 @@ public class RobotContainer {
     collector.setDefaultCommand(teleopCollector);
 
     autoChooser = new SendableChooser<Command>();
-    autoChooser.setDefaultOption("<Select a command>", null);
+    autoChooser.setDefaultOption("<Select a command>", new InstantCommand());
 
     autoChooser.addOption("Auto-2Ball",
       new SequentialCommandGroup(
@@ -122,7 +122,7 @@ public class RobotContainer {
             new FeedCommand(feeder, shooter, indexer),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
-          new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
+          new ShooterTargetCommand(shooter, 2.4).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new ParallelDeadlineGroup(
           new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
@@ -153,7 +153,7 @@ public class RobotContainer {
             new FeedCommand(feeder, shooter, indexer),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
-          new ShooterTargetCommand(shooter, 2.0).andThen(new PrintCommand("Finished Spinning Up"))
+          new ShooterTargetCommand(shooter, 2.65).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new SequentialCommandGroup(
           new FeederLaunchCommand(feeder, shooter),
@@ -231,6 +231,9 @@ public class RobotContainer {
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whileHeld(
       new IndexCommand(indexer, shooter)
+    );
+    (new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
+      new ShooterSpinUpCommand(shooter, 170, (0.25-0.08))
     );
 
     (new JoystickButton(OI.driverController,9)).whileHeld(

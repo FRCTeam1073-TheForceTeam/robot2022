@@ -51,8 +51,10 @@ public class FeederLaunchCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     currentTOF2Closed = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
-    if (!currentTOF2Closed || numLoops != 0) {
+    if (!currentTOF2Closed) {
       numLoops++;
+    } else {
+      numLoops = 0;
     }
     return !currentTOF2Closed && (numLoops > 10);
     // if ((!currentTOF2Closed) && prevTOF2Closed) {

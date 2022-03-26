@@ -83,12 +83,13 @@ public class Shooter extends SubsystemBase {
   private final double maxHoodVelocity = 5.0; //Units :radians/s
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
 
-  private final double hoodAngleOffset = Units.degreesToRadians(3.0);
+  // private final double hoodAngleOffset = Units.degreesToRadians(3.0);
+  public static double additionalHoodAngle = 0.0775;
 
-  private final double maximumHoodAngle = 1.27;
+  public static final double maximumHoodAngle = 1.27;
 
   private final boolean FLYWHEEL_TUNING_DEBUG = true;
-  private final boolean HOOD_TUNING_DEBUG = false;
+  private final boolean HOOD_TUNING_DEBUG = true;
 
   private double currentFlywheelVelocity = 0;
   private double currentHoodPosition = 0;
@@ -144,7 +145,7 @@ public class Shooter extends SubsystemBase {
     );
     hoodProfileStartTime = System.currentTimeMillis() / 1000.0;
 
-    if (PIDtesting){
+    if (PIDtesting) {
       SmartDashboard.putBoolean("[Shooter] Update", false);
 
       SmartDashboard.putNumber("[Shooter] flywheel/kP", flywheel_kP);
@@ -157,6 +158,9 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("[Shooter] hood/kD", hood_kD);
       SmartDashboard.putNumber("[Shooter] hood/kF", hood_kF);
     }
+    
+    // additionalHoodAngle = SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0);
+    SmartDashboard.putNumber("ShooterTargeting/Additional Hood Angle", additionalHoodAngle);
   }
 
   @Override
@@ -261,24 +265,25 @@ public class Shooter extends SubsystemBase {
       hood_kF = SmartDashboard.getNumber("[Shooter] hood/kF", 0);
 
       updatePID(
-        flywheelMotor,
-        flywheel_kP,
-        flywheel_kI,
-        flywheel_kD,
-        flywheel_kF,
-        flywheel_maxIntegrator
-      );
+          flywheelMotor,
+          flywheel_kP,
+          flywheel_kI,
+          flywheel_kD,
+          flywheel_kF,
+          flywheel_maxIntegrator);
 
       updatePID(
-        hoodMotor,
-        hood_kP,
-        hood_kI,
-        hood_kD,
-        hood_kF,
-        hood_maxIntegrator
-      );
+          hoodMotor,
+          hood_kP,
+          hood_kI,
+          hood_kD,
+          hood_kF,
+          hood_maxIntegrator);
       SmartDashboard.putBoolean("[Shooter] Update", false);
     }
+
+    // In case we mistype something, this should at least keep the offset from breaking the hood.
+    additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), 0.0, 0.75);
   }
 
   public void setHoodPosition(double targetPosition) {
