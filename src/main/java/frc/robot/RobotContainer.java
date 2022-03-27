@@ -220,9 +220,9 @@ public class RobotContainer {
     (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
       new ShooterRangeTargetCommand(shooter, hubTracking)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
-      autoIndexFeedLaunch
-    );
+    // (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
+    //   autoIndexFeedLaunch
+    // );
     (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
       autoIndexFeedLaunch
     );

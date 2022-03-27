@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Collector.Constants;
@@ -23,7 +24,7 @@ import frc.robot.subsystems.Collector.Constants;
 public class Shooter extends SubsystemBase {
   // DEBUG:
   private final boolean debug = false;
-  private final boolean PIDtesting = false;
+  private final boolean PIDtesting = true;
   //ToF sensors
   
   private DigitalInput tof1Input;
@@ -46,11 +47,11 @@ public class Shooter extends SubsystemBase {
   private WPI_TalonFX flywheelMotor;
   private WPI_TalonFX hoodMotor;
 
-  private double flywheel_kP = 0.2;
-  private double flywheel_kI = 0.007;
-  private double flywheel_kD = 0.02;
+  private double flywheel_kP = 0.525;
+  private double flywheel_kI = 0.0;
+  private double flywheel_kD = 0.12;
   private double flywheel_kF = 0.051;
-  private double flywheel_maxIntegrator = 8000;
+  private double flywheel_maxIntegrator = 1000;
   private double flywheelTicksPerRadian = 2048.0 / (2.0 * Math.PI);
 
   //Yes, I know it's not just a belt, there's a gearbox in there too, but I don't really care?
@@ -84,7 +85,7 @@ public class Shooter extends SubsystemBase {
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
 
   // private final double hoodAngleOffset = Units.degreesToRadians(3.0);
-  public static double additionalHoodAngle = 0.0775;
+  public static double additionalHoodAngle = 0;//0.0775;
 
   public static final double maximumHoodAngle = 1.27;
 
@@ -95,7 +96,11 @@ public class Shooter extends SubsystemBase {
   private double currentHoodPosition = 0;
 
   private boolean flywheelPowerMode = false;
-  
+
+  private double maxFlywheelError = 0;
+  // private int numAverages = 0;
+  Timer averageTimer;
+
   public Shooter() {
     tof1Input = new DigitalInput(0);
     tof1DutyCycleInput = new DutyCycle(tof1Input);
@@ -112,7 +117,7 @@ public class Shooter extends SubsystemBase {
     flywheelMotor = new WPI_TalonFX(45);
     resetMotors(flywheelMotor);
     flywheelMotor.setInverted(true);
-    flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 32, 0.25));
+    flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 39, 0.5));
     // flywheelMotor.setInverted(false);
 
     hoodMotor = new WPI_TalonFX(18);
@@ -161,6 +166,10 @@ public class Shooter extends SubsystemBase {
     
     // additionalHoodAngle = SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0);
     SmartDashboard.putNumber("ShooterTargeting/Additional Hood Angle", additionalHoodAngle);
+
+    // SmartDashboard.putNumber("ShooterTuning/Power", flywheelMotor.getMotorOutputPercent());
+
+    averageTimer = new Timer();
   }
 
   @Override
@@ -177,6 +186,10 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
     }
 
+    // flywheelMotor.set(ControlMode.PercentOutput, SmartDashboard.getNumber("ShooterTuning/Power", 0));
+    // SmartDashboard.putNumber("ShooterTuning/kF value",
+    //     1023 * flywheelMotor.getMotorOutputPercent() / flywheelMotor.getSelectedSensorVelocity());
+    
     if (tof1Range <= Constants.kTOF1_closed) {
       ball1Stored = true;
     } else {
@@ -284,6 +297,23 @@ public class Shooter extends SubsystemBase {
 
     // In case we mistype something, this should at least keep the offset from breaking the hood.
     additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), 0.0, 0.75);
+
+    if (OI.operatorController.getXButtonPressed()) {
+      // averageTimer.reset();
+      // averageTimer.start();
+    }
+    if (OI.operatorController.getXButtonReleased()) {
+      maxFlywheelError = -10000;
+      // numAverages = 0;
+    }
+    if (OI.operatorController.getXButton()) {
+      maxFlywheelError = Math.max(maxFlywheelError, limitedFlywheelTargetVelocity - currentFlywheelVelocity);
+      // avgFlywheelSpeed = (avgFlywheelSpeed * numAverages + currentFlywheelVelocity) / (numAverages + 1);
+      // numAverages++;
+      SmartDashboard.putNumber("ShooterTuning/MaxFlywheelError", maxFlywheelError);
+      // SmartDashboard.putNumber("ShooterMaxError/Time elapsed", averageTimer.get());
+    }
+    
   }
 
   public void setHoodPosition(double targetPosition) {
@@ -334,16 +364,15 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setFlywheelVelocity(double velocity) {
-    if (velocity == 0) {
-      flywheelTargetVelocity = 0;
-      flywheelRateLimiter.reset(0);
-      flywheelMotor.set(ControlMode.PercentOutput, 0);
-      flywheelMotor.setIntegralAccumulator(0);
-      flywheelPowerMode = true;
-    } else {
-      flywheelPowerMode = false;
-      flywheelTargetVelocity = velocity;
-    }
+    if(flywheelPowerMode){return;}
+    // if (velocity == 0) {
+    //   flywheelTargetVelocity = 0;
+    //   flywheelRateLimiter.reset(0);
+    //   flywheelMotor.set(ControlMode.PercentOutput, 0);
+    //   flywheelMotor.setIntegralAccumulator(0);
+    // } else {
+    flywheelTargetVelocity = velocity;
+    // }
   }
 
   public double getFlywheelTargetVelocity() {
