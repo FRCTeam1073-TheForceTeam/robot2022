@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.drive.Vector2d;
@@ -32,11 +33,13 @@ public class RelativeDriveCommand extends CommandBase {
   double velocityScale = 1;
   double rotationScale = 1;
 
-  private final double forwardTolerance = 0.05;
-  private final double directionTolerance = 0.005;
   private final double distanceTolerance = 0.1;
 
   double distance;
+
+  double alpha = 1;
+  double beta = 1.5;
+  double gamma = 1.5;
 
   /** Creates a new RelativeDriveCommand. */
   public RelativeDriveCommand(Drivetrain drivetrain, Pose2d targetPose) {
@@ -74,25 +77,21 @@ public class RelativeDriveCommand extends CommandBase {
     y_robot.x = Math.cos(robotAngle + Math.PI * 0.5);
     y_robot.y = Math.sin(robotAngle + Math.PI * 0.5);
 
-    double targetVelocity = maxVelocity * velocityScale * rangeFunction() * directionFunction();
-    double targetRotation = maxAngularVelocity * rotationScale * angleFunction();
+    double falloffDistance = Math.max(0, Math.min(1, 1 - Math.exp(-10 * (distance - 0.1))));
+
+    double targetVelocity = maxVelocity * MathUtil.clamp(-1, 1,
+      alpha * (1 - Math.exp(-2 * distance)) * (Math.max(0, -x_robot.dot(offsetVector)))
+    );
+
+    double targetRotation = 
+        maxAngularVelocity * MathUtil.clamp(-1, 1,
+        beta * (y_robot.dot(x_target)) * (1 - falloffDistance)
+          - gamma * (y_robot.dot(offsetVector) + 0.4 * falloffDistance * (y_robot.dot(x_target))) * falloffDistance
+    );
+
     chassisSpeeds.vxMetersPerSecond = targetVelocity;
     chassisSpeeds.omegaRadiansPerSecond = targetRotation;
     drivetrain.setChassisSpeeds(chassisSpeeds);
-  }
-
-  double rangeFunction() {
-    return 1.0 - Math.exp(-2.0 * distance);
-  }
-  
-  double directionFunction() {
-    return Math.max(0, x_robot.dot(x_target));
-  }
-
-  double angleFunction() {
-    double orientationValue = x_robot.dot(y_target);
-    double directionValue = x_robot.dot(offsetVector);
-    return 0;
   }
 
   // Called once the command ends or is interrupted.
@@ -105,8 +104,6 @@ public class RelativeDriveCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double forwardValue = x_robot.dot(x_target);
-    double rotationValue = x_robot.dot(y_target);
-    return ((1-forwardValue)<forwardTolerance)&&(Math.abs(rotationValue)<directionTolerance)&&(distance<distanceTolerance);
+    return (distance < distanceTolerance);
   }
 }
