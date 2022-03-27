@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -115,6 +116,8 @@ public class RobotContainer {
     autoChooser = new SendableChooser<Command>();
     autoChooser.setDefaultOption("<Select a command>", new InstantCommand());
 
+    DashboardReadoutCommand.resetCounter();
+
     autoChooser.addOption("Auto-2Ball",
       new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -136,7 +139,7 @@ public class RobotContainer {
           )
         ),
         new SequentialCommandGroup(
-          new FeederLaunchCommand(feeder, shooter),
+          new FeederLaunchCommand(indexer, feeder, shooter),
           new InstantCommand(feeder::zeroFeeder),
           new WaitCommand(0.5),
           new IndexCommand(indexer, shooter),
@@ -144,7 +147,7 @@ public class RobotContainer {
             new FeedCommand(feeder, shooter),
             new RunCommand(()->indexer.setPower(0.1),indexer)
           ),
-          new FeederLaunchCommand(feeder, shooter),
+          new FeederLaunchCommand(indexer, feeder, shooter),
           new InstantCommand(feeder::zeroFeeder),
           new WaitCommand(0.5)
         ),
@@ -167,46 +170,158 @@ public class RobotContainer {
           new ShooterTargetCommand(shooter, 2.65).andThen(new PrintCommand("Finished Spinning Up"))
         ),
         new SequentialCommandGroup(
-          new FeederLaunchCommand(feeder, shooter),
+          new FeederLaunchCommand(indexer, feeder, shooter),
           new WaitCommand(0.5)
         ),
         new ShooterSpinDownCommand(shooter)
       )
     );
 
-  autoChooser.addOption("Auto-4Ball",
-    new SequentialCommandGroup(
-      new ParallelDeadlineGroup(
-        new CollectCommand(collector, drivetrain),
-        new IndexCommand(indexer, shooter),
-        new RelativeDriveCommand(drivetrain,
-          new Pose2d(
-            Units.inchesToMeters(46.0), 0.0, new Rotation2d(Units.degreesToRadians(10.0))
+    autoChooser.addOption("Auto-4Ball",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new ParallelCommandGroup(
+            new AbsoluteDriveCommand(drivetrain,
+              new Pose2d(
+                Units.inchesToMeters(46.0), 0.0, new Rotation2d(Units.degreesToRadians(10.0))
+              ), 0.1, 0.1    
+            )
+            //new IndexCommand(indexer, shooter)
+          ),
+          new CollectCommand(collector, drivetrain),
+          new ShooterTargetCommand(shooter, 2.0)
+        ),
+        new InstantCommand(DashboardReadoutCommand::resetCounter),
+        new DashboardReadoutCommand("Firing first 2 cargo"),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        // new ParallelDeadlineGroup(
+        //   new SequentialCommandGroup(
+        //     new DashboardReadoutCommand("Waiting for falling edge 1"),
+        //     new ParallelRaceGroup(
+        //       new WaitForFallingEdge(shooter, 2),
+        //       new WaitCommand(1.0)
+        //     ),
+      
+        //     new DashboardReadoutCommand("Indexing"),
+        //     new IndexCommand(indexer, shooter),
+
+        //     new DashboardReadoutCommand("Waiting for falling edge 2"),
+        //     new ParallelRaceGroup(
+        //       new WaitForFallingEdge(shooter, 2),
+        //       new WaitCommand(1.0)
+        //     ),
+
+        //     new DashboardReadoutCommand("Waiting for 0.5 seconds"),
+        //     new WaitCommand(0.5)
+        //   ),
+        //   new SequentialCommandGroup(
+        //     new WaitCommand(0.3),
+        //     new ContinuousFeedCommand(feeder)          
+        //   )
+        // ),
+        
+        new DashboardReadoutCommand("Driving to 3rd ball"),
+        new ParallelDeadlineGroup(
+          new AbsoluteDriveCommand(drivetrain,
+            new Pose2d(
+              5.25, -1.22, new Rotation2d(0.229)
+            ), 2.4, 0.1, 0.1
+          ).andThen(
+            new WaitCommand(1.0)
+          ),
+          new ParallelDeadlineGroup(
+            new SequentialCommandGroup(
+              new DashboardReadoutCommand("Index #1"),              
+              new IndexCommand(indexer, shooter),
+              new DashboardReadoutCommand("Load"),
+              new LoadCommand(indexer, feeder, shooter),
+              new DashboardReadoutCommand("Wait"),
+              new WaitCommand(1.0),
+              new DashboardReadoutCommand("Index #2"),
+              new ParallelRaceGroup(
+                new WaitCommand(2.0),
+                new IndexCommand(indexer, shooter)                  
+              )
+            ),
+            new ShooterTargetCommand(shooter, 4.0),
+            new CollectCommand(collector, drivetrain)
           )
         ),
-        new ShooterTargetCommand(shooter, 2.0),
-        new FeedCommand(feeder, shooter)
-      ),
-      new FeederLaunchCommand(feeder, shooter),
-      new InstantCommand(feeder::zeroFeeder),
-      new WaitCommand(0.2),
-      new FeederLaunchCommand(feeder, shooter)
-    )
-  );
-  autoChooser.addOption("Turn90", 
-    new RelativeDriveCommand(drivetrain,
-      new Pose2d(
-        1.0, 1.0, new Rotation2d(Units.degreesToRadians(90.0))
+
+        new DashboardReadoutCommand("Turning to face hub"),
+        new AbsoluteDriveCommand(drivetrain,
+          new Pose2d(
+            5.25, -1.25, new Rotation2d(-0.09)
+          ), 0.1, 0.1
+        ),
+        new DashboardReadoutCommand("Firing second 2 cargo"),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        // new DashboardReadoutCommand("Turning to face 5th cargo"),
+        // new AbsoluteDriveCommand(drivetrain,
+        //   new Pose2d(
+        //     5.25, -1.25, new Rotation2d(2.49)
+        //   ), 0.1, 0.1
+        // ),
+        // new DashboardReadoutCommand("Drive"),
+        // new AbsoluteDriveCommand(drivetrain,
+        //   new Pose2d(
+        //     -1.785, 2.068, new Rotation2d(1.346)
+        //   ), 0.1, 0.1
+        // ),
+        new DashboardReadoutCommand("Done!")
       )
-    )
-  );
+    );
+    autoChooser.addOption("Turn90", 
+      new AbsoluteDriveCommand(drivetrain,
+        new Pose2d(
+          1.0, 1.0, new Rotation2d(Units.degreesToRadians(90.0))
+        ),
+        0.1, 0.1
+      )
+    );
+    autoChooser.addOption("AutoIndex", 
+      new ParallelCommandGroup(
+        new IndexCommand(indexer, shooter),
+        new CollectCommand(collector, drivetrain)
+      )
+    );
+    autoChooser.addOption("IndexLoad",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new IndexCommand(indexer, shooter),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new LoadCommand(indexer, feeder, shooter)        
+      )
+    );
+
+    autoChooser.addOption("Launch",
+      new SequentialCommandGroup(
+        new ShooterTargetCommand(shooter, 2.0),
+        new FeederLaunchCommand(indexer, feeder, shooter)
+      )
+    );
+
+    autoChooser.addOption("IndexLoadLaunch",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new IndexCommand(indexer, shooter),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new ParallelCommandGroup(
+          new LoadCommand(indexer, feeder, shooter),
+          new ShooterTargetCommand(shooter, 2.0)
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter)        
+      )
+    );
 
     SmartDashboard.putData("Init/Auto Selector", autoChooser);
     SmartDashboard.putNumber("Init/Auto Delay", 0);
 
     autoIndexFeedLaunch = new SequentialCommandGroup(
       // new IndexCommand(indexer, shooter),
-      new FeederLaunchCommand(feeder, shooter),
+      new FeederLaunchCommand(indexer, feeder, shooter),
       new InstantCommand(feeder::zeroFeeder),
       new WaitCommand(0.2)
     );
@@ -299,7 +414,7 @@ public class RobotContainer {
     );
 
 
-    // new FeederLaunchCommand(feeder, shooter),
+    // new FeederLaunchCommand(indexer, feeder, shooter),
         // new InstantCommand(feeder::zeroFeeder),
         // new WaitCommand(0.5),
         // new ShooterSpinDownCommand(shooter)

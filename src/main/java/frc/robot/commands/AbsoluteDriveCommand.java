@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
-public class RelativeDriveCommand extends CommandBase {
+public class AbsoluteDriveCommand extends CommandBase {
 
   Pose2d robotPose;
   Vector2d x_robot = new Vector2d();
@@ -28,12 +28,11 @@ public class RelativeDriveCommand extends CommandBase {
 
   ChassisSpeeds chassisSpeeds;
 
-  double scaleFactor = 0.3;
+  double maxVelocity;
+  double maxAngularVelocity;
 
-  double maxVelocity = 4*scaleFactor;
-  double maxAngularVelocity = 14*scaleFactor;
-
-  private final double distanceTolerance = 0.1;
+  private double distanceTolerance = 0.1;
+  private double angleTolerance = 0.1;
 
   double distance;
 
@@ -42,12 +41,25 @@ public class RelativeDriveCommand extends CommandBase {
   double gamma = 1.5;
 
   /** Creates a new RelativeDriveCommand. */
-  public RelativeDriveCommand(Drivetrain drivetrain, Pose2d targetPose) {
+  public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double distanceTolerance,
+      double angleTolerance) {
     this.drivetrain = drivetrain;
     this.targetPose = targetPose;
+    this.distanceTolerance = distanceTolerance;
+    this.angleTolerance = angleTolerance;
+    maxVelocity = velocity;
+    maxAngularVelocity = 3.5 * velocity;
     SmartDashboard.putString("RelDrive/Status", "[NOT STARTED]");
     addRequirements(drivetrain);
     // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double speedFactor_) {
+    this(drivetrain_, targetPose_, speedFactor_, 0.1, 0.1);
+  }
+
+  public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double distanceTolerance, double angleTolerance) {
+    this(drivetrain_, targetPose_, 1.2, distanceTolerance, angleTolerance);
   }
 
   // Called when the command is initially scheduled.
@@ -55,6 +67,7 @@ public class RelativeDriveCommand extends CommandBase {
   public void initialize() {
     distance = 0;
     double targetAngle = targetPose.getRotation().getRadians();
+    
     x_target.x = Math.cos(targetAngle);
     x_target.y = Math.sin(targetAngle);
     y_target.x = Math.cos(targetAngle + Math.PI * 0.5);
@@ -126,6 +139,6 @@ public class RelativeDriveCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (distance < distanceTolerance) && Math.abs(x_robot.dot(y_target)) < 0.1;
+    return (distance < distanceTolerance) && Math.abs(x_robot.dot(y_target)) < angleTolerance;
   }
 }

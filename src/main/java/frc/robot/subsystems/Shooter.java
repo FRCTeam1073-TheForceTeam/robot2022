@@ -42,6 +42,15 @@ public class Shooter extends SubsystemBase {
   private double tof2Range;
   private boolean ball2Stored;
   private final double tof2ScaleFactor = 0.004 / (1e-6);
+
+  private DigitalInput tof0Input;
+  private DutyCycle tof0DutyCycleInput;
+  private double tof0Freq;
+  private double tof0DutyCycle;
+  private double tof0Range;
+  private boolean ball0Stored;
+  private final double tof0ScaleFactor = 0.004 / (1e-6);
+
   
   //Motors
   private WPI_TalonFX flywheelMotor;
@@ -113,6 +122,12 @@ public class Shooter extends SubsystemBase {
     tof2Freq = 0;
     tof2Range = 0;
     ball2Stored = false;
+
+    tof0Input = new DigitalInput(6);
+    tof0DutyCycleInput = new DutyCycle(tof0Input);
+    tof0Freq = 0;
+    tof0Range = 0;
+    ball0Stored = false;
 
     flywheelMotor = new WPI_TalonFX(45);
     resetMotors(flywheelMotor);
@@ -211,6 +226,23 @@ public class Shooter extends SubsystemBase {
       ball2Stored = true;
     } else {
       ball2Stored = false;
+    }
+
+    tof0Freq = tof0DutyCycleInput.getFrequency();
+    tof0DutyCycle = tof0DutyCycleInput.getOutput();
+    tof0Range = tof0ScaleFactor * (tof0DutyCycle / tof0Freq - 0.001);
+    SmartDashboard.putBoolean("TOF 0/Closed", tof0Range < Constants.kTOF0_closed);
+    SmartDashboard.putNumber("TOF 0/Range", tof0Range);
+    if (debug) {
+      SmartDashboard.putNumber("TOF 0/Frequency", tof0Freq);
+      SmartDashboard.putNumber("TOF 0/Duty Cycle", tof0DutyCycle);
+      SmartDashboard.putNumber("TOF 0/Time", tof0DutyCycle / tof0Freq);
+    }
+
+    if (tof0Range <= Constants.kTOF0_closed) {
+      ball0Stored = true;
+    } else {
+      ball0Stored = false;
     }
     
     if (!flywheelPowerMode) {
@@ -355,6 +387,10 @@ public class Shooter extends SubsystemBase {
     return tof2Range;
   }
 
+  public double getRange0() {
+    return tof0Range;
+  }
+
   public boolean isBallInIndexer() {
     return tof1Range < Constants.kTOF1_closed;
   }
@@ -416,5 +452,7 @@ public class Shooter extends SubsystemBase {
     public static final double kTOF1_closed_withTopBall = 0.1;
     public static final double kTOF2_open = 0.29;
     public static final double kTOF2_closed = 0.19;
+    public static final double kTOF0_open = 0.29;
+    public static final double kTOF0_closed = 0.086;
   }
 }

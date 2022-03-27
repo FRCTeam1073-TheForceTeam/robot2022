@@ -4,63 +4,60 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 
-public class FeederLaunchCommand extends CommandBase {
+public class LoadCommand extends CommandBase {
+
+  Feeder feeder;
   Indexer indexer;
   Shooter shooter;
-  Feeder feeder;
 
-  double feederVelocity = 192;
+  private boolean prevTOF1closed = false;
+  private boolean currTOF1closed = false;
 
-  Timer timer;
+  int cycles;
 
-  int numLoops = 0;
-  boolean ballInIndexer = true;
-
-  /** Creates a new FeedCommand. */
-  public FeederLaunchCommand(Indexer indexer_, Feeder feeder_, Shooter shooter_) {
-    indexer = indexer_;
-    feeder = feeder_;
-    shooter = shooter_;
-    timer = new Timer();
+  /** Creates a new LoadCommand. */
+  public LoadCommand(Indexer indexer, Feeder feeder, Shooter shooter) {
+    this.indexer = indexer;
+    this.feeder = feeder;
+    this.shooter = shooter;
     addRequirements(indexer, feeder);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timer.start();
-    feeder.setFeederVelocity(192);
-    if (shooter.getRange0() < Shooter.Constants.kTOF0_closed) {
-      ballInIndexer = true;
-    }
+    currTOF1closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
+    prevTOF1closed = currTOF1closed;
+    indexer.setPower(0.8);
+    feeder.setFeederVelocity(120);
+    cycles = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (ballInIndexer) {
-      indexer.setPower(0.8);
-    }
+    indexer.setPower(0.8);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    indexer.setPower(0);
     feeder.setFeederVelocity(0);
-    if (ballInIndexer) {
-      indexer.setPower(0.8);
-    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(1.3);
+    cycles++;
+    currTOF1closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
+    if ((cycles>=10) && !currTOF1closed && prevTOF1closed) {return true;}
+    prevTOF1closed = currTOF1closed;
+    return false;
   }
 }
