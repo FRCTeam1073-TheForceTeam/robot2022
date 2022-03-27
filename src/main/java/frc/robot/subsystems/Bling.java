@@ -49,7 +49,8 @@ public class Bling extends SubsystemBase {
 
   public Bling() {
     m_led = new AddressableLED(0);
-    m_ledBuffer = new AddressableLEDBuffer(64);
+    // TODO: change for the actual length
+    m_ledBuffer = new AddressableLEDBuffer(28);
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
@@ -88,7 +89,7 @@ public class Bling extends SubsystemBase {
         setSlot(6, 0, 0, 0);
       }
 
-      batteryBling(0, slotLength, 8.0, 12.5);
+      // batteryBling(0, slotLength, 8.0, 12.5);
 
       if (OI.driverController.getRawButton(2)) {
         duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2);
@@ -126,7 +127,8 @@ public class Bling extends SubsystemBase {
           }
         }
       } else {
-        duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+        // duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+        LEDRainbow(0, m_ledBuffer.getLength());
       }
 
       m_led.setData(m_ledBuffer);
