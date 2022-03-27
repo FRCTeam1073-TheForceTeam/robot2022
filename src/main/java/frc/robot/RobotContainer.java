@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -119,7 +121,10 @@ public class RobotContainer {
           new TurnCommand(drivetrain, Units.degreesToRadians(20.0), 1.0).andThen(new PrintCommand("Finished Turning")),
           new SequentialCommandGroup(
             new IndexCommand(indexer, shooter),
-            new FeedCommand(feeder, shooter, indexer),
+            new ParallelDeadlineGroup(
+              new FeedCommand(feeder, shooter),
+              new RunCommand(()->indexer.setPower(0.1),indexer)
+            ),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
           new ShooterTargetCommand(shooter, 2.4).andThen(new PrintCommand("Finished Spinning Up"))
@@ -135,7 +140,10 @@ public class RobotContainer {
           new InstantCommand(feeder::zeroFeeder),
           new WaitCommand(0.5),
           new IndexCommand(indexer, shooter),
-          new FeedCommand(feeder, shooter, indexer),
+          new ParallelDeadlineGroup(
+            new FeedCommand(feeder, shooter),
+            new RunCommand(()->indexer.setPower(0.1),indexer)
+          ),
           new FeederLaunchCommand(feeder, shooter),
           new InstantCommand(feeder::zeroFeeder),
           new WaitCommand(0.5)
@@ -150,7 +158,10 @@ public class RobotContainer {
           new DriveTranslateCommand(drivetrain, 1.0, 2.57),
           new SequentialCommandGroup(
             new IndexCommand(indexer, shooter),
-            new FeedCommand(feeder, shooter, indexer),
+            new ParallelDeadlineGroup(
+              new FeedCommand(feeder, shooter),
+              new RunCommand(()->indexer.setPower(0.1),indexer)
+            ),
             new InstantCommand(feeder::zeroFeeder)
           ).andThen(new PrintCommand("Finished Feeding")),
           new ShooterTargetCommand(shooter, 2.65).andThen(new PrintCommand("Finished Spinning Up"))
@@ -162,6 +173,33 @@ public class RobotContainer {
         new ShooterSpinDownCommand(shooter)
       )
     );
+
+  autoChooser.addOption("Auto-4Ball",
+    new SequentialCommandGroup(
+      new ParallelDeadlineGroup(
+        new CollectCommand(collector, drivetrain),
+        new IndexCommand(indexer, shooter),
+        new RelativeDriveCommand(drivetrain,
+          new Pose2d(
+            Units.inchesToMeters(46.0), 0.0, new Rotation2d(Units.degreesToRadians(10.0))
+          )
+        ),
+        new ShooterTargetCommand(shooter, 2.0),
+        new FeedCommand(feeder, shooter)
+      ),
+      new FeederLaunchCommand(feeder, shooter),
+      new InstantCommand(feeder::zeroFeeder),
+      new WaitCommand(0.2),
+      new FeederLaunchCommand(feeder, shooter)
+    )
+  );
+  autoChooser.addOption("Turn90", 
+    new RelativeDriveCommand(drivetrain,
+      new Pose2d(
+        1.0, 1.0, new Rotation2d(Units.degreesToRadians(90.0))
+      )
+    )
+  );
 
     SmartDashboard.putData("Init/Auto Selector", autoChooser);
     SmartDashboard.putNumber("Init/Auto Delay", 0);
@@ -213,7 +251,7 @@ public class RobotContainer {
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
-        new FeedCommand(feeder, shooter, indexer),
+        new FeedCommand(feeder, shooter),
         new InstantCommand(feeder::zeroFeeder)
       )
     );

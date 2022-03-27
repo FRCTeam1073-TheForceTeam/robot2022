@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.drive.Vector2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
@@ -27,11 +28,10 @@ public class RelativeDriveCommand extends CommandBase {
 
   ChassisSpeeds chassisSpeeds;
 
-  double maxVelocity = 2;
-  double maxAngularVelocity = 5;
+  double scaleFactor = 0.3;
 
-  double velocityScale = 1;
-  double rotationScale = 1;
+  double maxVelocity = 4*scaleFactor;
+  double maxAngularVelocity = 14*scaleFactor;
 
   private final double distanceTolerance = 0.1;
 
@@ -45,6 +45,7 @@ public class RelativeDriveCommand extends CommandBase {
   public RelativeDriveCommand(Drivetrain drivetrain, Pose2d targetPose) {
     this.drivetrain = drivetrain;
     this.targetPose = targetPose;
+    SmartDashboard.putString("RelDrive/Status", "[NOT STARTED]");
     addRequirements(drivetrain);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -61,6 +62,9 @@ public class RelativeDriveCommand extends CommandBase {
 
     chassisSpeeds = new ChassisSpeeds();
     drivetrain.setChassisSpeeds(chassisSpeeds);
+
+    SmartDashboard.putString("RelDrive/Status", "INIT");
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -68,8 +72,12 @@ public class RelativeDriveCommand extends CommandBase {
   public void execute() {
     robotPose = drivetrain.getPoseMeters();
     distance = robotPose.getTranslation().getDistance(targetPose.getTranslation());
-    offsetVector.x = targetPose.getTranslation().minus(robotPose.getTranslation()).getX() / distance;
-    offsetVector.y = targetPose.getTranslation().minus(robotPose.getTranslation()).getY() / distance;
+    offsetVector.x = targetPose.getTranslation().minus(robotPose.getTranslation()).getX();
+    offsetVector.y = targetPose.getTranslation().minus(robotPose.getTranslation()).getY();
+    if (offsetVector.magnitude() > 0.1) {
+      offsetVector.x /= distance;
+      offsetVector.y /= distance;
+    }
     double robotAngle = robotPose.getRotation().getRadians();
 
     x_robot.x = Math.cos(robotAngle);
@@ -79,15 +87,28 @@ public class RelativeDriveCommand extends CommandBase {
 
     double falloffDistance = Math.max(0, Math.min(1, 1 - Math.exp(-10 * (distance - 0.1))));
 
-    double targetVelocity = maxVelocity * MathUtil.clamp(-1, 1,
-      alpha * (1 - Math.exp(-2 * distance)) * (Math.max(0, -x_robot.dot(offsetVector)))
+    // double targetVelocity = maxVelocity * MathUtil.clamp(-1, 1,
+    //   alpha * (1 - Math.exp(-2 * distance)) * (Math.max(0, -x_robot.dot(offsetVector)))
+    // );
+
+    double targetVelocity = maxVelocity * MathUtil.clamp(
+      x_robot.dot(offsetVector),
+      -1,1
     );
 
     double targetRotation = 
-        maxAngularVelocity * MathUtil.clamp(-1, 1,
+        maxAngularVelocity * MathUtil.clamp(
         beta * (y_robot.dot(x_target)) * (1 - falloffDistance)
-          - gamma * (y_robot.dot(offsetVector) + 0.4 * falloffDistance * (y_robot.dot(x_target))) * falloffDistance
+          + gamma * (y_robot.dot(offsetVector) - 0.4 * falloffDistance * (y_robot.dot(x_target))) * falloffDistance,
+        -1, 1
     );
+
+    SmartDashboard.putString("RelDrive/Status", "EXECUTING");
+    SmartDashboard.putNumber("RelDrive/Vel", targetVelocity);
+    SmartDashboard.putNumber("RelDrive/RVel", targetRotation);
+    SmartDashboard.putNumber("RelDrive/FalloffDistance", falloffDistance);
+    SmartDashboard.putNumber("RelDrive/Distance", distance);
+    SmartDashboard.putNumber("RelDrive/RobotX*TargetY", x_robot.dot(y_target));
 
     chassisSpeeds.vxMetersPerSecond = targetVelocity;
     chassisSpeeds.omegaRadiansPerSecond = targetRotation;
@@ -99,11 +120,12 @@ public class RelativeDriveCommand extends CommandBase {
   public void end(boolean interrupted) {
     chassisSpeeds = new ChassisSpeeds();
     drivetrain.setChassisSpeeds(chassisSpeeds);
+    SmartDashboard.putString("RelDrive/Status", "ENDED");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (distance < distanceTolerance);
+    return (distance < distanceTolerance) && Math.abs(x_robot.dot(y_target)) < 0.1;
   }
 }
