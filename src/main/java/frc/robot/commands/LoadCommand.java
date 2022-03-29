@@ -20,6 +20,8 @@ public class LoadCommand extends CommandBase {
 
   int cycles;
 
+  boolean shouldCancel = false;
+
   /** Creates a new LoadCommand. */
   public LoadCommand(Indexer indexer, Feeder feeder, Shooter shooter) {
     this.indexer = indexer;
@@ -31,6 +33,7 @@ public class LoadCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    shouldCancel = shooter.getRange2() < Shooter.Constants.kTOF2_closed;
     currTOF1closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
     prevTOF1closed = currTOF1closed;
     indexer.setPower(0.8);
@@ -54,6 +57,7 @@ public class LoadCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if (shouldCancel) {return true;}
     cycles++;
     currTOF1closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
     if ((cycles>=10) && !currTOF1closed && prevTOF1closed) {return true;}

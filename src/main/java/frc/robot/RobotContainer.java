@@ -312,7 +312,7 @@ public class RobotContainer {
           new LoadCommand(indexer, feeder, shooter),
           new ShooterTargetCommand(shooter, 2.0)
         ),
-        new FeederLaunchCommand(indexer, feeder, shooter)        
+        new FeederLaunchCommand(indexer, feeder, shooter)
       )
     );
 
@@ -364,26 +364,28 @@ public class RobotContainer {
     OI.getOperatorDPadRight().whenActive(
         new ShooterTargetCommand(shooter, 4.0)
     );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kB.value)).whenPressed(
+    (new JoystickButton(OI.operatorController,XboxController.Button.kLeftBumper.value)).whenPressed(
+      new ParallelDeadlineGroup(
+        new IndexCommand(indexer, shooter),
+        new CollectCommand(collector, drivetrain)
+      )
+    );
+    (new JoystickButton(OI.operatorController, XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
-        new FeedCommand(feeder, shooter),
-        new InstantCommand(feeder::zeroFeeder)
+        new LoadCommand(indexer, feeder, shooter)
       )
     );
     (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
       new ShooterRangeTargetCommand(shooter, hubTracking)
     );
-    // (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
-    //   autoIndexFeedLaunch
-    // );
+    (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
+      new FeederLaunchCommand(indexer, feeder, shooter)
+    );
     (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
       autoIndexFeedLaunch
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
       new ShooterSpinDownCommand(shooter)
-    );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whileHeld(
-      new IndexCommand(indexer, shooter)
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
       new ShooterSpinUpCommand(shooter, 170, (0.25-0.08))

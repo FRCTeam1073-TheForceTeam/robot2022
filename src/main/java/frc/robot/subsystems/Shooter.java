@@ -401,14 +401,14 @@ public class Shooter extends SubsystemBase {
 
   public void setFlywheelVelocity(double velocity) {
     if(flywheelPowerMode){return;}
-    // if (velocity == 0) {
-    //   flywheelTargetVelocity = 0;
-    //   flywheelRateLimiter.reset(0);
-    //   flywheelMotor.set(ControlMode.PercentOutput, 0);
-    //   flywheelMotor.setIntegralAccumulator(0);
-    // } else {
-    flywheelTargetVelocity = velocity;
-    // }
+    if (velocity == 0) {
+      flywheelTargetVelocity = 0;
+      flywheelRateLimiter.reset(0);
+      flywheelMotor.set(ControlMode.PercentOutput, 0);
+      flywheelMotor.setIntegralAccumulator(0);
+    } else {
+      flywheelTargetVelocity = velocity;
+    }
   }
 
   public double getFlywheelTargetVelocity() {

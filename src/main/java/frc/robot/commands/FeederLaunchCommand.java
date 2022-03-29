@@ -34,6 +34,7 @@ public class FeederLaunchCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    timer.reset();
     timer.start();
     feeder.setFeederVelocity(192);
     if (shooter.getRange0() < Shooter.Constants.kTOF0_closed) {
