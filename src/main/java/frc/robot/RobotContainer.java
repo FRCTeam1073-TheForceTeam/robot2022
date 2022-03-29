@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -80,6 +81,7 @@ public class RobotContainer {
   Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
 
   SequentialCommandGroup autoIndexFeedLaunch;
+  CommandBase autoCollectSequence;
 
   SendableChooser<Command> autoChooser;
 
@@ -326,8 +328,14 @@ public class RobotContainer {
       new WaitCommand(0.2)
     );
 
-    configureButtonBindings();
+    autoCollectSequence = new ParallelDeadlineGroup(
+      new SequentialCommandGroup(
+        new IndexCommand(indexer, shooter),
+        new LoadCommand(indexer, feeder, shooter)
+      )
+    );
 
+    configureButtonBindings();
   }
 
   /**
@@ -364,11 +372,8 @@ public class RobotContainer {
     OI.getOperatorDPadRight().whenActive(
         new ShooterTargetCommand(shooter, 4.0)
     );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kLeftBumper.value)).whenPressed(
-      new ParallelDeadlineGroup(
-        new IndexCommand(indexer, shooter),
-        new CollectCommand(collector, drivetrain)
-      )
+    (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whenPressed(
+      autoCollectSequence
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
@@ -382,7 +387,7 @@ public class RobotContainer {
       new FeederLaunchCommand(indexer, feeder, shooter)
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
-      autoIndexFeedLaunch
+      autoCollectSequence
     );
     (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
       new ShooterSpinDownCommand(shooter)
