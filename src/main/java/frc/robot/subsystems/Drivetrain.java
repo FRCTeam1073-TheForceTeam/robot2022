@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
   // DEBUG:
-  private final boolean debug = false;
+  private final boolean debug = true;
   
   private WPI_TalonFX leftMotorLeader;
   private WPI_TalonFX leftMotorFollower;
@@ -174,7 +174,7 @@ public class Drivetrain extends SubsystemBase {
       SmartDashboard.putData(field);
       SmartDashboard.putNumber("[Drivetrain] Robot pose/X position (meters)", robotPose.getTranslation().getX());
       SmartDashboard.putNumber("[Drivetrain] Robot pose/Y position (meters)", robotPose.getTranslation().getY());
-      SmartDashboard.putNumber("[Drivetrain] Robot pose/Angle (radians)", robotPose.getRotation().getDegrees());
+      SmartDashboard.putNumber("[Drivetrain] Robot pose/Angle (radians)", robotPose.getRotation().getRadians());
     }  
   }
 

@@ -14,7 +14,6 @@ public class FeedCommand extends CommandBase {
 
   Feeder feeder;
   Shooter shooter;
-  Indexer indexer;
 
   double feederVelocity = 50;
 
@@ -24,11 +23,10 @@ public class FeedCommand extends CommandBase {
   boolean currentTOF2Closed = false;
 
   /** Creates a new FeedCommand. */
-  public FeedCommand(Feeder feeder_, Shooter shooter_, Indexer indexer_ ) {
+  public FeedCommand(Feeder feeder_, Shooter shooter_) {
     feeder = feeder_;
     shooter = shooter_;
-    indexer = indexer_;
-    addRequirements(feeder, indexer);
+    addRequirements(feeder);
   }
 
   // Called when the command is initially scheduled.
@@ -44,14 +42,13 @@ public class FeedCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    indexer.setPower(0.1);
+    // indexer.setPower(0.1);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     feeder.setFeederVelocity(0);
-    indexer.setPower(0);
   }
 
   // Returns true when the command should end.
@@ -66,6 +63,6 @@ public class FeedCommand extends CommandBase {
     // If the feeder *didn't* start with the bottom sensor closed and the top sensor open, end instantly.
     // Otherwise, end only when the bottom sensor is open and the top sensor is closed.
     // TODO: Is !currentTOF1Closed necessary, or might it break things?
-    return !(startTOF1Closed && !startTOF2Closed) || (currentTOF2Closed);
+    return !(/*startTOF1Closed &&*/ !startTOF2Closed) || (currentTOF2Closed);
   }
 }

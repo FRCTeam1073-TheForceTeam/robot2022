@@ -127,7 +127,7 @@ public class HubTracking extends SubsystemBase {
     additionalRange = SmartDashboard.getNumber("Hub Tracker/Additional Range", 0.0);
   }
 
-  public void sampleHubData(HubData data){
+  public void sampleHubData(HubData data) {
     data.cx = hubData.cx;
     data.cy = hubData.cy;
     data.area = hubData.area;
@@ -142,7 +142,7 @@ public class HubTracking extends SubsystemBase {
     return hubData.area > 0;
   }
 
-  public void setLEDIntensity(double percent){
+  public void setLEDIntensity(double percent) {
     //System.out.println("Set Intensity: "+percent);
     canifier.setLEDOutput(percent, lowerChannel);
     canifier.setLEDOutput(percent, upperChannel);
