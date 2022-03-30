@@ -15,7 +15,7 @@ public class IndexCommand extends CommandBase {
   Shooter shooter;
 
   boolean risingEdge = false;
-  boolean currentTOF1Closed = false;
+  boolean currentTOF0Closed = false;
   int numClosed = 0;
   boolean ballAlreadyInShooter = false;
 
@@ -30,14 +30,14 @@ public class IndexCommand extends CommandBase {
   @Override
   public void initialize() {
     numClosed = 0;
-    currentTOF1Closed = false;
+    currentTOF0Closed = false;
     risingEdge = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    indexer.setPower(0.8);
+    indexer.setPower(0.45);
   }
 
   // Called once the command ends or is interrupted.
@@ -49,13 +49,13 @@ public class IndexCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    ballAlreadyInShooter = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
-    if (ballAlreadyInShooter) {
-      currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed_withTopBall);
-    } else {
-      currentTOF1Closed = (shooter.getRange1() < Shooter.Constants.kTOF1_closed);
-    }
-    if (currentTOF1Closed) {
+    // ballAlreadyInShooter = (shooter.getRange2() < Shooter.Constants.kTOF2_closed);
+    // if (ballAlreadyInShooter) {
+      // currentTOF1Closed = (shooter.getRange0() < Shooter.Constants.kTOF1_closed_withTopBall);
+    // } else {
+    currentTOF0Closed = (shooter.getRange0() < Shooter.Constants.kTOF0_closed);
+    // }
+    if (currentTOF0Closed) {
       numClosed++;
     } else {
       numClosed = 0;
