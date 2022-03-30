@@ -22,7 +22,6 @@ public class HubTracking extends SubsystemBase {
     public int cy = 0;
     public int vx = 0;
     public int vy = 0;
-    public int compY = 0;
     public int alpha = 0;
     public int area = 0;
     public long timestamp = 0;
@@ -112,7 +111,10 @@ public class HubTracking extends SubsystemBase {
     hubData.range = rangeInterpolator.getValue(hubData.cy);
     hubData.elevation = elevationInterpolator.getValue(hubData.cy);
     hubData.timestamp = System.currentTimeMillis();
-    hubData.cy = hubData.compY + hubData.alpha * Math.abs(320 - hubData.cx);
+    //Compensating for being off center
+    if (hubData.alpha > 0){
+      hubData.cy = hubData.cy + hubData.alpha * Math.abs(320 - hubData.cx);
+    }
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cx);
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cy);
     SmartDashboard.putNumber("Hub Tracker/area", hubData.area);
