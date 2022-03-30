@@ -35,13 +35,13 @@ public class WaitForFallingEdge extends CommandBase {
   }
 
   public boolean getValue() {
-    // if (index == 1) {
-    //   return shooter.getRange1() < Shooter.Constants.kTOF1_closed;
-    // }else if (index == 2) {
+    if (index == 1) {
+      return shooter.getRange1() < Shooter.Constants.kTOF1_closed;
+    }else if (index == 2) {
       return shooter.getRange2() < Shooter.Constants.kTOF2_closed;
-    // } else {
-    //   return false;
-    // }
+    } else {
+      return false;
+    }
   }
 
   // Returns true when the command should end.

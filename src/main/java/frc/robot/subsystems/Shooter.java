@@ -24,7 +24,7 @@ import frc.robot.subsystems.Collector.Constants;
 public class Shooter extends SubsystemBase {
   // DEBUG:
   private final boolean debug = false;
-  private final boolean PIDtesting = true;
+  private final boolean PIDtesting = false;
   //ToF sensors
   
   private DigitalInput tof1Input;
