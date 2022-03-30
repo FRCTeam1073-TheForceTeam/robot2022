@@ -5,36 +5,33 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.HubTracking;
-import frc.robot.subsystems.OI;
+import frc.robot.subsystems.Feeder;
 
-public class TeleopHubTracking extends CommandBase {
-  private HubTracking hubTracker;
-  /** Creates a new TeleopHubTracker. */
-  public TeleopHubTracking(HubTracking hubTracker) {
-    this.hubTracker = hubTracker;
+public class ContinuousFeedCommand extends CommandBase {
 
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(hubTracker);
+  Feeder feeder;
+  double feederVelocity = 192;
 
+  /** Creates a new ContinuousFeedCommand. */
+  public ContinuousFeedCommand(Feeder feeder) {
+    this.feeder = feeder;
+    addRequirements(feeder);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    feeder.setFeederVelocity(feederVelocity);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    //Update hubVisible
-    // hubTracker.setLEDIntensity(OI.driverController.getLeftTriggerAxis());
-    hubTracker.setLEDIntensity(hubTracker.ledPower);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    hubTracker.setLEDIntensity(0);
+    feeder.zeroFeeder();
   }
 
   // Returns true when the command should end.

@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Collector.Constants;
@@ -41,16 +42,25 @@ public class Shooter extends SubsystemBase {
   private double tof2Range;
   private boolean ball2Stored;
   private final double tof2ScaleFactor = 0.004 / (1e-6);
+
+  private DigitalInput tof0Input;
+  private DutyCycle tof0DutyCycleInput;
+  private double tof0Freq;
+  private double tof0DutyCycle;
+  private double tof0Range;
+  private boolean ball0Stored;
+  private final double tof0ScaleFactor = 0.004 / (1e-6);
+
   
   //Motors
   private WPI_TalonFX flywheelMotor;
   private WPI_TalonFX hoodMotor;
 
-  private double flywheel_kP = 0.2;
-  private double flywheel_kI = 0.007;
-  private double flywheel_kD = 0.02;
+  private double flywheel_kP = 0.525;
+  private double flywheel_kI = 0.0;
+  private double flywheel_kD = 0.12;
   private double flywheel_kF = 0.051;
-  private double flywheel_maxIntegrator = 8000;
+  private double flywheel_maxIntegrator = 1000;
   private double flywheelTicksPerRadian = 2048.0 / (2.0 * Math.PI);
 
   //Yes, I know it's not just a belt, there's a gearbox in there too, but I don't really care?
@@ -83,18 +93,23 @@ public class Shooter extends SubsystemBase {
   private final double maxHoodVelocity = 5.0; //Units :radians/s
   private final double maxHoodAcceleration = 6.0; //Units: radians/s^2
 
-  private final double hoodAngleOffset = Units.degreesToRadians(3.0);
+  // private final double hoodAngleOffset = Units.degreesToRadians(3.0);
+  public static double additionalHoodAngle = 0;//0.0775;
 
-  private final double maximumHoodAngle = 1.27;
+  public static final double maximumHoodAngle = 1.27;
 
   private final boolean FLYWHEEL_TUNING_DEBUG = true;
-  private final boolean HOOD_TUNING_DEBUG = false;
+  private final boolean HOOD_TUNING_DEBUG = true;
 
   private double currentFlywheelVelocity = 0;
   private double currentHoodPosition = 0;
 
   private boolean flywheelPowerMode = false;
-  
+
+  private double maxFlywheelError = 0;
+  // private int numAverages = 0;
+  Timer averageTimer;
+
   public Shooter() {
     tof1Input = new DigitalInput(0);
     tof1DutyCycleInput = new DutyCycle(tof1Input);
@@ -108,10 +123,16 @@ public class Shooter extends SubsystemBase {
     tof2Range = 0;
     ball2Stored = false;
 
+    tof0Input = new DigitalInput(6);
+    tof0DutyCycleInput = new DutyCycle(tof0Input);
+    tof0Freq = 0;
+    tof0Range = 0;
+    ball0Stored = false;
+
     flywheelMotor = new WPI_TalonFX(45);
     resetMotors(flywheelMotor);
     flywheelMotor.setInverted(true);
-    flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 28, 32, 0.25));
+    flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 39, 0.5));
     // flywheelMotor.setInverted(false);
 
     hoodMotor = new WPI_TalonFX(18);
@@ -144,7 +165,7 @@ public class Shooter extends SubsystemBase {
     );
     hoodProfileStartTime = System.currentTimeMillis() / 1000.0;
 
-    if (PIDtesting){
+    if (PIDtesting) {
       SmartDashboard.putBoolean("[Shooter] Update", false);
 
       SmartDashboard.putNumber("[Shooter] flywheel/kP", flywheel_kP);
@@ -157,6 +178,13 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("[Shooter] hood/kD", hood_kD);
       SmartDashboard.putNumber("[Shooter] hood/kF", hood_kF);
     }
+    
+    // additionalHoodAngle = SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0);
+    SmartDashboard.putNumber("ShooterTargeting/Additional Hood Angle", additionalHoodAngle);
+
+    // SmartDashboard.putNumber("ShooterTuning/Power", flywheelMotor.getMotorOutputPercent());
+
+    averageTimer = new Timer();
   }
 
   @Override
@@ -173,6 +201,10 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("TOF 1/Time", tof1DutyCycle / tof1Freq);
     }
 
+    // flywheelMotor.set(ControlMode.PercentOutput, SmartDashboard.getNumber("ShooterTuning/Power", 0));
+    // SmartDashboard.putNumber("ShooterTuning/kF value",
+    //     1023 * flywheelMotor.getMotorOutputPercent() / flywheelMotor.getSelectedSensorVelocity());
+    
     if (tof1Range <= Constants.kTOF1_closed) {
       ball1Stored = true;
     } else {
@@ -194,6 +226,23 @@ public class Shooter extends SubsystemBase {
       ball2Stored = true;
     } else {
       ball2Stored = false;
+    }
+
+    tof0Freq = tof0DutyCycleInput.getFrequency();
+    tof0DutyCycle = tof0DutyCycleInput.getOutput();
+    tof0Range = tof0ScaleFactor * (tof0DutyCycle / tof0Freq - 0.001);
+    SmartDashboard.putBoolean("TOF 0/Closed", tof0Range < Constants.kTOF0_closed);
+    SmartDashboard.putNumber("TOF 0/Range", tof0Range);
+    if (debug) {
+      SmartDashboard.putNumber("TOF 0/Frequency", tof0Freq);
+      SmartDashboard.putNumber("TOF 0/Duty Cycle", tof0DutyCycle);
+      SmartDashboard.putNumber("TOF 0/Time", tof0DutyCycle / tof0Freq);
+    }
+
+    if (tof0Range <= Constants.kTOF0_closed) {
+      ball0Stored = true;
+    } else {
+      ball0Stored = false;
     }
     
     if (!flywheelPowerMode) {
@@ -261,24 +310,42 @@ public class Shooter extends SubsystemBase {
       hood_kF = SmartDashboard.getNumber("[Shooter] hood/kF", 0);
 
       updatePID(
-        flywheelMotor,
-        flywheel_kP,
-        flywheel_kI,
-        flywheel_kD,
-        flywheel_kF,
-        flywheel_maxIntegrator
-      );
+          flywheelMotor,
+          flywheel_kP,
+          flywheel_kI,
+          flywheel_kD,
+          flywheel_kF,
+          flywheel_maxIntegrator);
 
       updatePID(
-        hoodMotor,
-        hood_kP,
-        hood_kI,
-        hood_kD,
-        hood_kF,
-        hood_maxIntegrator
-      );
+          hoodMotor,
+          hood_kP,
+          hood_kI,
+          hood_kD,
+          hood_kF,
+          hood_maxIntegrator);
       SmartDashboard.putBoolean("[Shooter] Update", false);
     }
+
+    // In case we mistype something, this should at least keep the offset from breaking the hood.
+    additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), 0.0, 0.75);
+
+    if (OI.operatorController.getXButtonPressed()) {
+      // averageTimer.reset();
+      // averageTimer.start();
+    }
+    if (OI.operatorController.getXButtonReleased()) {
+      maxFlywheelError = -10000;
+      // numAverages = 0;
+    }
+    if (OI.operatorController.getXButton()) {
+      maxFlywheelError = Math.max(maxFlywheelError, limitedFlywheelTargetVelocity - currentFlywheelVelocity);
+      // avgFlywheelSpeed = (avgFlywheelSpeed * numAverages + currentFlywheelVelocity) / (numAverages + 1);
+      // numAverages++;
+      SmartDashboard.putNumber("ShooterTuning/MaxFlywheelError", maxFlywheelError);
+      // SmartDashboard.putNumber("ShooterMaxError/Time elapsed", averageTimer.get());
+    }
+    
   }
 
   public void setHoodPosition(double targetPosition) {
@@ -320,6 +387,10 @@ public class Shooter extends SubsystemBase {
     return tof2Range;
   }
 
+  public double getRange0() {
+    return tof0Range;
+  }
+
   public boolean isBallInIndexer() {
     return tof1Range < Constants.kTOF1_closed;
   }
@@ -329,14 +400,13 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setFlywheelVelocity(double velocity) {
+    if(flywheelPowerMode){return;}
     if (velocity == 0) {
       flywheelTargetVelocity = 0;
       flywheelRateLimiter.reset(0);
       flywheelMotor.set(ControlMode.PercentOutput, 0);
       flywheelMotor.setIntegralAccumulator(0);
-      flywheelPowerMode = true;
     } else {
-      flywheelPowerMode = false;
       flywheelTargetVelocity = velocity;
     }
   }
@@ -382,5 +452,7 @@ public class Shooter extends SubsystemBase {
     public static final double kTOF1_closed_withTopBall = 0.1;
     public static final double kTOF2_open = 0.29;
     public static final double kTOF2_closed = 0.19;
+    public static final double kTOF0_open = 0.29;
+    public static final double kTOF0_closed = 0.086;
   }
 }

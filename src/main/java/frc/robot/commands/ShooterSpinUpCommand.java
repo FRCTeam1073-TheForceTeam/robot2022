@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
 
@@ -16,6 +18,7 @@ public class ShooterSpinUpCommand extends CommandBase {
     shooter = shooter_;
     velocity = velocity_;
     hoodAngle = hoodAngle_;
+    hoodAngle = MathUtil.clamp(hoodAngle + Shooter.additionalHoodAngle, 0, Shooter.maximumHoodAngle);
     addRequirements(shooter);
   }
 

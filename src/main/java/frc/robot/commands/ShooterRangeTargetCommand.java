@@ -36,7 +36,7 @@ public class ShooterRangeTargetCommand extends CommandBase {
       hubTracking.sampleHubData(data);
       range = data.range;
       double targetFlywheelVelocity = ShooterTargetCommand.flywheelTable.getValue(range);
-      double targetHoodAngle = ShooterTargetCommand.hoodTable.getValue(range);
+      double targetHoodAngle = ShooterTargetCommand.hoodTable.getValue(range) + Shooter.additionalHoodAngle;
       shooter.setFlywheelVelocity(targetFlywheelVelocity);
       shooter.setHoodPosition(targetHoodAngle);
     }

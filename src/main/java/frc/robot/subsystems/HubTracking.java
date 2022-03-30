@@ -52,6 +52,9 @@ public class HubTracking extends SubsystemBase {
   private InterpolatorTable elevationInterpolator;
   private boolean hubVisibility;
 
+  public double ledPower = 0.3;
+  public double additionalRange = 0.0;
+
   /** Creates a new HubTracking. */
   public HubTracking() {
     hubVisible = false;
@@ -93,6 +96,9 @@ public class HubTracking extends SubsystemBase {
       new InterpolatorTableEntry(426, 0.39),
       new InterpolatorTableEntry(447, 0.35)
     );
+    ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 0.3);
+    SmartDashboard.putNumber("Hub Tracker/ledPower", ledPower);
+    SmartDashboard.putNumber("Hub Tracker/Additional Range", additionalRange);
   }
 
   @Override
@@ -112,13 +118,15 @@ public class HubTracking extends SubsystemBase {
     SmartDashboard.putNumber("Hub Tracker/elevation", hubData.elevation);
     SmartDashboard.putNumber("Hub Tracker/timestamp", hubData.timestamp);
     SmartDashboard.putBoolean("Hub Visibility", isHubVisible());
+    ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 1.0);
+    additionalRange = SmartDashboard.getNumber("Hub Tracker/Additional Range", 0.0);
   }
 
-  public void sampleHubData(HubData data){
+  public void sampleHubData(HubData data) {
     data.cx = hubData.cx;
     data.cy = hubData.cy;
     data.area = hubData.area;
-    data.range = hubData.range;
+    data.range = hubData.range + additionalRange;
     data.azimuth = hubData.azimuth;
     data.elevation = hubData.elevation;
     data.timestamp = hubData.timestamp;
@@ -129,7 +137,7 @@ public class HubTracking extends SubsystemBase {
     return hubData.area > 0;
   }
 
-  public void setLEDIntensity(double percent){
+  public void setLEDIntensity(double percent) {
     //System.out.println("Set Intensity: "+percent);
     canifier.setLEDOutput(percent, lowerChannel);
     canifier.setLEDOutput(percent, upperChannel);

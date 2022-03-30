@@ -31,7 +31,15 @@ public class TeleopClimber extends CommandBase {
   public void execute() {
     // climber.setSpoolVelocity(OI.operatorController.getLeftY());
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
-    climber.setSpoolVelocity(OI.operatorController.getLeftY() * spoolMultiplier);
+
+    double spoolVel = OI.operatorController.getLeftY() * spoolMultiplier;
+    // if (climber.getSpoolPosition() >= 0) {
+    //   spoolVel = Math.min(0, spoolVel);
+    if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
+      spoolVel = Math.max(0, spoolVel);
+    }
+    climber.setSpoolVelocity(spoolVel);
+
     if (OI.operatorController.getRightTriggerAxis() > 0.5) {
       if (climber.getExtensionMode()) {
         climber.setExtensionBrake(false);

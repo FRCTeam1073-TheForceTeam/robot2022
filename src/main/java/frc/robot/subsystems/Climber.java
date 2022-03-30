@@ -31,7 +31,7 @@ public class Climber extends SubsystemBase {
   // private CANCoder spoolCANCoderLeft;
 
   // TODO: get actual values
-  private final double spoolGearRatio = 56.25;
+  private final double spoolGearRatio = 36.00;
   private final double extensionGearRatio = 50.0;
 
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
@@ -151,6 +151,9 @@ public class Climber extends SubsystemBase {
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
 
+    SmartDashboard.putNumber("[Climber] Spool position",
+        spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian);
+
     //debug
     if (debug) {
       SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
@@ -269,16 +272,20 @@ public class Climber extends SubsystemBase {
    * @param sensorNum
    * @return sensorReading
    */
-  public static boolean getSensorReading(int sensorNum) {
-    if (sensorNum == 2) {
-      return sensor1;
-    } else if (sensorNum == 3) {
-      return sensor2;
-    } else if (sensorNum == 4) {
-      return sensor3;
-    } else if (sensorNum == 5) {
-      return sensor4;
-    }
-    return false;
-  }
+   public static boolean getSensorReading(int sensorNum) {
+     if (sensorNum == 2) {
+       return sensor1;
+     } else if (sensorNum == 3) {
+       return sensor2;
+     } else if (sensorNum == 4) {
+       return sensor3;
+     } else if (sensorNum == 5) {
+       return sensor4;
+     }
+     return false;
+   }
+  
+   public static class Constants {
+     public static final double maxSpoolDistance = -21.0;
+   }
 }
