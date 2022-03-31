@@ -151,11 +151,6 @@ public class Climber extends SubsystemBase {
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
 
-    SmartDashboard.putNumber("[Climber] Spool position",
-        spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian);
-    SmartDashboard.putNumber("[climber] Extension position", 
-        extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian);
-
     //debug
     if (debug) {
       SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
@@ -165,6 +160,11 @@ public class Climber extends SubsystemBase {
       // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
       SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
       SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
+
+      SmartDashboard.putNumber("[Climber] Spool position",
+        spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian);
+      SmartDashboard.putNumber("[climber] Extension position", 
+        extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian);
 
       if (SmartDashboard.getBoolean("Update", false)) 
       {
