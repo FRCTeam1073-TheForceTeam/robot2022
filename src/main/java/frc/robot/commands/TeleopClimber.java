@@ -7,12 +7,13 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.OI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TeleopClimber extends CommandBase {
   Climber climber;
 
-  private double spoolMultiplier = 8.5;
-  private double extensionMultiplier = 0.75;
+  private double spoolMultiplier = 11.0;
+  private double extensionMultiplier = 1.5;
 
   /** Creates a new TeleopClimber. */
   public TeleopClimber(Climber climber) {
@@ -33,9 +34,11 @@ public class TeleopClimber extends CommandBase {
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
 
     double spoolVel = OI.operatorController.getLeftY() * spoolMultiplier;
-    // if (climber.getSpoolPosition() >= 0) {
-    //   spoolVel = Math.min(0, spoolVel);
-    if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
+    double extensionVel = OI.operatorController.getRightY() * extensionMultiplier;
+    if (climber.getSpoolPosition() >= 0) {
+      spoolVel = Math.min(0, spoolVel);
+    }
+   else if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
       spoolVel = Math.max(0, spoolVel);
     }
     climber.setSpoolVelocity(spoolVel);
@@ -45,11 +48,18 @@ public class TeleopClimber extends CommandBase {
         climber.setExtensionBrake(false);
       }
       climber.setExtensionPower(0);
-    } else {
+    } 
+    else {
       if (!climber.getExtensionMode()) {
         climber.setExtensionBrake(true);
       }
-      climber.setExtensionVelocity(OI.operatorController.getRightY() * extensionMultiplier);
+      if (climber.getExtensionPosition() >= 0) {
+        extensionVel = Math.min(0, extensionVel);
+      }
+      else if (climber.getExtensionPosition() <= -2.1){
+        extensionVel = Math.max(0, extensionVel);
+      }
+      climber.setExtensionVelocity(extensionVel);
     }
   }
 

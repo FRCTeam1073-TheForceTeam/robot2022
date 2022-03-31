@@ -153,6 +153,8 @@ public class Climber extends SubsystemBase {
 
     SmartDashboard.putNumber("[Climber] Spool position",
         spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian);
+    SmartDashboard.putNumber("[climber] Extension position", 
+        extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian);
 
     //debug
     if (debug) {
@@ -286,6 +288,6 @@ public class Climber extends SubsystemBase {
    }
   
    public static class Constants {
-     public static final double maxSpoolDistance = -21.0;
+     public static final double maxSpoolDistance = -22.0;
    }
 }
