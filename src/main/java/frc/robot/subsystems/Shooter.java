@@ -345,7 +345,6 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("ShooterTuning/MaxFlywheelError", maxFlywheelError);
       // SmartDashboard.putNumber("ShooterMaxError/Time elapsed", averageTimer.get());
     }
-    
   }
 
   public void setHoodPosition(double targetPosition) {

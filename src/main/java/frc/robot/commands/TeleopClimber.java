@@ -31,25 +31,29 @@ public class TeleopClimber extends CommandBase {
   public void execute() {
     // climber.setSpoolVelocity(OI.operatorController.getLeftY());
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
-
-    double spoolVel = OI.operatorController.getLeftY() * spoolMultiplier;
-    // if (climber.getSpoolPosition() >= 0) {
-    //   spoolVel = Math.min(0, spoolVel);
-    if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
-      spoolVel = Math.max(0, spoolVel);
-    }
-    climber.setSpoolVelocity(spoolVel);
-
-    if (OI.operatorController.getRightTriggerAxis() > 0.5) {
-      if (climber.getExtensionMode()) {
-        climber.setExtensionBrake(false);
+    if (OI.isClimberMode()) {
+      double spoolVel = OI.operatorController.getLeftY() * spoolMultiplier;
+      // if (climber.getSpoolPosition() >= 0) {
+      //   spoolVel = Math.min(0, spoolVel);
+      if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
+        spoolVel = Math.max(0, spoolVel);
       }
-      climber.setExtensionPower(0);
+      climber.setSpoolVelocity(spoolVel);
+  
+      if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
+        if (climber.getExtensionMode()) {
+          climber.setExtensionBrake(false);
+        }
+        climber.setExtensionPower(0);
+      } else {
+        if (!climber.getExtensionMode()) {
+          climber.setExtensionBrake(true);
+        }
+        climber.setExtensionVelocity(OI.operatorController.getRightY() * extensionMultiplier);
+      }        
     } else {
-      if (!climber.getExtensionMode()) {
-        climber.setExtensionBrake(true);
-      }
-      climber.setExtensionVelocity(OI.operatorController.getRightY() * extensionMultiplier);
+      climber.setSpoolVelocity(0);
+      climber.setExtensionVelocity(0);
     }
   }
 
