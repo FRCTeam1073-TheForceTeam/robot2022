@@ -67,6 +67,8 @@ public class Climber extends SubsystemBase {
 
   private boolean extensionVelocityMode = true;
 
+  private boolean softStopsOn = true;
+
   private static boolean sensor1 = false;
   private static boolean sensor2 = false;
   private static boolean sensor3 = false;
@@ -121,6 +123,13 @@ public class Climber extends SubsystemBase {
 
   }
 
+  public static class Constants {
+    public static final double maxSpoolDistance = -22.0;
+    public static final double maxExtensionDistance = -2.1;
+    public static final double minSpoolDistance = 0;
+    public static final double minExtensionDistance = 0;
+  }
+
   @Override
   public void periodic() {
     sensor1 = DI1.get();
@@ -151,6 +160,18 @@ public class Climber extends SubsystemBase {
     currentSpoolVelocity = spoolMotorRight.getSelectedSensorVelocity() / spoolTicksPerRadian * 10.0;
     currentExtensionVelocity = extensionMotorRight.getSelectedSensorVelocity() / extensionTicksPerRadian * 10.0;
 
+    SmartDashboard.putNumber("[Climber] Spool position",
+      spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian);
+    SmartDashboard.putNumber("[Climber] Extension position", 
+      extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian);
+
+    SmartDashboard.putNumber("[Climber] Min Spool Distance", Constants.minSpoolDistance);
+
+    //SmartDashboard.getNumber("[Climber] Max Spool Distance", Constants.maxSpoolDistance);
+    //SmartDashboard.getNumber("[Climber] Max Extension Distance", Constants.maxExtensionDistance);
+    SmartDashboard.getNumber("[Climber] Min Spool Distance", Constants.minSpoolDistance);
+    //SmartDashboard.getNumber("[Climber] Min Extension Distance", Constants.minExtensionDistance);
+
     //debug
     if (debug) {
       SmartDashboard.putNumber("target spool velocity", targetSpoolVelocity);
@@ -160,11 +181,6 @@ public class Climber extends SubsystemBase {
       // SmartDashboard.putNumber("raw spool velocity", rawSpoolVel);
       SmartDashboard.putNumber("raw extension velocity", rawExtensionVel);
       SmartDashboard.putNumber("spool output percent", spoolMotorRight.getMotorOutputPercent());
-
-      SmartDashboard.putNumber("[Climber] Spool position",
-        spoolMotorRight.getSelectedSensorPosition() / spoolTicksPerRadian);
-      SmartDashboard.putNumber("[climber] Extension position", 
-        extensionMotorRight.getSelectedSensorPosition() / extensionTicksPerRadian);
 
       if (SmartDashboard.getBoolean("Update", false)) 
       {
@@ -287,7 +303,4 @@ public class Climber extends SubsystemBase {
      return false;
    }
   
-   public static class Constants {
-     public static final double maxSpoolDistance = -22.0;
-   }
 }
