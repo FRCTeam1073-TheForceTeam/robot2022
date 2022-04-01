@@ -118,7 +118,7 @@ public class HubTracking extends SubsystemBase {
     additionalRange = SmartDashboard.getNumber("Hub Tracker/Additional Range", 0.0);
   }
 
-  public void sampleHubData(HubData data){
+  public void sampleHubData(HubData data) {
     data.cx = hubData.cx;
     data.cy = hubData.cy;
     data.area = hubData.area;

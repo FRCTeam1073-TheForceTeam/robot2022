@@ -54,7 +54,7 @@ public class AlignToHub extends CommandBase {
       timeoutCounter = 0;
     }
     else {
-      timeoutCounter ++;
+      timeoutCounter++;
     }
     
     chassisSpeeds.omegaRadiansPerSecond = hubAzimuth * scaleFactor;

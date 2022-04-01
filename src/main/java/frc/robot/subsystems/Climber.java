@@ -31,7 +31,7 @@ public class Climber extends SubsystemBase {
   // private CANCoder spoolCANCoderLeft;
 
   // TODO: get actual values
-  private final double spoolGearRatio = 56.25;
+  private final double spoolGearRatio = 36.00;
   private final double extensionGearRatio = 50.0;
 
   private final double spoolTicksPerRadian = 2048.0 * spoolGearRatio / (2.0 * Math.PI);
