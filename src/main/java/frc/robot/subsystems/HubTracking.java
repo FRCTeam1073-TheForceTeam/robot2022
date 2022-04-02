@@ -50,7 +50,7 @@ public class HubTracking extends SubsystemBase {
   private InterpolatorTable elevationInterpolator;
   private boolean hubVisibility;
 
-  public double ledPower = 0.3;
+  public double ledPower = 0.05;
   public double additionalRange = 0.0;
 
   /** Creates a new HubTracking. */
@@ -92,7 +92,7 @@ public class HubTracking extends SubsystemBase {
       new InterpolatorTableEntry(426, 0.39),
       new InterpolatorTableEntry(447, 0.35)
     );
-    ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 0.3);
+    ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 0.05);
     SmartDashboard.putNumber("Hub Tracker/ledPower", ledPower);
     SmartDashboard.putNumber("Hub Tracker/Additional Range", additionalRange);
   }
