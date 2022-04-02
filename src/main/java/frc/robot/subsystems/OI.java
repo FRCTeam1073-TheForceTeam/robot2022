@@ -2,18 +2,27 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class OI 
 {
-    public static final boolean debug = false;
+    public static final boolean debug = true;
+
+    public static OperatorMode operatorMode;
 
     public static Joystick driverController;
     public static XboxController operatorController;
     public static DPadState dPadState;
+    public static boolean prevNormalMode;
+
+    private static boolean blink = false;
 
     public static void init() 
     {
@@ -21,13 +30,29 @@ public class OI
         zeroDriverController();
         operatorController = new XboxController(1);
         dPadState = DPadState.OFF;
+        operatorMode = OperatorMode.NORMAL_MODE;
+        prevNormalMode = (operatorMode == OperatorMode.NORMAL_MODE);
+        blink = false;
+    }
+
+    public static void onEnable() {
+        operatorMode = OperatorMode.NORMAL_MODE;
     }
 
     public static void update() {
         updateOperatorDPadState();
-        if (debug){
+        if (debug) {
             SmartDashboard.putString("DPAD", dPadState.toString());
+            SmartDashboard.putString("MODE", operatorMode.name());
         }
+        prevNormalMode = (operatorMode == OperatorMode.NORMAL_MODE);
+        blink = !blink;
+        SmartDashboard.putBoolean("Climber mode on", blink&&(operatorMode==OperatorMode.CLIMBER_MODE));
+    }
+
+    public static void toggleOperatorMode() {
+        operatorMode = (OI.operatorMode == OperatorMode.NORMAL_MODE)
+            ? OperatorMode.CLIMBER_MODE : OperatorMode.NORMAL_MODE;
     }
 
     public static void zeroDriverController() {
@@ -96,7 +121,49 @@ public class OI
             //dPadState = DPadState.fromAngle(value);
         }
     }
+
+    public static Button whenNormalMode(Trigger btn) {
+        return whenMode(btn, OperatorMode.NORMAL_MODE);
+    }
+
+    public static Button whenClimberMode(Trigger btn) {
+        return whenMode(btn, OperatorMode.CLIMBER_MODE);
+    }
     
+    public static boolean isNormalMode() {
+        return operatorMode == OperatorMode.NORMAL_MODE;
+    }
+
+    public static boolean isClimberMode() {
+        return operatorMode == OperatorMode.CLIMBER_MODE;
+    }
+
+    public static boolean isChangedToNormalMode() {
+        return isNormalMode() && !prevNormalMode;
+    }
+
+    public static boolean isChangedToClimberMode() {
+        return isClimberMode() && prevNormalMode;
+    }
+
+    private static Button whenMode(Trigger btn, OperatorMode mode) {
+        return new Button() {
+            public boolean get() {
+                return btn.get() && (operatorMode == mode);
+            }
+        };
+    }
+    
+    public static void setRumble(double val){
+        operatorController.setRumble(RumbleType.kLeftRumble, val);
+        operatorController.setRumble(RumbleType.kRightRumble, val);
+    }
+    
+    public enum OperatorMode {
+        NORMAL_MODE,
+        CLIMBER_MODE
+    }
+
     public enum DPadState {
         OFF(-1),
         DOWN(180),

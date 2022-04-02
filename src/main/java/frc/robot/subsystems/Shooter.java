@@ -248,7 +248,14 @@ public class Shooter extends SubsystemBase {
     if (!flywheelPowerMode) {
       // Flywheel periodic code
       limitedFlywheelTargetVelocity = flywheelRateLimiter.calculate(flywheelTargetVelocity);
-      flywheelMotor.set(ControlMode.Velocity, limitedFlywheelTargetVelocity * 0.1 * flywheelTicksPerRadian);
+      if (limitedFlywheelTargetVelocity < 0.1)
+      {
+        flywheelMotor.set(ControlMode.PercentOutput, 0);
+      }
+      else
+      {
+        flywheelMotor.set(ControlMode.Velocity, limitedFlywheelTargetVelocity * 0.1 * flywheelTicksPerRadian);
+      }
       currentFlywheelVelocity = flywheelMotor.getSelectedSensorVelocity() * 10.0 / flywheelTicksPerRadian;
 
       if (FLYWHEEL_TUNING_DEBUG) {
@@ -328,7 +335,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // In case we mistype something, this should at least keep the offset from breaking the hood.
-    additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), 0.0, 0.75);
+    additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), -0.1, 0.75);
 
     if (OI.operatorController.getXButtonPressed()) {
       // averageTimer.reset();
@@ -345,7 +352,6 @@ public class Shooter extends SubsystemBase {
       SmartDashboard.putNumber("ShooterTuning/MaxFlywheelError", maxFlywheelError);
       // SmartDashboard.putNumber("ShooterMaxError/Time elapsed", averageTimer.get());
     }
-    
   }
 
   public void setHoodPosition(double targetPosition) {

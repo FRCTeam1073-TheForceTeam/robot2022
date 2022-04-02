@@ -39,42 +39,47 @@ public class TeleopClimber extends CommandBase {
     // climber.setSpoolVelocity(OI.operatorController.getLeftY());
     // climber.setExtensionVelocity(OI.operatorController.getRightY());
 
-    double spoolVel = OI.operatorController.getLeftY() * spoolMultiplier;
-    double extensionVel = OI.operatorController.getRightY() * extensionMultiplier;
+    if (OI.isClimberMode()) {
+      double spoolVel = OI.operatorController.getLeftY() * spoolMultiplier;
+      double extensionVel = OI.operatorController.getRightY() * extensionMultiplier;
 
-    ntinst = NetworkTableInstance.getDefault();
+      ntinst = NetworkTableInstance.getDefault();
 
-    softStopsOn = ntinst.getEntry("[Climber] Soft Stops On");
-    softStopsOn.setBoolean(true);
+      softStopsOn = ntinst.getEntry("[Climber] Soft Stops On");
+      softStopsOn.setBoolean(true);
 
-    if (softStopsOn.getBoolean(true) == true){
-      if (climber.getSpoolPosition() >= Climber.Constants.minSpoolDistance) {
-        spoolVel = Math.min(0, spoolVel);
+      if (softStopsOn.getBoolean(true) == true){
+        if (climber.getSpoolPosition() >= Climber.Constants.minSpoolDistance) {
+          spoolVel = Math.min(0, spoolVel);
+        }
+        else if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
+          spoolVel = Math.max(0, spoolVel);
+        }
+
+        if (OI.operatorController.getRightTriggerAxis() > 0.5) {
+          if (climber.getExtensionMode()) {
+            climber.setExtensionBrake(false);
+          }
+          climber.setExtensionPower(0);
+        } 
+        else {
+          if (!climber.getExtensionMode()) {
+            climber.setExtensionBrake(true);
+          }
+          if (climber.getExtensionPosition() >= Climber.Constants.minExtensionDistance) {
+            extensionVel = Math.min(0, extensionVel);
+          }
+          else if (climber.getExtensionPosition() <= Climber.Constants.maxExtensionDistance){
+            extensionVel = Math.max(0, extensionVel);
+          }
+        }
       }
-      else if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
-        spoolVel = Math.max(0, spoolVel);
-      }
-
-      if (OI.operatorController.getRightTriggerAxis() > 0.5) {
-        if (climber.getExtensionMode()) {
-          climber.setExtensionBrake(false);
-        }
-        climber.setExtensionPower(0);
-      } 
-      else {
-        if (!climber.getExtensionMode()) {
-          climber.setExtensionBrake(true);
-        }
-        if (climber.getExtensionPosition() >= Climber.Constants.minExtensionDistance) {
-          extensionVel = Math.min(0, extensionVel);
-        }
-        else if (climber.getExtensionPosition() <= Climber.Constants.maxExtensionDistance){
-          extensionVel = Math.max(0, extensionVel);
-        }
-      }
+      climber.setSpoolVelocity(spoolVel);
+      climber.setExtensionVelocity(extensionVel);
+    } else {
+      climber.setSpoolVelocity(0);
+      climber.setExtensionVelocity(0);
     }
-    climber.setSpoolVelocity(spoolVel);
-    climber.setExtensionVelocity(extensionVel);
   }
 
   // Called once the command ends or is interrupted.

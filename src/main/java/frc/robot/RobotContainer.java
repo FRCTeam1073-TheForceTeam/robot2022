@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -33,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 
 // Import subsystems: Add subsystems here.
@@ -360,42 +362,70 @@ public class RobotContainer {
     //     new ShooterSpinDownCommand(shooter)
     //   )
     // );
-    OI.getOperatorDPadDown().whenActive(
+    (new Trigger(()->(OI.operatorController.getRightTriggerAxis()>0.5))).whenActive(
+      new InstantCommand(OI::toggleOperatorMode)
+    );
+    (new Trigger(OI::isChangedToClimberMode)).whenActive(
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          new RunCommand(()->OI.setRumble(0.6)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.6)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.6)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.2)
+        ),
+        new SequentialCommandGroup(
+          new ShooterSpinDownCommand(shooter)
+        )          
+      )
+    );
+    (new Trigger(OI::isChangedToNormalMode)).whenActive(
+      new SequentialCommandGroup(
+        new RunCommand(()->OI.setRumble(1.0)).withTimeout(0.125),
+        new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.125),
+        new RunCommand(()->OI.setRumble(1.0)).withTimeout(0.125),
+        new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.125)
+      )
+    );
+    OI.whenNormalMode(OI.getOperatorDPadDown()).whenActive(
         new ShooterTargetCommand(shooter, 1.0)
     );
-    OI.getOperatorDPadLeft().whenActive(
+    OI.whenNormalMode(OI.getOperatorDPadLeft()).whenActive(
         new ShooterTargetCommand(shooter, 2.0)
     );
-    OI.getOperatorDPadUp().whenActive(
+    OI.whenNormalMode(OI.getOperatorDPadUp()).whenActive(
         new ShooterTargetCommand(shooter, 3.0)
     );
-    OI.getOperatorDPadRight().whenActive(
+    OI.whenNormalMode(OI.getOperatorDPadRight()).whenActive(
         new ShooterTargetCommand(shooter, 4.0)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whenPressed(
       autoCollectSequence
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kB.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
         new LoadCommand(indexer, feeder, shooter)
       )
     );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
       new ShooterRangeTargetCommand(shooter, hubTracking)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new FeederLaunchCommand(indexer, feeder, shooter)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
       autoCollectSequence
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
       new ShooterSpinDownCommand(shooter)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
       new ShooterSpinUpCommand(shooter, 170, (0.25-0.08))
     );
-
+    
+    OI.whenNormalMode(OI.getOperatorDPadDown()).whenPressed(new DashboardReadoutCommand("HEY!!!!!!"));
+    
     (new JoystickButton(OI.driverController,9)).whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
@@ -404,15 +434,14 @@ public class RobotContainer {
 
     (new JoystickButton(OI.driverController,9)).whenPressed(
       new SequentialCommandGroup(
-        new InstantCommand(()->{
-          OI.operatorController.setRumble(RumbleType.kLeftRumble, 0.4);
-          OI.operatorController.setRumble(RumbleType.kRightRumble, 0.4);
-        }),
-        new WaitCommand(0.1),
-        new InstantCommand(()->{
+        new RunCommand(()->{
+          OI.operatorController.setRumble(RumbleType.kLeftRumble, 0.9);
+          OI.operatorController.setRumble(RumbleType.kRightRumble, 0.9);
+        }).withTimeout(0.1),
+        new RunCommand(()->{
           OI.operatorController.setRumble(RumbleType.kLeftRumble, 0);
           OI.operatorController.setRumble(RumbleType.kRightRumble, 0);
-        })
+        }).withTimeout(0.1)
       )
     );
 
