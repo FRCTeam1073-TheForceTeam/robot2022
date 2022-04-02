@@ -69,16 +69,17 @@ public class HubTracking extends SubsystemBase {
     
     hubData = new HubData();
     rangeInterpolator = new InterpolatorTable(
-      new InterpolatorTableEntry(9, 1.0),
-      new InterpolatorTableEntry(119, 1.5),
-      new InterpolatorTableEntry(194, 2.0),
-      new InterpolatorTableEntry(256, 2.5),
-      new InterpolatorTableEntry(302, 3.0),
-      new InterpolatorTableEntry(340, 3.5),
-      new InterpolatorTableEntry(375, 4.0),
-      new InterpolatorTableEntry(398, 4.5),
-      new InterpolatorTableEntry(426, 5.0),
-      new InterpolatorTableEntry(447, 5.5)
+      new InterpolatorTableEntry(18, 1.0),
+      new InterpolatorTableEntry(112, 1.5),
+      new InterpolatorTableEntry(188, 2.0),
+      new InterpolatorTableEntry(247, 2.5),
+      new InterpolatorTableEntry(295, 3.0),
+      new InterpolatorTableEntry(328, 3.5),
+      new InterpolatorTableEntry(360, 4.0),
+      new InterpolatorTableEntry(391, 4.5),
+      new InterpolatorTableEntry(412, 5.0),
+      new InterpolatorTableEntry(432, 5.5),
+      new InterpolatorTableEntry(450, 6.0)
     );
     elevationInterpolator = new InterpolatorTable(
       new InterpolatorTableEntry(9, 1.12),
