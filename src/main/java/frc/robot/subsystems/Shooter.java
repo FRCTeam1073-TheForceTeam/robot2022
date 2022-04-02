@@ -248,7 +248,14 @@ public class Shooter extends SubsystemBase {
     if (!flywheelPowerMode) {
       // Flywheel periodic code
       limitedFlywheelTargetVelocity = flywheelRateLimiter.calculate(flywheelTargetVelocity);
-      flywheelMotor.set(ControlMode.Velocity, limitedFlywheelTargetVelocity * 0.1 * flywheelTicksPerRadian);
+      if (limitedFlywheelTargetVelocity < 0.1)
+      {
+        flywheelMotor.set(ControlMode.PercentOutput, 0);
+      }
+      else
+      {
+        flywheelMotor.set(ControlMode.Velocity, limitedFlywheelTargetVelocity * 0.1 * flywheelTicksPerRadian);
+      }
       currentFlywheelVelocity = flywheelMotor.getSelectedSensorVelocity() * 10.0 / flywheelTicksPerRadian;
 
       if (FLYWHEEL_TUNING_DEBUG) {
