@@ -328,7 +328,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // In case we mistype something, this should at least keep the offset from breaking the hood.
-    additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), 0.0, 0.75);
+    additionalHoodAngle = MathUtil.clamp(SmartDashboard.getNumber("ShooterTargeting/Additional Hood Angle", 0.0), -0.1, 0.75);
 
     if (OI.operatorController.getXButtonPressed()) {
       // averageTimer.reset();
