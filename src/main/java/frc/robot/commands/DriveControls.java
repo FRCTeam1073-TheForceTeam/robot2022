@@ -42,7 +42,7 @@ public class DriveControls extends CommandBase {
     double forward = deadzone(OI.getDriverLeftY());
     double rotate = -deadzone(OI.getDriverRightX());
     chassisSpeeds.vxMetersPerSecond = forward * 3.80;
-    chassisSpeeds.omegaRadiansPerSecond = rotate * 4.40;
+    chassisSpeeds.omegaRadiansPerSecond = rotate * 7;
     drivetrain.setChassisSpeeds(chassisSpeeds);
   }
 

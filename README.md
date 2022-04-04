@@ -33,7 +33,7 @@ Team 1073's robot code for FRC 2022: Rapid React, to control our robot Willard.
 3 | Climber
 4 | Collector
 5 | Shooter
-6 | Driver controlled (human player interatction)
+6 | Driver controlled (human player interaction)
 7 | TBD
 
 ### PS4 Controller Symbols

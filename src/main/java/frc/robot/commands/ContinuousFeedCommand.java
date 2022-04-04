@@ -6,36 +6,33 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Feeder;
-import frc.robot.subsystems.OI;
 
-public class TeleopFeeder extends CommandBase {
-
-  private double feederVelocity = 192;
+public class ContinuousFeedCommand extends CommandBase {
 
   Feeder feeder;
-  /** Creates a new TeleopFeeder. */
-  public TeleopFeeder(Feeder feeder_) {
-    feeder = feeder_;
+  double feederVelocity = 192;
+
+  /** Creates a new ContinuousFeedCommand. */
+  public ContinuousFeedCommand(Feeder feeder) {
+    this.feeder = feeder;
     addRequirements(feeder);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    feeder.setFeederVelocity(feederVelocity);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    if (OI.isNormalMode() && OI.operatorController.getXButton()) {
-      feeder.setFeederVelocity(feederVelocity);
-    } else {
-      feeder.setFeederVelocity(0);
-    }
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    feeder.zeroFeeder();
+  }
 
   // Returns true when the command should end.
   @Override

@@ -56,7 +56,7 @@ public class AlignToHub extends CommandBase {
       timeoutCounter = 0;
     }
     else {
-      timeoutCounter ++;
+      timeoutCounter++;
     }
   
     if (Math.abs(hubAzimuth) < minError) {

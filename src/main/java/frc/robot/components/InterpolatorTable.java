@@ -4,9 +4,6 @@
 
 package frc.robot.components;
 
-import java.util.Map;
-import java.util.Set;
-
 /**
  * A component for generating output values based on a set of input-output pairs,
  * linearly interpolating between values and optionally either extrapolating past

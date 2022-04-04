@@ -44,7 +44,7 @@ public class ShooterFeedCommand extends CommandBase {
   public void end(boolean interrupted) {
     if (interrupted) {
       shooter.setFlywheelVelocity(0);
-      shooter.setHoodPosition(0);
+      shooter.zeroHood();
       feeder.zeroFeeder();
     }
   }

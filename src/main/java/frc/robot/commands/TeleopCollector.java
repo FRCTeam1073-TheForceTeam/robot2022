@@ -43,28 +43,35 @@ public class TeleopCollector extends CommandBase
   @Override
   public void execute() 
   {
-    // The collector raises when the A button (cross button on the PS4 controller) and goes back up when it's released.
-    // The isCollectorDown variable is updated so the command knows which state it's in.
-    if (OI.operatorController.getAButtonPressed()) {
-      collector.setLiftPosition(Collector.Constants.loweredCollectorPosition);
-      isCollectorDown = true;
-    } else if (OI.operatorController.getAButtonReleased()) {
-      collector.setLiftPosition(Collector.Constants.raisedCollectorPosition);
-      isCollectorDown = false;
-    }
-    drivetrain.getChassisSpeeds(chassisSpeeds);
+    if (OI.isNormalMode()) {
+      // The collector raises when the A button (cross button on the PS4 controller) and goes back up when it's released.
+      // The isCollectorDown variable is updated so the command knows which state it's in.
+      if (OI.operatorController.getAButtonPressed()) {
+        collector.setLiftPosition(Collector.Constants.loweredCollectorPosition);
+        isCollectorDown = true;
+      } else if (OI.operatorController.getAButtonReleased()) {
+        collector.setLiftPosition(Collector.Constants.raisedCollectorPosition);
+        isCollectorDown = false;
+      }
+      drivetrain.getChassisSpeeds(chassisSpeeds);
 
-    //If the collector is down, run the intake wheels inwards.
-    //If it's down AND the left trigger is past 50% (same as with TeleopIndexer), it runs outwards.
-    //If it's up, it doesn't run at all.
-    if (isCollectorDown) {
-      if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
-        collector.setLinearIntakeVelocity(-ejectCollectorVelocity);
+      //If the collector is down, run the intake wheels inwards.
+      //If it's down AND the left trigger is past 50% (same as with TeleopIndexer), it runs outwards.
+      //If it's up, it doesn't run at all.
+      if (isCollectorDown) {
+        if (OI.operatorController.getLeftTriggerAxis() > 0.5) {
+          collector.setLinearIntakeVelocity(-ejectCollectorVelocity);
+        } else {
+          collector.setLinearIntakeVelocity(chassisSpeeds.vxMetersPerSecond * 2.0 + extraCollectorVelocity);
+        }
       } else {
-        collector.setLinearIntakeVelocity(chassisSpeeds.vxMetersPerSecond * 2.0 + extraCollectorVelocity);
+        collector.setLinearIntakeVelocity(0);
       }
     } else {
-      collector.setLinearIntakeVelocity(0);
+      if (OI.isChangedToClimberMode()) {
+        collector.setLiftPosition(Collector.Constants.raisedCollectorPosition);
+      }
+      collector.setIntakeVelocity(0);
     }
   }
 
