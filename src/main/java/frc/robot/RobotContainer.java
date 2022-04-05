@@ -127,8 +127,14 @@ public class RobotContainer {
         new ParallelDeadlineGroup(
           new AbsoluteDriveCommand(drivetrain,
             new Pose2d(
-              1.22, 1.67, new Rotation2d(0.58)
-            ), 0.1, 0.1
+              0.57, 0.89, new Rotation2d(0.79)
+            ),0.5, 0.1, 0.1
+          ).andThen(
+            new AbsoluteDriveCommand(drivetrain,
+              new Pose2d(
+                1.22, 1.62, new Rotation2d(0.64)
+              ), 0.5, 0.1, 0.1
+            )
           ),
           new CollectCommand(collector, drivetrain),
           new ShooterTargetCommand(shooter, 2.5)
