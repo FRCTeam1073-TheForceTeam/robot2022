@@ -41,17 +41,21 @@ public class AbsoluteDriveCommand extends CommandBase {
   double gamma = 1.5;
 
   /** Creates a new RelativeDriveCommand. */
-  public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double distanceTolerance,
+  public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double angularVelocity, double distanceTolerance,
       double angleTolerance) {
     this.drivetrain = drivetrain;
     this.targetPose = targetPose;
     this.distanceTolerance = distanceTolerance;
     this.angleTolerance = angleTolerance;
     maxVelocity = velocity;
-    maxAngularVelocity = 3.5 * velocity;
+    maxAngularVelocity = angularVelocity;
     SmartDashboard.putString("RelDrive/Status", "[NOT STARTED]");
     addRequirements(drivetrain);
     // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double distanceTolerance, double angleTolerance) {
+    this(drivetrain, targetPose, velocity, 3.5 * velocity, distanceTolerance, angleTolerance);
   }
 
   public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double speedFactor_) {
@@ -104,18 +108,24 @@ public class AbsoluteDriveCommand extends CommandBase {
     //   alpha * (1 - Math.exp(-2 * distance)) * (Math.max(0, -x_robot.dot(offsetVector)))
     // );
 
-    double targetVelocity = maxVelocity * MathUtil.clamp(
+    double targetVelocity = maxVelocity * Math.min(1.0, 0.2 + distance) * MathUtil.clamp(
       x_robot.dot(offsetVector),
       -1,1
     );
 
+    double signFlip = 1;
+    if (targetVelocity < 0) {
+      signFlip *= -1;
+    }
+
+
     double targetRotation = 
         maxAngularVelocity * MathUtil.clamp(
         beta * (y_robot.dot(x_target)) * (1 - falloffDistance)
-          + gamma * (y_robot.dot(offsetVector) - 0.4 * falloffDistance * (y_robot.dot(x_target))) * falloffDistance,
+          + gamma * (signFlip * y_robot.dot(offsetVector) - 0.4 * falloffDistance * (y_robot.dot(x_target))) * falloffDistance,
         -1, 1
     );
-
+    
     SmartDashboard.putString("RelDrive/Status", "EXECUTING");
     SmartDashboard.putNumber("RelDrive/Vel", targetVelocity);
     SmartDashboard.putNumber("RelDrive/RVel", targetRotation);

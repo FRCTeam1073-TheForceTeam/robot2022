@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -33,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 
 // Import subsystems: Add subsystems here.
@@ -161,21 +163,24 @@ public class RobotContainer {
 
     autoChooser.addOption("Auto-4Ball",
       new SequentialCommandGroup(
+        new HoodIndexCommand(shooter),
         new ParallelDeadlineGroup(
           new ParallelCommandGroup(
             new AbsoluteDriveCommand(drivetrain,
               new Pose2d(
                 Units.inchesToMeters(46.0), 0.0, new Rotation2d(Units.degreesToRadians(10.0))
-              ), 0.1, 0.1    
+              ), 1.5, 0.1, 0.1    
             )
             //new IndexCommand(indexer, shooter)
           ),
           new CollectCommand(collector, drivetrain),
-          new ShooterTargetCommand(shooter, 2.0)
+          new ShooterTargetCommand(shooter, 1.73)
         ),
+          // new ShooterRangeTargetCommand(shooter, hubTracking),
         new InstantCommand(DashboardReadoutCommand::resetCounter),
         new DashboardReadoutCommand("Firing first 2 cargo"),
         new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(0.2),
         // new ParallelDeadlineGroup(
         //   new SequentialCommandGroup(
         //     new DashboardReadoutCommand("Waiting for falling edge 1"),
@@ -203,41 +208,37 @@ public class RobotContainer {
         // ),
         
         new DashboardReadoutCommand("Driving to 3rd ball"),
-        new ParallelDeadlineGroup(
-          new AbsoluteDriveCommand(drivetrain,
-            new Pose2d(
-              5.25, -1.22, new Rotation2d(0.229)
-            ), 2.4, 0.1, 0.1
-          ).andThen(
-            new WaitCommand(1.0)
-          ),
-          new ParallelDeadlineGroup(
-            new SequentialCommandGroup(
-              new DashboardReadoutCommand("Index #1"),              
-              new IndexCommand(indexer, shooter),
-              new DashboardReadoutCommand("Load"),
-              new LoadCommand(indexer, feeder, shooter),
-              new DashboardReadoutCommand("Wait"),
-              new WaitCommand(1.0),
-              new DashboardReadoutCommand("Index #2"),
-              new ParallelRaceGroup(
-                new WaitCommand(2.0),
-                new IndexCommand(indexer, shooter)                  
-              )
-            ),
-            new ShooterTargetCommand(shooter, 4.0),
-            new CollectCommand(collector, drivetrain)
-          )
-        ),
-
-        new DashboardReadoutCommand("Turning to face hub"),
         new AbsoluteDriveCommand(drivetrain,
           new Pose2d(
-            5.25, -1.25, new Rotation2d(-0.09)
-          ), 0.1, 0.1
+            5.37, -1.10, new Rotation2d(0.229)
+          ), 2.5, 8.0,
+          0.07, 0.1
         ),
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new DashboardReadoutCommand("Index #1"),  
+            new IndexCommand(indexer, shooter).withTimeout(2.0),
+            new DashboardReadoutCommand("Load"),
+            new LoadCommand(indexer, feeder, shooter),
+            new DashboardReadoutCommand("Index #2"),
+            (new IndexCommand(indexer, shooter)).withTimeout(2.0)
+          ),
+          new ShooterTargetCommand(shooter, 3.1),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new DashboardReadoutCommand("Turning to face hub"),
+          // new ShooterRangeTargetCommand(shooter, hubTracking),
+        new WaitCommand(0.2),
+        new AbsoluteDriveCommand(drivetrain,
+          new Pose2d(
+            2.30, -1.20, new Rotation2d(-0.048)
+          ), 2.0, 5.5,
+          0.1, 0.02
+        ),
+        new WaitCommand(0.3),
         new DashboardReadoutCommand("Firing second 2 cargo"),
         new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(1.0),
         // new DashboardReadoutCommand("Turning to face 5th cargo"),
         // new AbsoluteDriveCommand(drivetrain,
         //   new Pose2d(
@@ -250,7 +251,32 @@ public class RobotContainer {
         //     -1.785, 2.068, new Rotation2d(1.346)
         //   ), 0.1, 0.1
         // ),
-        new DashboardReadoutCommand("Done!")
+        new DashboardReadoutCommand("Done!"),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+    autoChooser.addOption("Load2",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new DashboardReadoutCommand("Index #1"),              
+            new IndexCommand(indexer, shooter),
+            new DashboardReadoutCommand("Load"),
+            new LoadCommand(indexer, feeder, shooter),
+            new DashboardReadoutCommand("Index #2"),
+            (new IndexCommand(indexer, shooter)).withTimeout(4.0)
+          ),
+          new ShooterTargetCommand(shooter, 4.0),
+          // new ConditionalCommand(
+          //   new ShooterRangeTargetCommand(shooter, hubTracking),
+          //   new ShooterTargetCommand(shooter, 4.0),
+          //   hubTracking::isHubVisible
+          // ),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(0.5),
+        new ShooterSpinDownCommand(shooter)
       )
     );
     autoChooser.addOption("Turn90", 
@@ -340,42 +366,70 @@ public class RobotContainer {
     //     new ShooterSpinDownCommand(shooter)
     //   )
     // );
-    OI.getOperatorDPadDown().whenActive(
+    (new Trigger(()->(OI.operatorController.getRightTriggerAxis()>0.5))).whenActive(
+      new InstantCommand(OI::toggleOperatorMode)
+    );
+    (new Trigger(OI::isChangedToClimberMode)).whenActive(
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          new RunCommand(()->OI.setRumble(0.6)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.6)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.6)).withTimeout(0.2),
+          new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.2)
+        ),
+        new SequentialCommandGroup(
+          new ShooterSpinDownCommand(shooter)
+        )          
+      )
+    );
+    (new Trigger(OI::isChangedToNormalMode)).whenActive(
+      new SequentialCommandGroup(
+        new RunCommand(()->OI.setRumble(1.0)).withTimeout(0.125),
+        new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.125),
+        new RunCommand(()->OI.setRumble(1.0)).withTimeout(0.125),
+        new RunCommand(()->OI.setRumble(0.0)).withTimeout(0.125)
+      )
+    );
+    OI.whenNormalMode(OI.getOperatorDPadDown()).whenActive(
         new ShooterTargetCommand(shooter, 1.0)
     );
-    OI.getOperatorDPadLeft().whenActive(
+    OI.whenNormalMode(OI.getOperatorDPadLeft()).whenActive(
         new ShooterTargetCommand(shooter, 2.0)
     );
-    OI.getOperatorDPadUp().whenActive(
+    OI.whenNormalMode(OI.getOperatorDPadUp()).whenActive(
         new ShooterTargetCommand(shooter, 3.0)
     );
-    OI.getOperatorDPadRight().whenActive(
+    OI.whenNormalMode(OI.getOperatorDPadRight()).whenActive(
         new ShooterTargetCommand(shooter, 4.0)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kLeftBumper.value)).whenPressed(
       autoCollectSequence
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kB.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kB.value)).whenPressed(
       new SequentialCommandGroup(
         new LoadCommand(indexer, feeder, shooter)
       )
     );
-    (new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController,XboxController.Button.kBack.value)).whenPressed(
       new ShooterRangeTargetCommand(shooter, hubTracking)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kY.value)).whenPressed(
       new FeederLaunchCommand(indexer, feeder, shooter)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).cancelWhenPressed(
       autoCollectSequence
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kRightBumper.value)).whenPressed(
       new ShooterSpinDownCommand(shooter)
     );
-    (new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
+    OI.whenNormalMode(new JoystickButton(OI.operatorController, XboxController.Button.kStart.value)).whenPressed(
       new ShooterSpinUpCommand(shooter, 170, (0.25-0.08))
     );
-
+    
+    OI.whenNormalMode(OI.getOperatorDPadDown()).whenPressed(new DashboardReadoutCommand("HEY!!!!!!"));
+    
     (new JoystickButton(OI.driverController,9)).whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
@@ -384,15 +438,14 @@ public class RobotContainer {
 
     (new JoystickButton(OI.driverController,9)).whenPressed(
       new SequentialCommandGroup(
-        new InstantCommand(()->{
-          OI.operatorController.setRumble(RumbleType.kLeftRumble, 0.4);
-          OI.operatorController.setRumble(RumbleType.kRightRumble, 0.4);
-        }),
-        new WaitCommand(0.1),
-        new InstantCommand(()->{
+        new RunCommand(()->{
+          OI.operatorController.setRumble(RumbleType.kLeftRumble, 0.9);
+          OI.operatorController.setRumble(RumbleType.kRightRumble, 0.9);
+        }).withTimeout(0.1),
+        new RunCommand(()->{
           OI.operatorController.setRumble(RumbleType.kLeftRumble, 0);
           OI.operatorController.setRumble(RumbleType.kRightRumble, 0);
-        })
+        }).withTimeout(0.1)
       )
     );
 
@@ -400,6 +453,7 @@ public class RobotContainer {
         () -> SmartDashboard.putBoolean("AlignToHub on", false)
     );
 
+    SmartDashboard.putData(new HoodIndexCommand(shooter));
 
     // new FeederLaunchCommand(indexer, feeder, shooter),
         // new InstantCommand(feeder::zeroFeeder),

@@ -90,7 +90,7 @@ public class Bling extends SubsystemBase {
 
       batteryBling(0, slotLength, 8.0, 12.5);
 
-      if (OI.driverController.getRawButton(2)) {
+      if (OI.isClimberMode()) {
         duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2);
 
         if (Climber.getSensorReading(2) && Climber.getSensorReading(3) && Climber.getSensorReading(4) && Climber.getSensorReading(5)) {

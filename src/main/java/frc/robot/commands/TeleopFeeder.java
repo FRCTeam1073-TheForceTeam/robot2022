@@ -26,7 +26,7 @@ public class TeleopFeeder extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (OI.operatorController.getXButton()) {
+    if (OI.isNormalMode() && OI.operatorController.getXButton()) {
       feeder.setFeederVelocity(feederVelocity);
     } else {
       feeder.setFeederVelocity(0);
