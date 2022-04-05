@@ -39,10 +39,9 @@ public class TeleopShooter extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     if(SmartDashboard.getBoolean("[T-Sh] Update", false)) {
       shooter.setFlywheelVelocity(SmartDashboard.getNumber("[T-Sh] Flywheel vel (rad.s)", 0));
-      shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0) + Shooter.additionalHoodAngle);
+      shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0));
       SmartDashboard.putBoolean("[T-Sh] Update", false);
     }
 

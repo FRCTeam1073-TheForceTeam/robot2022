@@ -40,8 +40,6 @@ public class HubTracking extends SubsystemBase {
   // CANifier - https://docs.ctre-phoenix.com/en/stable/ch12_BringUpCANifier.html
   // setLEDOutput() - https://store.ctr-electronics.com/content/api/java/html/classcom_1_1ctre_1_1phoenix_1_1_c_a_nifier.html
   private final CANifier canifier;
-  private final LEDChannel lowerChannel;
-  private final LEDChannel upperChannel;
   private NetworkTableEntry outputX;
   private NetworkTableEntry outputY;
   private NetworkTableEntry outputArea;
@@ -52,7 +50,7 @@ public class HubTracking extends SubsystemBase {
   private InterpolatorTable elevationInterpolator;
   private boolean hubVisibility;
 
-  public double ledPower = 0.3;
+  public double ledPower = 0.05;
   public double additionalRange = 0.0;
 
   /** Creates a new HubTracking. */
@@ -63,8 +61,6 @@ public class HubTracking extends SubsystemBase {
     canifier = new CANifier(8);
     canifier.configFactoryDefault();
     canifier.setStatusFramePeriod(CANifierStatusFrame.Status_2_General, 100);
-    lowerChannel = LEDChannel.LEDChannelA;
-    upperChannel = LEDChannel.LEDChannelB;
     ntinst = NetworkTableInstance.getDefault();
 
     outputX = ntinst.getTable("HUB").getEntry("Hub X");
@@ -73,16 +69,17 @@ public class HubTracking extends SubsystemBase {
     
     hubData = new HubData();
     rangeInterpolator = new InterpolatorTable(
-      new InterpolatorTableEntry(9, 1.0),
-      new InterpolatorTableEntry(119, 1.5),
-      new InterpolatorTableEntry(194, 2.0),
-      new InterpolatorTableEntry(256, 2.5),
-      new InterpolatorTableEntry(302, 3.0),
-      new InterpolatorTableEntry(340, 3.5),
-      new InterpolatorTableEntry(375, 4.0),
-      new InterpolatorTableEntry(398, 4.5),
-      new InterpolatorTableEntry(426, 5.0),
-      new InterpolatorTableEntry(447, 5.5)
+      new InterpolatorTableEntry(18, 1.0),
+      new InterpolatorTableEntry(112, 1.5),
+      new InterpolatorTableEntry(188, 2.0),
+      new InterpolatorTableEntry(247, 2.5),
+      new InterpolatorTableEntry(295, 3.0),
+      new InterpolatorTableEntry(328, 3.5),
+      new InterpolatorTableEntry(360, 4.0),
+      new InterpolatorTableEntry(391, 4.5),
+      new InterpolatorTableEntry(412, 5.0),
+      new InterpolatorTableEntry(432, 5.5),
+      new InterpolatorTableEntry(450, 6.0)
     );
     elevationInterpolator = new InterpolatorTable(
       new InterpolatorTableEntry(9, 1.12),
@@ -96,7 +93,7 @@ public class HubTracking extends SubsystemBase {
       new InterpolatorTableEntry(426, 0.39),
       new InterpolatorTableEntry(447, 0.35)
     );
-    ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 0.3);
+    ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 0.05);
     SmartDashboard.putNumber("Hub Tracker/ledPower", ledPower);
     SmartDashboard.putNumber("Hub Tracker/Additional Range", additionalRange);
   }
@@ -122,7 +119,7 @@ public class HubTracking extends SubsystemBase {
     additionalRange = SmartDashboard.getNumber("Hub Tracker/Additional Range", 0.0);
   }
 
-  public void sampleHubData(HubData data){
+  public void sampleHubData(HubData data) {
     data.cx = hubData.cx;
     data.cy = hubData.cy;
     data.area = hubData.area;
@@ -137,9 +134,12 @@ public class HubTracking extends SubsystemBase {
     return hubData.area > 0;
   }
 
-  public void setLEDIntensity(double percent){
-    //System.out.println("Set Intensity: "+percent);
-    canifier.setLEDOutput(percent, lowerChannel);
-    canifier.setLEDOutput(percent, upperChannel);
+  public void setLEDIntensity(double redPercent, double greenPercent, double bluePercent){
+    redPercent /= 2;
+    greenPercent /= 2;
+    bluePercent /= 2;
+    canifier.setLEDOutput(redPercent, CANifier.LEDChannel.LEDChannelA);
+    canifier.setLEDOutput(greenPercent, CANifier.LEDChannel.LEDChannelB);
+    canifier.setLEDOutput(bluePercent, CANifier.LEDChannel.LEDChannelC);
   }
 }

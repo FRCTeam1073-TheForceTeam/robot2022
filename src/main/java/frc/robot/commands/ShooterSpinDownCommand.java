@@ -18,7 +18,7 @@ public class ShooterSpinDownCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.setHoodPosition(0);
+    shooter.zeroHood();
     shooter.setFlywheelVelocity(0);
   }
 
