@@ -122,37 +122,17 @@ public class RobotContainer {
 
     autoChooser.addOption("Auto-2Ball",
       new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new TurnCommand(drivetrain, Units.degreesToRadians(20.0), 1.0).andThen(new PrintCommand("Finished Turning")),
-          new SequentialCommandGroup(
-            new IndexCommand(indexer, shooter),
-            new ParallelDeadlineGroup(
-              new FeedCommand(feeder, shooter),
-              new RunCommand(()->indexer.setPower(0.1),indexer)
-            ),
-            new InstantCommand(feeder::zeroFeeder)
-          ).andThen(new PrintCommand("Finished Feeding")),
-          new ShooterTargetCommand(shooter, 2.4).andThen(new PrintCommand("Finished Spinning Up"))
-        ),
         new ParallelDeadlineGroup(
-          new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
-          new CollectCommand(collector, drivetrain).alongWith(
-            new IndexCommand(indexer, shooter)
-          )
-        ),
-        new SequentialCommandGroup(
-          new FeederLaunchCommand(indexer, feeder, shooter),
-          new InstantCommand(feeder::zeroFeeder),
-          new WaitCommand(0.5),
-          new IndexCommand(indexer, shooter),
-          new ParallelDeadlineGroup(
-            new FeedCommand(feeder, shooter),
-            new RunCommand(()->indexer.setPower(0.1),indexer)
+          new AbsoluteDriveCommand(drivetrain,
+            new Pose2d(
+              1.22, 1.67, new Rotation2d(0.58)
+            ), 0.1, 0.1
           ),
-          new FeederLaunchCommand(indexer, feeder, shooter),
-          new InstantCommand(feeder::zeroFeeder),
-          new WaitCommand(0.5)
+          new CollectCommand(collector, drivetrain),
+          new ShooterTargetCommand(shooter, 2.5)
         ),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(0.2),
         new ShooterSpinDownCommand(shooter)
       )
     );
