@@ -49,11 +49,12 @@ public class Bling extends SubsystemBase {
 
   public Bling() {
     m_led = new AddressableLED(0);
-    m_ledBuffer = new AddressableLEDBuffer(64);
+    // TODO: change for the actual length
+    m_ledBuffer = new AddressableLEDBuffer(64 + 28);
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
-    slotLength = (int) (m_ledBuffer.getLength()/16);
+    slotLength = (int) (m_ledBuffer.getLength()/(16 + 7));
   }
 
   public void initialize() {
@@ -82,20 +83,23 @@ public class Bling extends SubsystemBase {
     }
     
     if (!cleared) {
+      // LEDRainbow(0, m_ledBuffer.getLength());
       if (OI.driverController.getRawButton(1)) {
-        setSlot(6, 255, 53, 184);
+        rangeRGB(slotLength * 6, slotLength, 255, 53, 104);
+        rangeRGB(slotLength * 16, slotLength, 255, 53, 104);
       } else {
-        setSlot(6, 0, 0, 0);
+        rangeRGB(slotLength * 6, slotLength, 0, 0, 0);
+        rangeRGB(slotLength * 16, slotLength, 0, 0, 0);
       }
 
       batteryBling(0, slotLength, 8.0, 12.5);
 
       if (OI.isClimberMode()) {
-        duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2);
+        duplicateRange(0, slotLength, 32);
 
         if (Climber.getSensorReading(2) && Climber.getSensorReading(3) && Climber.getSensorReading(4) && Climber.getSensorReading(5)) {
           LEDRainbow(slotLength, slotLength * 7);
-          duplicateRange(slotLength, slotLength * 7, slotLength * 9);
+          duplicateRange(0, slotLength * 8, slotLength * 8);
         } else {
           if (Climber.getSensorReading(2)) {
             rangeRGB(slotLength, slotLength * 3, 85, 85, 0);
@@ -126,14 +130,15 @@ public class Bling extends SubsystemBase {
           }
         }
       } else {
-        duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+        duplicateRange(0, 32, 32);
+//        rangeRGB(0, slotLength * 16, 0, 0, 0);
       }
-
-      m_led.setData(m_ledBuffer);
 
     } else {
       clearLEDs();
     }
+    
+    m_led.setData(m_ledBuffer);
   }
 
 
@@ -311,7 +316,7 @@ public class Bling extends SubsystemBase {
 
   public void setSlot(int slotNum, int r, int g, int b) {
     if (!OI.driverController.getRawButton(2)) {
-      if (slotNum <= 7 && slotNum > 0) {
+      if (slotNum <= m_ledBuffer.getLength() / slotLength && slotNum > 0) {
         if (slotLength == 1) {
           m_ledBuffer.setRGB(slotNum, r, g, b);
         } else {
