@@ -183,21 +183,24 @@ public class RobotContainer {
 
     autoChooser.addOption("Auto-4Ball",
       new SequentialCommandGroup(
+        new HoodIndexCommand(shooter),
         new ParallelDeadlineGroup(
           new ParallelCommandGroup(
             new AbsoluteDriveCommand(drivetrain,
               new Pose2d(
                 Units.inchesToMeters(46.0), 0.0, new Rotation2d(Units.degreesToRadians(10.0))
-              ), 0.1, 0.1    
+              ), 1.5, 0.1, 0.1    
             )
             //new IndexCommand(indexer, shooter)
           ),
           new CollectCommand(collector, drivetrain),
-          new ShooterTargetCommand(shooter, 2.0)
+          new ShooterTargetCommand(shooter, 1.73)
         ),
+          // new ShooterRangeTargetCommand(shooter, hubTracking),
         new InstantCommand(DashboardReadoutCommand::resetCounter),
         new DashboardReadoutCommand("Firing first 2 cargo"),
         new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(0.2),
         // new ParallelDeadlineGroup(
         //   new SequentialCommandGroup(
         //     new DashboardReadoutCommand("Waiting for falling edge 1"),
@@ -225,41 +228,37 @@ public class RobotContainer {
         // ),
         
         new DashboardReadoutCommand("Driving to 3rd ball"),
-        new ParallelDeadlineGroup(
-          new AbsoluteDriveCommand(drivetrain,
-            new Pose2d(
-              5.25, -1.22, new Rotation2d(0.229)
-            ), 2.4, 0.1, 0.1
-          ).andThen(
-            new WaitCommand(1.0)
-          ),
-          new ParallelDeadlineGroup(
-            new SequentialCommandGroup(
-              new DashboardReadoutCommand("Index #1"),              
-              new IndexCommand(indexer, shooter),
-              new DashboardReadoutCommand("Load"),
-              new LoadCommand(indexer, feeder, shooter),
-              new DashboardReadoutCommand("Wait"),
-              new WaitCommand(1.0),
-              new DashboardReadoutCommand("Index #2"),
-              new ParallelRaceGroup(
-                new WaitCommand(2.0),
-                new IndexCommand(indexer, shooter)                  
-              )
-            ),
-            new ShooterTargetCommand(shooter, 4.0),
-            new CollectCommand(collector, drivetrain)
-          )
-        ),
-
-        new DashboardReadoutCommand("Turning to face hub"),
         new AbsoluteDriveCommand(drivetrain,
           new Pose2d(
-            5.25, -1.25, new Rotation2d(-0.09)
-          ), 0.1, 0.1
+            5.37, -1.10, new Rotation2d(0.229)
+          ), 2.5, 8.0,
+          0.07, 0.1
         ),
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new DashboardReadoutCommand("Index #1"),  
+            new IndexCommand(indexer, shooter).withTimeout(2.0),
+            new DashboardReadoutCommand("Load"),
+            new LoadCommand(indexer, feeder, shooter),
+            new DashboardReadoutCommand("Index #2"),
+            (new IndexCommand(indexer, shooter)).withTimeout(2.0)
+          ),
+          new ShooterTargetCommand(shooter, 3.1),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new DashboardReadoutCommand("Turning to face hub"),
+          // new ShooterRangeTargetCommand(shooter, hubTracking),
+        new WaitCommand(0.2),
+        new AbsoluteDriveCommand(drivetrain,
+          new Pose2d(
+            2.30, -1.20, new Rotation2d(-0.048)
+          ), 2.0, 5.5,
+          0.1, 0.02
+        ),
+        new WaitCommand(0.3),
         new DashboardReadoutCommand("Firing second 2 cargo"),
         new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(1.0),
         // new DashboardReadoutCommand("Turning to face 5th cargo"),
         // new AbsoluteDriveCommand(drivetrain,
         //   new Pose2d(
@@ -272,7 +271,32 @@ public class RobotContainer {
         //     -1.785, 2.068, new Rotation2d(1.346)
         //   ), 0.1, 0.1
         // ),
-        new DashboardReadoutCommand("Done!")
+        new DashboardReadoutCommand("Done!"),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+    autoChooser.addOption("Load2",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new DashboardReadoutCommand("Index #1"),              
+            new IndexCommand(indexer, shooter),
+            new DashboardReadoutCommand("Load"),
+            new LoadCommand(indexer, feeder, shooter),
+            new DashboardReadoutCommand("Index #2"),
+            (new IndexCommand(indexer, shooter)).withTimeout(4.0)
+          ),
+          new ShooterTargetCommand(shooter, 4.0),
+          // new ConditionalCommand(
+          //   new ShooterRangeTargetCommand(shooter, hubTracking),
+          //   new ShooterTargetCommand(shooter, 4.0),
+          //   hubTracking::isHubVisible
+          // ),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(0.5),
+        new ShooterSpinDownCommand(shooter)
       )
     );
     autoChooser.addOption("Turn90", 
@@ -449,6 +473,7 @@ public class RobotContainer {
         () -> SmartDashboard.putBoolean("AlignToHub on", false)
     );
 
+    SmartDashboard.putData(new HoodIndexCommand(shooter));
 
     // new FeederLaunchCommand(indexer, feeder, shooter),
         // new InstantCommand(feeder::zeroFeeder),

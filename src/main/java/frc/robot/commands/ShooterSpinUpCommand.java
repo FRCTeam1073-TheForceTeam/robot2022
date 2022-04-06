@@ -18,7 +18,7 @@ public class ShooterSpinUpCommand extends CommandBase {
     shooter = shooter_;
     velocity = velocity_;
     hoodAngle = hoodAngle_;
-    hoodAngle = MathUtil.clamp(hoodAngle + Shooter.additionalHoodAngle, 0, Shooter.maximumHoodAngle);
+    hoodAngle = MathUtil.clamp(hoodAngle, 0, Shooter.maximumHoodAngle);
     addRequirements(shooter);
   }
 
@@ -40,8 +40,7 @@ public class ShooterSpinUpCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double currentVel = shooter.getFlywheelVelocity();
-    double currentAngle = shooter.getHoodPosition();
-    return (Math.abs(currentVel - velocity) < Shooter.Constants.kAcceptableFlywheelVelocityError) && (Math.abs(currentAngle - hoodAngle) < Shooter.Constants.kAcceptableHoodPositionError);
+    return (Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
+      && Math.abs(shooter.getFlywheelTargetVelocity() - shooter.getFlywheelVelocity()) < Shooter.Constants.kAcceptableFlywheelVelocityError);
   }
 }
