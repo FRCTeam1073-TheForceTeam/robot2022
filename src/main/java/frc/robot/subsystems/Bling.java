@@ -92,7 +92,7 @@ public class Bling extends SubsystemBase {
       batteryBling(0, slotLength, 8.0, 12.5);
 
       if (OI.isClimberMode()) {
-        duplicateRange(0, slotLength, m_ledBuffer.getLength() / 2);
+        duplicateRange(0, slotLength, 32);
 
         if (Climber.getSensorReading(2) && Climber.getSensorReading(3) && Climber.getSensorReading(4) && Climber.getSensorReading(5)) {
           LEDRainbow(slotLength, slotLength * 7);
@@ -127,16 +127,16 @@ public class Bling extends SubsystemBase {
           }
         }
       } else {
-        // duplicateRange(0, m_ledBuffer.getLength() / 2, m_ledBuffer.getLength() / 2);
+        duplicateRange(0, 32, 32);
         // LEDRainbow(0, m_ledBuffer.getLength());
         rangeRGB(0, slotLength * 16, 0, 0, 0);
       }
 
-      m_led.setData(m_ledBuffer);
-
     } else {
       clearLEDs();
     }
+    
+    m_led.setData(m_ledBuffer);
   }
 
 
