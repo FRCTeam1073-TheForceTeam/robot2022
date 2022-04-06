@@ -83,10 +83,13 @@ public class Bling extends SubsystemBase {
     }
     
     if (!cleared) {
+      // LEDRainbow(0, m_ledBuffer.getLength());
       if (OI.driverController.getRawButton(1)) {
-        setSlot(16, 255, 53, 184);
+        rangeRGB(slotLength * 6, slotLength, 255, 53, 104);
+        rangeRGB(slotLength * 16, slotLength, 255, 53, 104);
       } else {
-        setSlot(16, 0, 0, 0);
+        rangeRGB(slotLength * 6, slotLength, 0, 0, 0);
+        rangeRGB(slotLength * 16, slotLength, 0, 0, 0);
       }
 
       batteryBling(0, slotLength, 8.0, 12.5);
@@ -128,8 +131,7 @@ public class Bling extends SubsystemBase {
         }
       } else {
         duplicateRange(0, 32, 32);
-        // LEDRainbow(0, m_ledBuffer.getLength());
-        rangeRGB(0, slotLength * 16, 0, 0, 0);
+//        rangeRGB(0, slotLength * 16, 0, 0, 0);
       }
 
     } else {
