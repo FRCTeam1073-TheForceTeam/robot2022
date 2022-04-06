@@ -19,7 +19,7 @@ public class AlignToHub extends CommandBase {
   double scaleFactor = -2.5;
   double azimuthTolerance = 0.1;
   int timeoutCounter = 0;
-  double minVelocity = 1.0;
+  double minVelocity = 0.5;
   double minError = minVelocity / scaleFactor;
 
   private HubTracking hubTracking;
