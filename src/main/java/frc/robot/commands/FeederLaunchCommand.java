@@ -17,17 +17,24 @@ public class FeederLaunchCommand extends CommandBase {
 
   double feederVelocity = 192;
 
+  double timeout;
+
   Timer timer;
 
   int numLoops = 0;
   boolean ballInIndexer = true;
 
-  /** Creates a new FeedCommand. */
   public FeederLaunchCommand(Indexer indexer_, Feeder feeder_, Shooter shooter_) {
+    this(indexer_, feeder_, shooter_, 1.3);
+  }
+
+  /** Creates a new FeedCommand. */
+  public FeederLaunchCommand(Indexer indexer_, Feeder feeder_, Shooter shooter_, double timeout_) {
     indexer = indexer_;
     feeder = feeder_;
     shooter = shooter_;
     timer = new Timer();
+    timeout = timeout_;
     addRequirements(indexer, feeder);
   }
 
@@ -62,6 +69,6 @@ public class FeederLaunchCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(1.3);
+    return timer.hasElapsed(timeout);
   }
 }
