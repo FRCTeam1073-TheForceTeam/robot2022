@@ -406,13 +406,15 @@ public class RobotContainer {
     
     OI.whenNormalMode(OI.getOperatorDPadDown()).whenPressed(new DashboardReadoutCommand("HEY!!!!!!"));
     
-    (new JoystickButton(OI.driverController,9)).whileHeld(
+    JoystickButton hubAlignButton = new JoystickButton(OI.driverController, 22);
+
+    hubAlignButton.whileHeld(
       new SequentialCommandGroup(
         new AlignToHub(drivetrain, hubTracking)
       )
     );
 
-    (new JoystickButton(OI.driverController,9)).whenPressed(
+    hubAlignButton.whenPressed(
       new SequentialCommandGroup(
         new RunCommand(()->{
           OI.operatorController.setRumble(RumbleType.kLeftRumble, 0.9);
@@ -425,7 +427,7 @@ public class RobotContainer {
       )
     );
 
-    (new JoystickButton(OI.driverController, 9)).whenReleased(
+    hubAlignButton.whenReleased(
         () -> SmartDashboard.putBoolean("AlignToHub on", false)
     );
 
