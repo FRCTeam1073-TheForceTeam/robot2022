@@ -40,6 +40,7 @@ import frc.robot.commands.*;
 // Import subsystems: Add subsystems here.
 
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.HubTracking.HubData;
 
 // Import controls: Add controls here.
 
@@ -176,16 +177,28 @@ public class RobotContainer {
           new CollectCommand(collector, drivetrain),
           new ShooterTargetCommand(shooter, 1.73)
         ),
-        new InstantCommand(DashboardReadoutCommand::resetCounter),
-        new DashboardReadoutCommand("Firing first 2 cargo"),
-        new FeederLaunchCommand(indexer, feeder, shooter, 1.7),
-        new WaitCommand(0.2),
-        new DashboardReadoutCommand("Driving to 3rd ball"),
-        new AbsoluteDriveCommand(drivetrain,
-          new Pose2d(
-            5.37, -1.10, new Rotation2d(0.229)
-          ), 2.5, 8.0,
-          0.07, 0.1
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new InstantCommand(DashboardReadoutCommand::resetCounter),
+            new DashboardReadoutCommand("Firing first 2 cargo"),
+            new FeederLaunchCommand(indexer, feeder, shooter, 1.7),
+            new WaitCommand(0.2),
+            new InstantCommand(
+              ()->{
+                HubData u = new HubData();
+                hubTracking.sampleHubData(u);
+                System.out.println("RANGE:"+u.range+"O"+u.area);
+              }
+            ),
+            new DashboardReadoutCommand("Driving to 3rd ball"),
+            new AbsoluteDriveCommand(drivetrain,
+              new Pose2d(
+                5.222, -1.135, new Rotation2d(0.229)
+              ), 2.5, 8.0,
+              0.07, 0.1
+            )
+          ),
+          new CollectCommand(collector, drivetrain)
         ),
         new ParallelDeadlineGroup(
           new SequentialCommandGroup(
@@ -196,7 +209,7 @@ public class RobotContainer {
             new DashboardReadoutCommand("Index #2"),
             (new IndexCommand(indexer, shooter)).withTimeout(2.0)
           ),
-          new ShooterTargetCommand(shooter, 3.33),
+          new ShooterTargetCommand(shooter, 3.1),
           new HumanPlayerSignalCommand(bling),
           new CollectCommand(collector, drivetrain)
         ),
@@ -211,13 +224,43 @@ public class RobotContainer {
         ),
         new WaitCommand(0.3),
         new DashboardReadoutCommand("Firing second 2 cargo"),
+        new InstantCommand(
+          ()->{
+            HubData u = new HubData();
+            hubTracking.sampleHubData(u);
+            System.out.println("RANGE:"+u.range+"O"+u.area);
+          }
+        ),
         new FeederLaunchCommand(indexer, feeder, shooter),
         new WaitCommand(1.0),
         new DashboardReadoutCommand("Done!"),
         new ShooterSpinDownCommand(shooter)
       )
     );
-    
+
+    autoChooser.addOption("Reading2Ball",
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new TurnCommand(drivetrain, Units.degreesToRadians(20.0), 1.0).andThen(new PrintCommand("Finished Turning")),
+          new ShooterTargetCommand(shooter, 2.4).andThen(new PrintCommand("Finished Spinning Up"))
+        ),
+        new ParallelDeadlineGroup(
+          new WaitCommand(0.4).andThen(new DriveTranslateCommand(drivetrain, 1.5, 0.6)),
+          new IndexCommand(indexer, shooter),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new InstantCommand(
+          ()->{
+            HubData u = new HubData();
+            hubTracking.sampleHubData(u);
+            System.out.println("[R2B] RANGE:"+u.range+"O"+u.area);
+          }
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter,1.7),
+        new WaitCommand(1.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
         // new DashboardReadoutCommand("Turning to face 5th cargo"),
         // new AbsoluteDriveCommand(drivetrain,
         //   new Pose2d(
