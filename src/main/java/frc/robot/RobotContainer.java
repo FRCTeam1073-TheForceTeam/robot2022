@@ -412,7 +412,7 @@ public class RobotContainer {
       )
     );
     OI.whenNormalMode(OI.getOperatorDPadDown()).whenActive(
-        new ShooterTargetCommand(shooter, 1.0)
+        new ShooterTargetCommand(shooter, 2.12)
     );
     OI.whenNormalMode(OI.getOperatorDPadLeft()).whenActive(
         new ShooterTargetCommand(shooter, 2.0)

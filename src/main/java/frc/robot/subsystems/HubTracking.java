@@ -50,7 +50,7 @@ public class HubTracking extends SubsystemBase {
   private InterpolatorTable elevationInterpolator;
   private boolean hubVisibility;
 
-  public double ledPower = 1.2;
+  public double ledPower = 1.4;
   public double additionalRange = 0.0;
 
   /** Creates a new HubTracking. */
