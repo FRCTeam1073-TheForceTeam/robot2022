@@ -49,10 +49,11 @@ public class TeleopClimber extends CommandBase {
       softStopsOn.setBoolean(true);
 
       if (softStopsOn.getBoolean(true) == true){
-        if (climber.getSpoolPosition() >= Climber.Constants.minSpoolDistance) {
-          spoolVel = Math.min(0, spoolVel);
-        }
-        else if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
+       // if (climber.getSpoolPosition() >= Climber.Constants.minSpoolDistance) {
+       //   spoolVel = Math.min(0, spoolVel);
+      //  }
+       // else 
+        if (climber.getSpoolPosition() <= Climber.Constants.maxSpoolDistance) {
           spoolVel = Math.max(0, spoolVel);
         }
 

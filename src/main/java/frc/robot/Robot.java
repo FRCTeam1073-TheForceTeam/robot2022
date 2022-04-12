@@ -4,10 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.HubTracking.HubData;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,12 +32,18 @@ public class Robot extends TimedRobot
   private Command teleopCommand;
   private Command testCommand;
   private static Bling bling;
+  Timer timer;
+  int counter = 0;
+  int numReadouts = 0;
 
   @Override
   public void robotInit() 
   {
     robotContainer = new RobotContainer();
     bling = robotContainer.bling;
+    timer = new Timer();
+    counter = 0;
+    numReadouts = 0;
   }
 
   @Override
@@ -40,6 +51,24 @@ public class Robot extends TimedRobot
   {
     CommandScheduler.getInstance().run();
     OI.update();
+    counter++;
+    if ((DriverStation.isEnabled()||timer.get()!=0) && timer.get() <= 45) {
+      // Runs around every 0.2 seconds
+      if (counter % 10 == 0) {
+        Pose2d pose=robotContainer.drivetrain.getPoseMeters();
+        numReadouts++;
+        System.out.println(
+          String.format(
+            "ODOMETRY POINT READOUT #%d:\tTIME=%.2f SECONDS; XPOS=%.3f METERS; YPOS=%.3f METERS; ANGLE=%.4f RADIANS",
+            numReadouts,
+            timer.get(),
+            pose.getX(),
+            pose.getY(),
+            pose.getRotation().getRadians()
+          )
+        );
+      }
+    }
   }
 
   @Override
@@ -51,6 +80,9 @@ public class Robot extends TimedRobot
     {
       autonomousCommand.schedule();
     }
+
+    timer.reset();
+    timer.start();
   }
 
   @Override
@@ -59,6 +91,10 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    HubData u = new HubData();
+    robotContainer.hubTracking.sampleHubData(u);
+    System.out.println("[teleopInit] RANGE:"+u.range+"O"+u.area);
+
     OI.onEnable();
     teleopCommand = robotContainer.getTeleopCommand();
 
