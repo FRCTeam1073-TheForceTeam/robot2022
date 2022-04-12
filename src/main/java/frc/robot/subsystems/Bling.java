@@ -130,8 +130,8 @@ public class Bling extends SubsystemBase {
           }
         }
       } else {
-        duplicateRange(0, 32, 32);
-//        rangeRGB(0, slotLength * 16, 0, 0, 0);
+        //Copy LEDs 0-31 onto LEDs 91-60 (order reversed)
+        reverseRange(0,32,60);
       }
     } else {
       clearLEDs();
@@ -312,15 +312,16 @@ public class Bling extends SubsystemBase {
   }
 
 
-
+//So basically this reverses the slot numbers of the top LED strip of the robot and the right side of the robot LED strip. 
+// 
   public void setSlot(int slotNum, int r, int g, int b) {
     if (OI.isNormalMode()) {
-      if (slotNum <= m_ledBuffer.getLength() / slotLength && slotNum > 0) {
-        if (slotLength == 1) {
-          m_ledBuffer.setRGB(slotNum, r, g, b);
-        } else {
+      if (slotNum >= 8 || slotNum <= 14) {
+        rangeRGB((4*(slotNum-8)+32), slotLength, r, g, b);
+
+      } else if (slotNum <= m_ledBuffer.getLength() / slotLength && slotNum > 0) {
           rangeRGB((slotNum * slotLength), slotLength, r, g, b);
-        }
+
       }
     }
   }
