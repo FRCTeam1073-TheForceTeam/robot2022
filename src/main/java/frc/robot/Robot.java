@@ -45,7 +45,7 @@ public class Robot extends TimedRobot
     timer = new Timer();
     counter = 0;
     numReadouts = 0;
-    SmartDashboard.putBoolean("Hub Tracker/LED active when disabled", false);
+    SmartDashboard.putBoolean("Hub Tracker/LEDs active when disabled", false);
   }
 
   @Override
