@@ -48,7 +48,7 @@ public class Bling extends SubsystemBase {
   public boolean cleared = false;
 
   public Bling() {
-    m_led = new AddressableLED(0);
+    m_led = new AddressableLED(9);
     // TODO: change for the actual length
     m_ledBuffer = new AddressableLEDBuffer(64 + 28);
     m_led.setLength(m_ledBuffer.getLength());
