@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -84,6 +85,8 @@ public class Drivetrain extends SubsystemBase {
 
   private final boolean isPowerMode = false;
 
+  public static final boolean initMotorsInCoastMode = false;
+
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {
     drivetrainTable = NetworkTableInstance.getDefault().getTable("Drivetrain");
@@ -118,6 +121,10 @@ public class Drivetrain extends SubsystemBase {
     limitedTargetWheelSpeeds = new DifferentialDriveWheelSpeeds();
 
     setupDrivetrainMotors();
+    if (initMotorsInCoastMode) {
+      System.out.println("[Drivetrain] WARNING: Drivetrain motors set to COAST MODE");
+      setBrakeMode(false);
+    }
     field = new Field2d();
   }
   
@@ -222,9 +229,13 @@ public class Drivetrain extends SubsystemBase {
     if (braking) {
       leftMotorLeader.setNeutralMode(NeutralMode.Brake);
       rightMotorLeader.setNeutralMode(NeutralMode.Brake);
+      leftMotorFollower.setNeutralMode(NeutralMode.Brake);
+      rightMotorFollower.setNeutralMode(NeutralMode.Brake);
     } else {
       leftMotorLeader.setNeutralMode(NeutralMode.Coast);
       rightMotorLeader.setNeutralMode(NeutralMode.Coast);
+      leftMotorFollower.setNeutralMode(NeutralMode.Coast);
+      rightMotorFollower.setNeutralMode(NeutralMode.Coast);
     }
   }
 
@@ -289,5 +300,10 @@ public class Drivetrain extends SubsystemBase {
  
     leftMotorLeader.setIntegralAccumulator(0);
     rightMotorLeader.setIntegralAccumulator(0);
+
+    leftMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+    leftMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+    rightMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+    rightMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
   }
 }
