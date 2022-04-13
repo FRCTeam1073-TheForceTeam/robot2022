@@ -43,12 +43,14 @@ public class HubTracking extends SubsystemBase {
   private NetworkTableEntry outputX;
   private NetworkTableEntry outputY;
   private NetworkTableEntry outputArea;
+  private NetworkTableEntry visionTime;
   private NetworkTableInstance ntinst;
   private HubData hubData;
   private boolean hubVisible;
   private InterpolatorTable rangeInterpolator;
   private InterpolatorTable elevationInterpolator;
   private boolean hubVisibility;
+  private int sequencing;
 
   public double ledPower = 1.4;
   public double additionalRange = 0.0;
@@ -66,7 +68,9 @@ public class HubTracking extends SubsystemBase {
     outputX = ntinst.getTable("HUB").getEntry("Hub X");
     outputY = ntinst.getTable("HUB").getEntry("Hub Y");
     outputArea = ntinst.getTable("HUB").getEntry("Hub Area");
-    
+    visionTime = ntinst.getTable("HUB").getEntry("Vision Time");
+    sequencing = 0;
+
     hubData = new HubData();
     rangeInterpolator = new InterpolatorTable(
       new InterpolatorTableEntry(18, 1.0),
@@ -100,13 +104,26 @@ public class HubTracking extends SubsystemBase {
 
   @Override
   public void periodic() {
-    hubData.cx = outputX.getNumber(0).intValue();
-    hubData.cy = outputY.getNumber(0).intValue();
-    hubData.area = outputArea.getNumber(0).intValue();
-    hubData.azimuth = (hubData.cx - 320)/320.0;
-    hubData.range = rangeInterpolator.getValue(hubData.cy);
-    hubData.elevation = elevationInterpolator.getValue(hubData.cy);
-    hubData.timestamp = System.currentTimeMillis();
+    int newSequencing = visionTime.getNumber(0).intValue();
+    if (newSequencing != sequencing){
+      hubData.cx = outputX.getNumber(0).intValue();
+      hubData.cy = outputY.getNumber(0).intValue();
+      hubData.area = outputArea.getNumber(0).intValue();
+      hubData.azimuth = (hubData.cx - 320)/320.0;
+      hubData.range = rangeInterpolator.getValue(hubData.cy);
+      hubData.elevation = elevationInterpolator.getValue(hubData.cy);
+      hubData.timestamp = System.currentTimeMillis();    
+      sequencing = newSequencing;
+    }
+    else if(System.currentTimeMillis() - hubData.timestamp > 1000) {
+      hubData.cx = 0;
+      hubData.cy = 0;
+      hubData.area = 0;
+      hubData.azimuth = 0;
+      hubData.range = 0;
+      hubData.elevation = 0;
+    }
+   
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cx);
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cy);
     SmartDashboard.putNumber("Hub Tracker/area", hubData.area);
