@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 // import com.ctre.phoenix.sensors.CANCoder;
@@ -102,6 +103,11 @@ public class Climber extends SubsystemBase {
 
     spoolMotorRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
     extensionMotorRight.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 22, 28, 0.25));
+
+    spoolMotorLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+    spoolMotorLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+    extensionMotorLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+    extensionMotorLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
 
     // spooler encoder
     // spoolCANCoderRight = new CANCoder(0);
