@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.components.InterpolatorTable;
 import frc.robot.components.InterpolatorTable.InterpolatorTableEntry;
 
@@ -52,8 +53,9 @@ public class HubTracking extends SubsystemBase {
   private boolean hubVisibility;
   private int sequencing;
 
-  public double ledPower = 1.4;
+  public double ledPower = 1.75;
   public double additionalRange = 0.0;
+  Bling bling;
 
   /** Creates a new HubTracking. */
   public HubTracking() {
@@ -73,17 +75,29 @@ public class HubTracking extends SubsystemBase {
 
     hubData = new HubData();
     rangeInterpolator = new InterpolatorTable(
-      new InterpolatorTableEntry(18, 1.0),
-      new InterpolatorTableEntry(112, 1.5),
-      new InterpolatorTableEntry(188, 2.0),
-      new InterpolatorTableEntry(247, 2.5),
-      new InterpolatorTableEntry(295, 3.0),
-      new InterpolatorTableEntry(328, 3.5),
-      new InterpolatorTableEntry(360, 4.0),
-      new InterpolatorTableEntry(391, 4.5),
-      new InterpolatorTableEntry(412, 5.0),
-      new InterpolatorTableEntry(432, 5.5),
-      new InterpolatorTableEntry(450, 6.0)
+      new InterpolatorTableEntry(37, 1.0),
+      new InterpolatorTableEntry(139, 1.5),
+      new InterpolatorTableEntry(222, 2.0),
+      new InterpolatorTableEntry(283, 2.5),
+      new InterpolatorTableEntry(326, 3.0),
+      new InterpolatorTableEntry(360, 3.5),
+      new InterpolatorTableEntry(391, 4.0),
+      new InterpolatorTableEntry(412, 4.5),
+      new InterpolatorTableEntry(432, 5.0),
+      new InterpolatorTableEntry(450, 5.5),
+      new InterpolatorTableEntry(466, 6.0)
+
+      // new InterpolatorTableEntry(18, 1.0),
+      // new InterpolatorTableEntry(112, 1.5),
+      // new InterpolatorTableEntry(188, 2.0),
+      // new InterpolatorTableEntry(247, 2.5),
+      // new InterpolatorTableEntry(295, 3.0),
+      // new InterpolatorTableEntry(328, 3.5),
+      // new InterpolatorTableEntry(360, 4.0),
+      // new InterpolatorTableEntry(391, 4.5),
+      // new InterpolatorTableEntry(412, 5.0),
+      // new InterpolatorTableEntry(432, 5.5),
+      // new InterpolatorTableEntry(450, 6.0)
     );
     elevationInterpolator = new InterpolatorTable(
       new InterpolatorTableEntry(9, 1.12),
@@ -115,7 +129,7 @@ public class HubTracking extends SubsystemBase {
       hubData.timestamp = System.currentTimeMillis();    
       sequencing = newSequencing;
     }
-    else if(System.currentTimeMillis() - hubData.timestamp > 1000) {
+    else if (System.currentTimeMillis() - hubData.timestamp > 1000) {
       hubData.cx = 0;
       hubData.cy = 0;
       hubData.area = 0;
@@ -123,7 +137,9 @@ public class HubTracking extends SubsystemBase {
       hubData.range = 0;
       hubData.elevation = 0;
     }
-   
+    if (bling == null) {
+      bling = Robot.getBling();
+    }
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cx);
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cy);
     SmartDashboard.putNumber("Hub Tracker/area", hubData.area);
@@ -134,6 +150,24 @@ public class HubTracking extends SubsystemBase {
     SmartDashboard.putBoolean("Hub Visibility", isHubVisible());
     ledPower = SmartDashboard.getNumber("Hub Tracker/ledPower", 1.0);
     additionalRange = SmartDashboard.getNumber("Hub Tracker/Additional Range", 0.0);
+
+    if (isHubVisible()) {
+      bling.setSlot(5, 100, 0, 100);
+      bling.setSlot(6, 100, 0, 100);
+      bling.setSlot(7, 100, 0, 100);
+      // bling.setSlot(16, 100, 0, 100);
+      // bling.setSlot(17, 100, 0, 100);
+      bling.setSlot(8, 100, 0, 100);
+      bling.setSlot(14, 100, 0, 100);
+    } else {
+      bling.setSlot(5, 0, 0, 0);
+      bling.setSlot(6, 0, 0, 0);
+      bling.setSlot(7, 0, 0, 0);
+      // bling.setSlot(16, 0, 0, 0);
+      // bling.setSlot(17, 0, 0, 0);
+      bling.setSlot(8, 0, 0, 0);
+      bling.setSlot(14, 0, 0, 0);      
+    }
   }
 
   public void sampleHubData(HubData data) {

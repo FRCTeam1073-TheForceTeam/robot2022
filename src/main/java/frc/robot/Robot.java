@@ -76,6 +76,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
+    robotContainer.drivetrain.setBrakeMode(true);
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null)
@@ -104,6 +105,7 @@ public class Robot extends TimedRobot
     {
       teleopCommand.schedule();
     }
+    robotContainer.drivetrain.setBrakeMode(true);
   }
 
   @Override
@@ -111,7 +113,11 @@ public class Robot extends TimedRobot
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if (Drivetrain.initMotorsInCoastMode) {
+      robotContainer.drivetrain.setBrakeMode(false);
+    }
+  }
 
   @Override
   public void disabledPeriodic() {

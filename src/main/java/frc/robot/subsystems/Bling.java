@@ -54,7 +54,7 @@ public class Bling extends SubsystemBase {
     m_led.setLength(m_ledBuffer.getLength());
     m_led.setData(m_ledBuffer);
     m_led.start();
-    slotLength = (int) (m_ledBuffer.getLength()/(16 + 7));
+    slotLength = (int) (m_ledBuffer.getLength() / (16 + 7));
   }
 
   public void initialize() {
@@ -72,6 +72,7 @@ public class Bling extends SubsystemBase {
     gameB = 0;
   }
 
+  int ctr = 0;
   @Override
   public void periodic() {
     counter_rainbow++;
@@ -81,7 +82,7 @@ public class Bling extends SubsystemBase {
       move_rainbow %= 12;
       counter_rainbow = 0;
     }
-    
+
     if (!cleared) {
       // LEDRainbow(0, m_ledBuffer.getLength());
       if (OI.driverController.getRawButton(1)) {
@@ -95,11 +96,11 @@ public class Bling extends SubsystemBase {
       batteryBling(0, slotLength, 8.0, 12.5);
 
       if (OI.isClimberMode()) {
-        duplicateRange(0, slotLength, 32);
+        // duplicateRange(0, slotLength, 32);
 
         if (Climber.getSensorReading(2) && Climber.getSensorReading(3) && Climber.getSensorReading(4) && Climber.getSensorReading(5)) {
           LEDRainbow(slotLength, slotLength * 7);
-          duplicateRange(0, slotLength * 8, slotLength * 8);
+          // duplicateRange(0, slotLength * 8, slotLength * 8);
         } else {
           if (Climber.getSensorReading(2)) {
             rangeRGB(slotLength, slotLength * 3, 85, 85, 0);
@@ -129,14 +130,37 @@ public class Bling extends SubsystemBase {
             rangeRGB(slotLength * 13, slotLength * 3, 0, 0, 0);
           }
         }
-      } else {
-        //Copy LEDs 0-31 onto LEDs 91-60 (order reversed)
-        reverseRange(0,32,60);
       }
+      //Copy LEDs 0-31 onto LEDs 91-60 (order reversed)
+      reverseRange(0,32,60);
     } else {
       clearLEDs();
     }
-    
+
+    // if (!DriverStation.isEnabled()) {
+    //   if (OI.operatorController.getXButtonPressed()) {
+    //     ctr = -1;
+    //   } else if (OI.operatorController.getAButtonPressed()) {
+    //     ctr = Math.max(0, ctr);
+    //     ctr -= 4;
+    //   } else if (OI.operatorController.getBButton()) {
+    //     ctr = m_ledBuffer.getLength()-1;
+    //   }
+    // }
+
+    // ctr %= m_ledBuffer.getLength();
+    // setColorRGBAll(0, 0, 0);
+    // for (int i = 0; i < ctr; i++) {
+    //   m_ledBuffer.setRGB(
+    //     i,
+    //     (int)(255*Math.abs(Math.cos(timer.get()*(1.0+1.0*i/m_ledBuffer.getLength())))),
+    //     (int)(255*Math.abs(Math.cos(timer.get()*(1.2+1.0*i/m_ledBuffer.getLength())))),
+    //     (int)(255*Math.abs(Math.cos(timer.get()*(3.7+1.0*i/m_ledBuffer.getLength()))))
+    //   );
+    // }
+    // // rangeRGB(0, ctr + 1, 255, 0, 0);
+    // // m_ledBuffer.setRGB(
+    // // // ctr=(ctr+1)%920;
     m_led.setData(m_ledBuffer);
   }
 
@@ -238,7 +262,7 @@ public class Bling extends SubsystemBase {
     for (var i = 0; i < (m_ledBuffer.getLength()); i++) {
       m_ledBuffer.setRGB(i, r, g, b);
     }
-    m_led.setData(m_ledBuffer);
+    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -392,8 +416,12 @@ public class Bling extends SubsystemBase {
 
 
   public void reverseRange(int startRange, int numRange, int setRangeStart) {
+    //[0...i...numRange]-->[(setRangeStart+numRange-1)...(setRangeStart+numRange-1-i)...(setRangeStart-1)]
     for (int i = 0; i < numRange; i++) {
-      m_ledBuffer.setLED(setRangeStart + numRange - i - 1, m_ledBuffer.getLED8Bit(startRange + i));
+      m_ledBuffer.setLED(
+        setRangeStart + numRange - i - 1,
+        m_ledBuffer.getLED8Bit(startRange + i)
+      );
     }
   }
 
