@@ -338,6 +338,27 @@ public class RobotContainer {
         new ShooterSpinDownCommand(shooter)
       )
     );
+    autoChooser.addOption("Auto-1Ball",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new AbsoluteDriveCommand(
+            drivetrain,
+            new Pose2d(1.0, 0.0, new Rotation2d(0.0)),
+            2.0
+          ),
+          new ShooterTargetCommand(shooter, 2.4)
+        ),
+        new WaitCommand(0.5),
+        (new ShooterRangeTargetCommand(shooter, hubTracking) {
+          public void end(boolean interruptible) {
+            return;
+          }
+        }).withTimeout(2.0),
+        new FeederLaunchCommand(indexer, feeder, shooter, 2.0),
+        new WaitCommand(1.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
         // new DashboardReadoutCommand("Turning to face 5th cargo"),
         // new AbsoluteDriveCommand(drivetrain,
         //   new Pose2d(
@@ -527,10 +548,19 @@ public class RobotContainer {
     OI.whenNormalMode(OI.getOperatorDPadDown()).whenPressed(new DashboardReadoutCommand("HEY!!!!!!"));
     
     JoystickButton hubAlignButton = new JoystickButton(OI.driverController, 22);
-
+    JoystickButton localizeAlignButton = new JoystickButton(OI.driverController, 23);
+    
     hubAlignButton.whileActiveOnce(
       new AlignToHub(drivetrain, hubTracking)
     );
+
+    localizeAlignButton.whileActiveOnce(
+      new SequentialCommandGroup(
+        new LocalizedHubAlign(drivetrain, localizer, hubTracking),
+        new AlignToHub(drivetrain, hubTracking)
+      )
+    );
+
 
     hubAlignButton.whenPressed(
       new SequentialCommandGroup(
