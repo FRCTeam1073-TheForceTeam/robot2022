@@ -177,7 +177,7 @@ public class RobotContainer {
           ),
           new IndexCommand(indexer, shooter),
           new CollectCommand(collector, drivetrain),
-          new ShooterTargetCommand(shooter, 1.73)
+          new ShooterTargetCommand(shooter, 2.0)
         ),
         new ParallelDeadlineGroup(
           new SequentialCommandGroup(
@@ -211,7 +211,7 @@ public class RobotContainer {
             new DashboardReadoutCommand("Index #2"),
             (new IndexCommand(indexer, shooter)).withTimeout(2.0)
           ),
-          new ShooterTargetCommand(shooter, 3.1),
+          new ShooterTargetCommand(shooter, 3.22),
           new HumanPlayerSignalCommand(bling),
           new CollectCommand(collector, drivetrain)
         ),
