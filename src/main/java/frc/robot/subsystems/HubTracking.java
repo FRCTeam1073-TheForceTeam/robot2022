@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.Interpolatable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -142,6 +144,7 @@ public class HubTracking extends SubsystemBase {
     if (bling == null) {
       bling = Robot.getBling();
     }
+
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cx);
     SmartDashboard.putNumber("Hub Tracker/cx", hubData.cy);
     SmartDashboard.putNumber("Hub Tracker/area", hubData.area);

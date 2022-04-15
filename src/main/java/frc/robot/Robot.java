@@ -33,6 +33,7 @@ public class Robot extends TimedRobot
   private Command teleopCommand;
   private Command testCommand;
   private static Bling bling;
+  private static IMU imu;
   Timer timer;
   int counter = 0;
   int numReadouts = 0;
@@ -42,6 +43,7 @@ public class Robot extends TimedRobot
   {
     robotContainer = new RobotContainer();
     bling = robotContainer.bling;
+    imu = robotContainer.imu;
     timer = new Timer();
     counter = 0;
     numReadouts = 0;
@@ -145,6 +147,10 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic() {}
 
+  public static IMU getIMU() {
+    return imu;
+  }
+  
   public static Bling getBling() {
     return bling;
   }

@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -20,14 +21,15 @@ public class Localizer extends SubsystemBase {
   private HubTracking hubTracking;
   private IMU imu;
   
-  private Pose2d initialPose;
-  private double initialHeading;
-  private Pose2d estimatedPose;
-  private double currentHeading;
+  // private Pose2d initialPose;
+  // private double initialHeading;
+  // private Pose2d estimatedPose;
+  // private double currentHeading;
   
-  private Field2d fieldDisplay;
+  // private Field2d fieldDisplay;
 
-  private DifferentialDriveOdometry odometry;
+  // private DifferentialDriveOdometry odometry;
+  Translation2d hubPosition;
   HubData hubData;
 
   public static final double azimuthThreshold = 0.1;
@@ -38,67 +40,80 @@ public class Localizer extends SubsystemBase {
     imu = drivetrain.getIMU();
     hubTracking = hubTracking_;
 
-    fieldDisplay = new Field2d();
+    // fieldDisplay = new Field2d();
 
-    initialPose = new Pose2d();
-    initialHeading = initialPose.getRotation().getRadians();
+    // initialPose = new Pose2d();
+    // initialHeading = initialPose.getRotation().getRadians();
 
-    estimatedPose = new Pose2d();
-    currentHeading = estimatedPose.getRotation().getRadians();
+    // estimatedPose = new Pose2d();
+    // currentHeading = estimatedPose.getRotation().getRadians();
 
-    odometry = new DifferentialDriveOdometry(new Rotation2d(initialHeading));
+    // odometry = new DifferentialDriveOdometry(new Rotation2d(initialHeading));
 
     hubData = new HubData();
 
-    setInitialOdometryPose(new Pose2d());
+    // setInitialOdometryPose(new Pose2d());
+    hubPosition = new Translation2d();
   }
   
   int ctr = 0;
   @Override
   public void periodic() {
-    currentHeading = imu.getAngleRadians() + initialHeading;
-  	double leftPos = drivetrain.getLeftWheelPosition();
-    double rightPos = drivetrain.getRightWheelPosition();
-
-    estimatedPose = odometry.update(
-        new Rotation2d(currentHeading),
-        leftPos,
-        rightPos
-    );
-    
-    if(hubTracking.isHubVisible()){
-      hubTracking.sampleHubData(hubData);
-      if(Math.abs(hubData.azimuth)<azimuthThreshold){
-        updatePositionEstimate(
-          -(hubData.range+upperHubRadius)*Math.cos(currentHeading),
-          -(hubData.range+upperHubRadius)*Math.sin(currentHeading)
-        );
-      }
+    hubTracking.sampleHubData(hubData);
+    if (hubTracking.isHubVisible() && (Math.abs(hubData.azimuth) < azimuthThreshold)) {
+      double range = hubData.range + Localizer.upperHubRadius;
+      double angle = imu.getAngleRadians();
+      hubPosition = (new Translation2d(range * Math.cos(angle), range * Math.sin(angle)))
+          .plus(drivetrain.getPoseMeters().getTranslation());
     }
+    // currentHeading = imu.getAngleRadians() + initialHeading;
+    // double leftPos = drivetrain.getLeftWheelPosition();
+    // double rightPos = drivetrain.getRightWheelPosition();
 
-    fieldDisplay.setRobotPose(estimatedPose);
-    SmartDashboard.putData(fieldDisplay);
-    SmartDashboard.putNumber("[Localizer] Estimated pose/X position (meters)", estimatedPose.getTranslation().getX());
-    SmartDashboard.putNumber("[Localizer] Estimated pose/Y position (meters)", estimatedPose.getTranslation().getY());
-    SmartDashboard.putNumber("[Localizer] Estimated pose/Angle (radians)", estimatedPose.getRotation().getRadians());
-    if (ctr % 10 == 0) {
-      System.out.println("TIME: " + Timer.getMatchTime() + "ESTIMATED POSE:" + estimatedPose.toString());
-    }
-    ctr++;
-  }
-  
-  public void updatePositionEstimate(double newX, double newY) {
-    estimatedPose = new Pose2d(newX, newY, new Rotation2d(currentHeading));
+    // estimatedPose = odometry.update(
+    //     new Rotation2d(currentHeading),
+    //     leftPos,
+    //     rightPos
+    // );
+
+    // if(hubTracking.isHubVisible()){
+    //   hubTracking.sampleHubData(hubData);
+    //   if(Math.abs(hubData.azimuth)<azimuthThreshold){
+    //     updatePositionEstimate(
+    //       -(hubData.range+upperHubRadius)*Math.cos(currentHeading),
+    //       -(hubData.range+upperHubRadius)*Math.sin(currentHeading)
+    //     );
+    //   }
+    // }
+
+    // fieldDisplay.setRobotPose(estimatedPose);
+    // SmartDashboard.putData(fieldDisplay);
+    // SmartDashboard.putNumber("[Localizer] Estimated pose/X position (meters)", estimatedPose.getTranslation().getX());
+    // SmartDashboard.putNumber("[Localizer] Estimated pose/Y position (meters)", estimatedPose.getTranslation().getY());
+    // SmartDashboard.putNumber("[Localizer] Estimated pose/Angle (radians)", estimatedPose.getRotation().getRadians());
+    // if (ctr % 10 == 0) {
+    //   System.out.println("TIME: " + Timer.getMatchTime() + "ESTIMATED POSE:" + estimatedPose.toString());
+    // }
+    // ctr++;
   }
   
   public double getAngleToHub() {
-    return Math.atan2(-estimatedPose.getY(),-estimatedPose.getX());
+    Translation2d diff=hubPosition.minus(drivetrain.getPoseMeters().getTranslation());
+    return Math.atan2(diff.getY(), diff.getX());
   }
   
-  public void setInitialOdometryPose(Pose2d startingPose) {
-    initialPose = new Pose2d(startingPose.getTranslation(),startingPose.getRotation());
-    initialHeading = initialPose.getRotation().getRadians();
-    odometry = new DifferentialDriveOdometry(new Rotation2d(initialHeading));
-    estimatedPose = new Pose2d(initialPose.getX(),initialPose.getY(), new Rotation2d(initialHeading));
-  }
+  // public void updatePositionEstimate(double newX, double newY) {
+  //   estimatedPose = new Pose2d(newX, newY, new Rotation2d(currentHeading));
+  // }
+  
+  // public double getAngleToHub() {
+  //   return Math.atan2(-estimatedPose.getY(),-estimatedPose.getX());
+  // }
+  
+  // public void setInitialOdometryPose(Pose2d startingPose) {
+  //   initialPose = new Pose2d(startingPose.getTranslation(),startingPose.getRotation());
+  //   initialHeading = initialPose.getRotation().getRadians();
+  //   odometry = new DifferentialDriveOdometry(new Rotation2d(initialHeading));
+  //   estimatedPose = new Pose2d(initialPose.getX(),initialPose.getY(), new Rotation2d(initialHeading));
+  // }
 }
