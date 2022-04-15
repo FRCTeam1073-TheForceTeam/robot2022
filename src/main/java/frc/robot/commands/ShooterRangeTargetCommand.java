@@ -15,6 +15,9 @@ public class ShooterRangeTargetCommand extends CommandBase {
   HubTracking hubTracking;
   double range=0;
   HubData data;
+  int loopCounter = 0;
+  public static final int maxLoops = 5;
+  boolean hasRangeData;
 
   /** Creates a new ShooterRangeTargetCommand. */
   public ShooterRangeTargetCommand(Shooter shooter_, HubTracking hubTracking_) {
@@ -32,7 +35,16 @@ public class ShooterRangeTargetCommand extends CommandBase {
     SmartDashboard.putNumber("RANGE", range);
     SmartDashboard.putNumber("FLYWHEEL", shooter.getFlywheelTargetVelocity());
     SmartDashboard.putNumber("HOOD", shooter.getHoodTargetPosition());
+    loopCounter = 0;
+    hasRangeData = false;
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    loopCounter++;
     if (hubTracking.isHubVisible()) {
+      hasRangeData = true;
       hubTracking.sampleHubData(data);
       range = data.range;
       double targetFlywheelVelocity = ShooterTargetCommand.flywheelTable.getValue(range);
@@ -40,11 +52,6 @@ public class ShooterRangeTargetCommand extends CommandBase {
       shooter.setFlywheelVelocity(targetFlywheelVelocity);
       shooter.setHoodPosition(targetHoodAngle);
     }
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
   }
 
   // Called once the command ends or is interrupted.
@@ -59,7 +66,8 @@ public class ShooterRangeTargetCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
+    return (!hasRangeData && (loopCounter < maxLoops)) ||
+        (Math.abs(shooter.getHoodTargetPosition() - shooter.getHoodPosition()) < Shooter.Constants.kAcceptableHoodPositionError
       && Math.abs(shooter.getFlywheelTargetVelocity() - shooter.getFlywheelVelocity()) < Shooter.Constants.kAcceptableFlywheelVelocityError);
   }
 }
