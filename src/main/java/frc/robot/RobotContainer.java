@@ -548,7 +548,7 @@ public class RobotContainer {
     OI.whenNormalMode(OI.getOperatorDPadDown()).whenPressed(new DashboardReadoutCommand("HEY!!!!!!"));
     
     JoystickButton hubAlignButton = new JoystickButton(OI.driverController, 22);
-    JoystickButton localizeAlignButton = new JoystickButton(OI.driverController, 23);
+    JoystickButton localizeAlignButton = new JoystickButton(OI.driverController, 21);
     
     hubAlignButton.whileActiveOnce(
       new AlignToHub(drivetrain, hubTracking)
