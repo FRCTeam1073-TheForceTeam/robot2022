@@ -80,6 +80,8 @@ public class RobotContainer {
   HubTracking hubTracking = new HubTracking();
   
   CargoTracking cargoTracker = new CargoTracking();
+  
+  Localizer localizer = new Localizer(drivetrain, hubTracking);
 
   Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
 
