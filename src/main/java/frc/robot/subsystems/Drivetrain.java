@@ -128,6 +128,10 @@ public class Drivetrain extends SubsystemBase {
     field = new Field2d();
   }
   
+  public IMU getIMU(){
+    return imu;
+  }
+  
   boolean a = false;
 
   @Override
@@ -239,6 +243,14 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
+  public double getLeftWheelPosition(){
+    return leftMotorLeader.getSelectedSensorPosition() / ticksPerMeter;
+  }
+
+  public double getRightWheelPosition(){
+    return rightMotorLeader.getSelectedSensorPosition() / ticksPerMeter;
+  }
+  
   public double getRawVelocity() {
     return (leftMotorLeader.getSelectedSensorVelocity() + rightMotorLeader.getSelectedSensorVelocity()) * 0.5;
   }
