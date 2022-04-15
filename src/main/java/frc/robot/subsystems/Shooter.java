@@ -522,6 +522,7 @@ public class Shooter extends SubsystemBase {
 
     public static final double kTOFIndex_closed = 0.10;
 
-    public static final double nominalHoodZeroPosition = 0.097;
+    public static final double nominalHoodZeroPosition = 0.0983;
+
   }
 }
