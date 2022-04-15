@@ -82,7 +82,7 @@ public class Localizer extends SubsystemBase {
     SmartDashboard.putNumber("[Localizer] Estimated pose/Y position (meters)", estimatedPose.getTranslation().getY());
     SmartDashboard.putNumber("[Localizer] Estimated pose/Angle (radians)", estimatedPose.getRotation().getRadians());
     if (ctr % 10 == 0) {
-      System.out.println("TIME: " + Timer.getMatchTime() + "ESTIMATED POSE:" + estimatedPose.toString());
+      //System.out.println("TIME: " + Timer.getMatchTime() + "ESTIMATED POSE:" + estimatedPose.toString());
     }
     ctr++;
   }
