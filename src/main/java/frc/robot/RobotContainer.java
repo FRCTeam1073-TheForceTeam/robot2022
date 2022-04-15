@@ -526,10 +526,8 @@ public class RobotContainer {
     
     JoystickButton hubAlignButton = new JoystickButton(OI.driverController, 22);
 
-    hubAlignButton.whileHeld(
-      new SequentialCommandGroup(
-        new AlignToHub(drivetrain, hubTracking)
-      )
+    hubAlignButton.whileActiveOnce(
+      new AlignToHub(drivetrain, hubTracking)
     );
 
     hubAlignButton.whenPressed(

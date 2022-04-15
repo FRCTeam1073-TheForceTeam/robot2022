@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Robot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.HubTracking;
 import frc.robot.subsystems.HubTracking.HubData;
@@ -51,24 +52,25 @@ public class AlignToHub extends CommandBase {
   @Override
   public void execute() {
     hubTracking.sampleHubData(data);
+    Robot.getBling().setSlot(3, 200, 200, 200);
     if (hubTracking.isHubVisible()) {
       hubAzimuth = data.azimuth;
       timeoutCounter = 0;
+      if (Math.abs(hubAzimuth) < minError) {
+        if (hubAzimuth < 0) {
+          chassisSpeeds.omegaRadiansPerSecond = minVelocity;
+        }
+        else {
+          chassisSpeeds.omegaRadiansPerSecond = -1 * minVelocity;
+        }
+      }
+      else {
+        chassisSpeeds.omegaRadiansPerSecond = hubAzimuth * scaleFactor;
+      }
     }
     else {
       timeoutCounter++;
-    }
-  
-    if (Math.abs(hubAzimuth) < minError) {
-      if (hubAzimuth < 0) {
-        chassisSpeeds.omegaRadiansPerSecond = minVelocity;
-      }
-      else {
-        chassisSpeeds.omegaRadiansPerSecond = -1 * minVelocity;
-      }
-    }
-    else {
-      chassisSpeeds.omegaRadiansPerSecond = hubAzimuth * scaleFactor;
+      chassisSpeeds.omegaRadiansPerSecond = 0;
     }
     drivetrain.setChassisSpeeds(chassisSpeeds);
   }
@@ -77,6 +79,7 @@ public class AlignToHub extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     chassisSpeeds = new ChassisSpeeds();
+    Robot.getBling().setSlot(3, 0, 0, 0);
 
 
     drivetrain.setChassisSpeeds(chassisSpeeds);
@@ -85,6 +88,6 @@ public class AlignToHub extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (Math.abs(hubAzimuth) < azimuthTolerance) || (timeoutCounter > 200);
+    return (Math.abs(hubAzimuth) < azimuthTolerance) || (timeoutCounter > 20);
   }
 }

@@ -97,7 +97,6 @@ public class Robot extends TimedRobot
     HubData u = new HubData();
     robotContainer.hubTracking.sampleHubData(u);
     System.out.println("[teleopInit] RANGE:"+u.range+"O"+u.area);
-
     OI.onEnable();
     teleopCommand = robotContainer.getTeleopCommand();
 

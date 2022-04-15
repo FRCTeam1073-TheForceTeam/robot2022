@@ -53,7 +53,7 @@ public class HubTracking extends SubsystemBase {
   private boolean hubVisibility;
   private int sequencing;
 
-  public double ledPower = 1.75;
+  public double ledPower = 2.0;
   public double additionalRange = 0.0;
   Bling bling;
 
@@ -76,16 +76,18 @@ public class HubTracking extends SubsystemBase {
     hubData = new HubData();
     rangeInterpolator = new InterpolatorTable(
       new InterpolatorTableEntry(37, 1.0),
-      new InterpolatorTableEntry(139, 1.5),
-      new InterpolatorTableEntry(222, 2.0),
-      new InterpolatorTableEntry(283, 2.5),
-      new InterpolatorTableEntry(326, 3.0),
-      new InterpolatorTableEntry(360, 3.5),
-      new InterpolatorTableEntry(391, 4.0),
-      new InterpolatorTableEntry(412, 4.5),
-      new InterpolatorTableEntry(432, 5.0),
-      new InterpolatorTableEntry(450, 5.5),
-      new InterpolatorTableEntry(466, 6.0)
+      new InterpolatorTableEntry(133, 1.5),
+      new InterpolatorTableEntry(208, 2.0),//NEW
+      new InterpolatorTableEntry(263, 2.5),//NEW
+      new InterpolatorTableEntry(309, 3.0),//NEW
+      new InterpolatorTableEntry(349, 3.5),//NEW
+      new InterpolatorTableEntry(381, 4.0),//NEW
+      new InterpolatorTableEntry(409, 4.5),//NEW
+      new InterpolatorTableEntry(433, 5.0) //NEW
+      // new InterpolatorTableEntry(412, 4.5),
+      // new InterpolatorTableEntry(432, 5.0),
+      // new InterpolatorTableEntry(450, 5.5),
+      // new InterpolatorTableEntry(466, 6.0)
 
       // new InterpolatorTableEntry(18, 1.0),
       // new InterpolatorTableEntry(112, 1.5),
@@ -152,21 +154,25 @@ public class HubTracking extends SubsystemBase {
     additionalRange = SmartDashboard.getNumber("Hub Tracker/Additional Range", 0.0);
 
     if (isHubVisible()) {
-      bling.setSlot(5, 100, 0, 100);
-      bling.setSlot(6, 100, 0, 100);
-      bling.setSlot(7, 100, 0, 100);
-      // bling.setSlot(16, 100, 0, 100);
-      // bling.setSlot(17, 100, 0, 100);
-      bling.setSlot(8, 100, 0, 100);
-      bling.setSlot(14, 100, 0, 100);
+      if (Math.abs(hubData.azimuth) < 0.15) {
+        bling.setSlot(5, 200, 200, 0);
+        bling.setSlot(6, 200, 200, 0);
+        bling.setSlot(7, 200, 200, 0);
+        bling.setSlot(8, 200, 200, 0);
+        bling.setSlot(14, 200, 200, 0);
+      } else {
+        bling.setSlot(5, 100, 0, 100);
+        bling.setSlot(6, 100, 0, 100);
+        bling.setSlot(7, 100, 0, 100);
+        bling.setSlot(8, 100, 0, 100);
+        bling.setSlot(14, 100, 0, 100);
+      }
     } else {
       bling.setSlot(5, 0, 0, 0);
       bling.setSlot(6, 0, 0, 0);
       bling.setSlot(7, 0, 0, 0);
-      // bling.setSlot(16, 0, 0, 0);
-      // bling.setSlot(17, 0, 0, 0);
       bling.setSlot(8, 0, 0, 0);
-      bling.setSlot(14, 0, 0, 0);      
+      bling.setSlot(14, 0, 0, 0);
     }
   }
 

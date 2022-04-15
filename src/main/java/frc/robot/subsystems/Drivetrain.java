@@ -85,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
 
   private final boolean isPowerMode = false;
 
-  public static final boolean initMotorsInCoastMode = false;
+  public static final boolean initMotorsInCoastMode = true;
 
   /** Creates a new Drive. */
   public Drivetrain(IMU imu) {

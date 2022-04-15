@@ -94,13 +94,15 @@ public class Bling extends SubsystemBase {
       }
 
       batteryBling(0, slotLength, 8.0, 12.5);
+      reverseRange(0, 32, 60);
 
       if (OI.isClimberMode()) {
         // duplicateRange(0, slotLength, 32);
 
         if (Climber.getSensorReading(2) && Climber.getSensorReading(3) && Climber.getSensorReading(4) && Climber.getSensorReading(5)) {
           LEDRainbow(slotLength, slotLength * 7);
-          // duplicateRange(0, slotLength * 8, slotLength * 8);
+          //Copy LEDs 0-31 onto LEDs 91-60 (order reversed)
+          reverseRange(0, 32, 60);
         } else {
           if (Climber.getSensorReading(2)) {
             rangeRGB(slotLength, slotLength * 3, 85, 85, 0);
@@ -117,22 +119,23 @@ public class Bling extends SubsystemBase {
           }
 
           if (Climber.getSensorReading(4)) {
-            rangeRGB(slotLength * 9, slotLength * 3, 85, 85, 0);
+            rangeRGB(92 - 4 * slotLength, slotLength * 3, 85, 85, 0);
           } else {
-            rangeRGB(slotLength * 9, slotLength * 3, 0, 0, 0);
+            rangeRGB(92 - 4 * slotLength, slotLength * 3, 0, 0, 0);
           }
 
           rangeRGB(slotLength * 12, slotLength, 0, 0, 0);
 
           if (Climber.getSensorReading(5)) {
-            rangeRGB(slotLength * 13, slotLength * 3, 0, 0, 255);
+            rangeRGB(60, slotLength * 3, 0, 0, 255);
           } else {
-            rangeRGB(slotLength * 13, slotLength * 3, 0, 0, 0);
+            rangeRGB(60, slotLength * 3, 0, 0, 0);
           }
         }
+      } else {
+        //Copy LEDs 0-31 onto LEDs 91-60 (order reversed)
+        reverseRange(0,32,60);
       }
-      //Copy LEDs 0-31 onto LEDs 91-60 (order reversed)
-      reverseRange(0,32,60);
     } else {
       clearLEDs();
     }
@@ -252,7 +255,7 @@ public class Bling extends SubsystemBase {
   public void setLEDs2(int i, int i2, int r, int g, int b) {
     m_ledBuffer.setRGB(i, r, g, b);
     m_ledBuffer.setRGB(i2, r, g, b);
-    m_led.setData(m_ledBuffer);
+    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -272,7 +275,7 @@ public class Bling extends SubsystemBase {
     for (var i = 0; i < (m_ledBuffer.getLength()); i++) {
       m_ledBuffer.setHSV(i, h, s, v);
     }
-    m_led.setData(m_ledBuffer);
+    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -289,7 +292,7 @@ public class Bling extends SubsystemBase {
       m_ledBuffer.setRGB(j, r2, g2, b2);
       m_ledBuffer.setRGB(j + 1, r2, g2, b2);
     }
-    m_led.setData(m_ledBuffer);
+    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -305,7 +308,7 @@ public class Bling extends SubsystemBase {
     for (int j = min + 1; j < (max); j = j + 2) {
       m_ledBuffer.setHSV(j, h2, s2, v2);
     }
-    m_led.setData(m_ledBuffer);
+    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -332,7 +335,7 @@ public class Bling extends SubsystemBase {
       m_ledBuffer.setHSV(i, h, s, v);
     }
 
-    m_led.setData(m_ledBuffer);
+    // m_led.setData(m_ledBuffer);
   }
 
 
@@ -342,10 +345,8 @@ public class Bling extends SubsystemBase {
     if (OI.isNormalMode()) {
       if (slotNum >= 8 || slotNum <= 14) {
         rangeRGB((4*(slotNum-8)+32), slotLength, r, g, b);
-
       } else if (slotNum <= m_ledBuffer.getLength() / slotLength && slotNum > 0) {
-          rangeRGB((slotNum * slotLength), slotLength, r, g, b);
-
+        rangeRGB((slotNum * slotLength), slotLength, r, g, b);
       }
     }
   }
