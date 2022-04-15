@@ -230,7 +230,7 @@ public class RobotContainer {
           ()->{
             HubData u = new HubData();
             hubTracking.sampleHubData(u);
-            System.out.println("RANGE:"+u.range+"O"+u.area);
+            System.out.println("RANGE:" + u.range + "; AZIMUTH: " + u.azimuth + "; AREA: " + u.area);
           }
         ),
         new FeederLaunchCommand(indexer, feeder, shooter),
