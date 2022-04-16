@@ -349,6 +349,7 @@ public class RobotContainer {
           new ShooterTargetCommand(shooter, 2.4)
         ),
         new WaitCommand(0.5),
+        new AlignToHub(drivetrain, hubTracking).withTimeout(1.0),
         (new ShooterRangeTargetCommand(shooter, hubTracking) {
           public void end(boolean interruptible) {
             return;
