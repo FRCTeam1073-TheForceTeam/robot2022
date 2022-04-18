@@ -19,6 +19,11 @@ import frc.robot.subsystems.HubTracking.HubData;
 
 public class Localizer extends SubsystemBase {
 
+  public enum LocalizationMode {
+    Continuous,
+    OnLaunch
+  }
+
   private Drivetrain drivetrain;
   private HubTracking hubTracking;
   private IMU imu;
@@ -35,6 +40,8 @@ public class Localizer extends SubsystemBase {
   // private DifferentialDriveOdometry odometry;
   Translation2d hubPosition;
   HubData hubData;
+
+  LocalizationMode mode = LocalizationMode.OnLaunch;
 
   public static final double azimuthThreshold = 0.05;
   public static final double upperHubRadius = 0.086; //Distance from 'fender' to center of lower hub is ~86cm as per game manual
@@ -70,27 +77,25 @@ public class Localizer extends SubsystemBase {
     drivetrain.getChassisSpeeds(robotSpeeds);
     hubTracking.sampleHubData(hubData);
     Robot.getBling().setSlot(4, 0, 0, 0);
-    double range = hubData.range + Localizer.upperHubRadius;
-    double angle = imu.getAngleRadians();
-    Translation2d candidate = (new Translation2d(range * Math.cos(angle), range * Math.sin(angle)))
-      .plus(drivetrain.getPoseMeters().getTranslation());
 
-    if (
-      (Math.abs(robotSpeeds.omegaRadiansPerSecond) < 0.02) &&
-      (Math.abs(robotSpeeds.vxMetersPerSecond) < 0.1) &&
-      hubTracking.isHubVisible() &&
-      (Math.abs(hubData.azimuth) < azimuthThreshold) &&
-      (candidate.getDistance(hubPosition) <= 3)
-    ) {
-      floatCounter = Math.max(0, Math.min(floatCounter + 1, maxCount));
-      if (floatCounter >= maxCount) {
-        floatCounter = 0;
-        Robot.getBling().setSlot(4, 0, 128, 255);
-        hubPosition = new Translation2d(candidate.getX(), candidate.getY());
+    if (mode == LocalizationMode.OnLaunch) {
+      Translation2d candidate = getCandidateHubPosition();
+      if ((Math.abs(robotSpeeds.omegaRadiansPerSecond) < 0.02) &&
+          (Math.abs(robotSpeeds.vxMetersPerSecond) < 0.1) &&
+          hubTracking.isHubVisible() &&
+          (Math.abs(hubData.azimuth) < azimuthThreshold) &&
+          (candidate.getDistance(hubPosition) <= 3)) {
+        floatCounter = Math.max(0, Math.min(floatCounter + 1, maxCount));
+        if (floatCounter >= maxCount) {
+          floatCounter = 0;
+          Robot.getBling().setSlot(4, 0, 128, 255);
+          hubPosition = new Translation2d(candidate.getX(), candidate.getY());
+        }
+      } else {
+        floatCounter = Math.max(0, Math.min(floatCounter - 1, maxCount));
       }
-    } else {
-      floatCounter = Math.max(0, Math.min(floatCounter - 1, maxCount));
     }
+
     // currentHeading = imu.getAngleRadians() + initialHeading;
     // double leftPos = drivetrain.getLeftWheelPosition();
     // double rightPos = drivetrain.getRightWheelPosition();
@@ -120,6 +125,13 @@ public class Localizer extends SubsystemBase {
     //   System.out.println("TIME: " + Timer.getMatchTime() + "ESTIMATED POSE:" + estimatedPose.toString());
     // }
     // ctr++;
+  }
+  
+  public Translation2d getCandidateHubPosition() {
+    double range = hubData.range + upperHubRadius;
+    double angle = imu.getAngleRadians();
+    return (new Translation2d(range * Math.cos(angle), range * Math.sin(angle)))
+      .plus(drivetrain.getPoseMeters().getTranslation());
   }
   
   public double getAngleToHub() {
