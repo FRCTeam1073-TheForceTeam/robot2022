@@ -165,6 +165,36 @@ public class RobotContainer {
       )
     );
 
+    autoChooser.addOption("NEW-2Ball",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new AbsoluteDriveCommand(
+              drivetrain,
+              new Pose2d(
+                1.521, 1.475, new Rotation2d(1.479)
+              ),
+              1.0,
+              0.1, 0.1
+            ),
+            new AbsoluteDriveCommand(
+              drivetrain,
+              new Pose2d(
+                1.521, 1.48, new Rotation2d(0.675)
+              ),
+              1.0,
+              0.1, 0.1
+            )
+          ),
+          new ShooterTargetCommand(shooter, 2.28),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(2.0),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+
     autoChooser.addOption("Auto-4Ball",
       new SequentialCommandGroup(
         new ParallelDeadlineGroup(
@@ -221,6 +251,88 @@ public class RobotContainer {
         new AbsoluteDriveCommand(drivetrain,
           new Pose2d(
             2.30, -1.20, new Rotation2d(-0.048)
+          ), 2.0, 5.5,
+          0.1, 0.02
+        ),
+        new WaitCommand(0.3),
+        new DashboardReadoutCommand("Firing second 2 cargo"),
+        new InstantCommand(
+          ()->{
+            HubData u = new HubData();
+            hubTracking.sampleHubData(u);
+            System.out.println("RANGE:" + u.range + "; AZIMUTH: " + u.azimuth + "; AREA: " + u.area);
+          }
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(1.0),
+        new DashboardReadoutCommand("Done!"),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+
+    autoChooser.addOption("NEW-4Ball",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new ParallelCommandGroup(
+            new AbsoluteDriveCommand(drivetrain,
+              new Pose2d(
+                1.984, 0.098, new Rotation2d(0.3198)
+              ), 1.5, 0.1, 0.1
+            )
+          ),
+          new IndexCommand(indexer, shooter),
+          new CollectCommand(collector, drivetrain),
+          new ShooterTargetCommand(shooter, 2.09)
+        ),
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new InstantCommand(DashboardReadoutCommand::resetCounter),
+            new DashboardReadoutCommand("Firing first 2 cargo"),
+            new FeederLaunchCommand(indexer, feeder, shooter, 1.7),
+            new InstantCommand(
+              ()->{
+                HubData u = new HubData();
+                hubTracking.sampleHubData(u);
+                System.out.println("RANGE:"+u.range+"O"+u.area);
+              }
+            ),
+            new DashboardReadoutCommand("Driving to 3rd ball"),
+            new SequentialCommandGroup(
+              new AbsoluteDriveCommand(drivetrain,
+                new Pose2d(
+                  4.511, -0.827, new Rotation2d(0.5108)
+                ), 2.5, 8.0,
+                0.07, 0.1,
+                true
+              ),
+              new AbsoluteDriveCommand(drivetrain,
+                new Pose2d(
+                  5.844, -0.068, new Rotation2d(0.6466)
+                ), 2.5, 8.0,
+                0.15, 0.15
+              )
+            )
+          ),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new DashboardReadoutCommand("Index #1"),  
+            new IndexCommand(indexer, shooter).withTimeout(1.5),
+            new DashboardReadoutCommand("Load"),
+            new LoadCommand(indexer, feeder, shooter),
+            new DashboardReadoutCommand("Index #2"),
+            (new IndexCommand(indexer, shooter)).withTimeout(1.5)
+          ),
+          new ShooterTargetCommand(shooter, 3.49),
+          new HumanPlayerSignalCommand(bling),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new DashboardReadoutCommand("Turning to face hub"),
+          // new ShooterRangeTargetCommand(shooter, hubTracking),
+        new AbsoluteDriveCommand(drivetrain,
+          new Pose2d(
+            3.727, -0.733, new Rotation2d(0.2063)
           ), 2.0, 5.5,
           0.1, 0.02
         ),
@@ -343,7 +455,7 @@ public class RobotContainer {
         new ParallelDeadlineGroup(
           new AbsoluteDriveCommand(
             drivetrain,
-            new Pose2d(1.0, 0.0, new Rotation2d(0.0)),
+            new Pose2d(2.0, 0.0, new Rotation2d(0.0)),
             2.0
           ),
           new ShooterTargetCommand(shooter, 2.4)

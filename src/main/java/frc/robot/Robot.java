@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.logging.LogRecord;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -77,6 +79,7 @@ public class Robot extends TimedRobot
   public void autonomousInit() 
   {
     robotContainer.drivetrain.setBrakeMode(true);
+    robotContainer.drivetrain.setRateLimit(Drivetrain.Constants.autoRateLimit);
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null)
@@ -94,6 +97,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    robotContainer.drivetrain.setRateLimit(Drivetrain.Constants.teleopRateLimit);
     HubData u = new HubData();
     robotContainer.hubTracking.sampleHubData(u);
     System.out.println("[teleopInit] RANGE:"+u.range+"O"+u.area);

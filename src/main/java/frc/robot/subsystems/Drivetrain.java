@@ -79,7 +79,7 @@ public class Drivetrain extends SubsystemBase {
   SlewRateLimiter rightMotorLimiter;
   private DifferentialDriveWheelSpeeds limitedTargetWheelSpeeds;
 
-  private final double rateLimit = 5.0 * 0.6;
+  private double rateLimit = 3.0;
   private DifferentialDriveWheelSpeeds targetWheelSpeeds;
   private int counter = 0;
 
@@ -127,6 +127,14 @@ public class Drivetrain extends SubsystemBase {
     }
     field = new Field2d();
   }
+
+  public void setRateLimit(double rateLimit_) {
+    rateLimit = rateLimit_;
+    leftMotorLimiter = new SlewRateLimiter(rateLimit);
+    rightMotorLimiter = new SlewRateLimiter(rateLimit);
+    leftMotorLimiter.reset(limitedTargetWheelSpeeds.leftMetersPerSecond);
+    rightMotorLimiter.reset(limitedTargetWheelSpeeds.rightMetersPerSecond);
+  }
   
   public IMU getIMU(){
     return imu;
@@ -158,6 +166,13 @@ public class Drivetrain extends SubsystemBase {
         .setDouble(Units.metersToFeet(leftPos));
     drivetrainTable.getEntry("Right distance")
         .setDouble(Units.metersToFeet(rightPos));
+
+    SmartDashboard.putNumber("DrivetrainTemps/LEFT Max Temp (degs C)",
+      Math.max(leftMotorLeader.getTemperature(), leftMotorFollower.getTemperature())
+    );
+    SmartDashboard.putNumber("DrivetrainTemps/RIGHT Max Temp (degs C)",
+      Math.max(rightMotorLeader.getTemperature(), rightMotorFollower.getTemperature())
+    );
 
     if (updateButton.getBoolean(false)) {
       kP = pEntry.getDouble(0);
@@ -317,5 +332,9 @@ public class Drivetrain extends SubsystemBase {
     leftMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
     rightMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
     rightMotorFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+  }
+  public static class Constants{
+    public static double autoRateLimit = 3.0;
+    public static double teleopRateLimit = 8.0;
   }
 }
