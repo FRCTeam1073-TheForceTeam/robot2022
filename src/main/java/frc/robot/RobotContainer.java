@@ -180,7 +180,7 @@ public class RobotContainer {
             new AbsoluteDriveCommand(
               drivetrain,
               new Pose2d(
-                1.521, 1.48, new Rotation2d(0.675)
+                1.521, 1.48, new Rotation2d(0.500)
               ),
               1.0,
               0.1, 0.1
@@ -254,6 +254,7 @@ public class RobotContainer {
           ), 2.0, 5.5,
           0.1, 0.02
         ),
+        // new AlignToHub(drivetrain, hubTracking).withTimeout(0.5),
         new WaitCommand(0.3),
         new DashboardReadoutCommand("Firing second 2 cargo"),
         new InstantCommand(

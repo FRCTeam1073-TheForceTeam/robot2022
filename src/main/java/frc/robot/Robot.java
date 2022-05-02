@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.AlignToHub;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.HubTracking.HubData;
 
@@ -48,6 +49,8 @@ public class Robot extends TimedRobot
     counter = 0;
     numReadouts = 0;
     SmartDashboard.putBoolean("Hub Tracker/LEDs active when disabled", false);
+    SmartDashboard.putNumber("AlignToHub/Min velocity", AlignToHub.minVelocity);
+    SmartDashboard.putNumber("AlignToHub/Scale factor", AlignToHub.scaleFactor);
   }
 
   @Override
@@ -73,6 +76,8 @@ public class Robot extends TimedRobot
         );
       }
     }
+    AlignToHub.minVelocity = SmartDashboard.getNumber("AlignToHub/Min velocity", 0);
+    AlignToHub.scaleFactor = SmartDashboard.getNumber("AlignToHub/Scale factor", 0);
   }
 
   @Override

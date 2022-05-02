@@ -17,11 +17,11 @@ public class AlignToHub extends CommandBase {
   HubData data;
   double hubAzimuth;
   ChassisSpeeds chassisSpeeds;
-  double scaleFactor = -2.5;
-  double azimuthTolerance = 0.1;
+  public static double scaleFactor = 3.0;
+  double azimuthTolerance = 0.04;
   int timeoutCounter = 0;
-  double minVelocity = 0.5;
-  double minError = minVelocity / scaleFactor;
+  public static double minVelocity = 0.58;
+  // double minError = minVelocity / scaleFactor;
 
   private HubTracking hubTracking;
   private Drivetrain drivetrain;
@@ -56,16 +56,17 @@ public class AlignToHub extends CommandBase {
     if (hubTracking.isHubVisible()) {
       hubAzimuth = data.azimuth;
       timeoutCounter = 0;
-      if (Math.abs(hubAzimuth) < minError) {
+      if (Math.abs(hubAzimuth) < (minVelocity / scaleFactor)) {
+        System.out.println("NARROW");
         if (hubAzimuth < 0) {
           chassisSpeeds.omegaRadiansPerSecond = minVelocity;
         }
         else {
-          chassisSpeeds.omegaRadiansPerSecond = -1 * minVelocity;
+          chassisSpeeds.omegaRadiansPerSecond = -minVelocity;
         }
       }
       else {
-        chassisSpeeds.omegaRadiansPerSecond = hubAzimuth * scaleFactor;
+        chassisSpeeds.omegaRadiansPerSecond = -hubAzimuth * scaleFactor;
       }
     }
     else {
