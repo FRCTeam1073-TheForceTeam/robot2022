@@ -27,7 +27,11 @@ public class OI
     public static void init() 
     {
         driverController = new Joystick(0);
-        zeroDriverController();
+        LEFT_X_ZERO = -0.0183;
+        LEFT_Y_ZERO = -0.0217;
+        RIGHT_X_ZERO = -0.0258;
+        RIGHT_Y_ZERO = 0.0058;
+        // zeroDriverController();
         operatorController = new XboxController(1);
         dPadState = DPadState.OFF;
         operatorMode = OperatorMode.NORMAL_MODE;
@@ -37,6 +41,7 @@ public class OI
 
     public static void onEnable() {
         operatorMode = OperatorMode.NORMAL_MODE;
+        zeroDriverController();
     }
 
     public static void update() {

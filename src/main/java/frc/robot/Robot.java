@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.logging.LogRecord;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.AlignToHub;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.HubTracking.HubData;
 
@@ -46,6 +49,8 @@ public class Robot extends TimedRobot
     counter = 0;
     numReadouts = 0;
     SmartDashboard.putBoolean("Hub Tracker/LEDs active when disabled", false);
+    SmartDashboard.putNumber("AlignToHub/Min velocity", AlignToHub.minVelocity);
+    SmartDashboard.putNumber("AlignToHub/Scale factor", AlignToHub.scaleFactor);
   }
 
   @Override
@@ -71,11 +76,15 @@ public class Robot extends TimedRobot
         );
       }
     }
+    AlignToHub.minVelocity = SmartDashboard.getNumber("AlignToHub/Min velocity", 0);
+    AlignToHub.scaleFactor = SmartDashboard.getNumber("AlignToHub/Scale factor", 0);
   }
 
   @Override
   public void autonomousInit() 
   {
+    robotContainer.drivetrain.setBrakeMode(true);
+    robotContainer.drivetrain.setRateLimit(Drivetrain.Constants.autoRateLimit);
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null)
@@ -93,10 +102,10 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    robotContainer.drivetrain.setRateLimit(Drivetrain.Constants.teleopRateLimit);
     HubData u = new HubData();
     robotContainer.hubTracking.sampleHubData(u);
     System.out.println("[teleopInit] RANGE:"+u.range+"O"+u.area);
-
     OI.onEnable();
     teleopCommand = robotContainer.getTeleopCommand();
 
@@ -104,6 +113,7 @@ public class Robot extends TimedRobot
     {
       teleopCommand.schedule();
     }
+    robotContainer.drivetrain.setBrakeMode(true);
   }
 
   @Override
@@ -111,7 +121,11 @@ public class Robot extends TimedRobot
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if (Drivetrain.initMotorsInCoastMode) {
+      robotContainer.drivetrain.setBrakeMode(false);
+    }
+  }
 
   @Override
   public void disabledPeriodic() {

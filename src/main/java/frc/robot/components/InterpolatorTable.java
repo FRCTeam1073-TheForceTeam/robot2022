@@ -39,6 +39,10 @@ public class InterpolatorTable {
         }
     }
 
+    public InterpolatorTable reverseTable() {
+        return null;
+    }
+
     /**
      * Gets minimum of X domain.
      * @return The minimum X value of any entry.

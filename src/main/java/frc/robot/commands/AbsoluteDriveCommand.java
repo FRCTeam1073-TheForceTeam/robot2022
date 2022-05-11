@@ -40,13 +40,17 @@ public class AbsoluteDriveCommand extends CommandBase {
   double beta = 1.5;
   double gamma = 1.5;
 
+  // If we're driving through the point, we don't slow down and deal with aligning when we're close to the point.
+  boolean driveThroughPoint;
+
   /** Creates a new RelativeDriveCommand. */
   public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double angularVelocity, double distanceTolerance,
-      double angleTolerance) {
+      double angleTolerance, boolean driveThroughPoint) {
     this.drivetrain = drivetrain;
     this.targetPose = targetPose;
     this.distanceTolerance = distanceTolerance;
     this.angleTolerance = angleTolerance;
+    this.driveThroughPoint = driveThroughPoint;
     maxVelocity = velocity;
     maxAngularVelocity = angularVelocity;
     SmartDashboard.putString("RelDrive/Status", "[NOT STARTED]");
@@ -54,16 +58,28 @@ public class AbsoluteDriveCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
+
+
+  public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double angularVelocity, double distanceTolerance, double angleTolerance) {
+    this(drivetrain, targetPose, velocity, angularVelocity, distanceTolerance, angleTolerance, false);
+  }
+
   public AbsoluteDriveCommand(Drivetrain drivetrain, Pose2d targetPose, double velocity, double distanceTolerance, double angleTolerance) {
     this(drivetrain, targetPose, velocity, 3.5 * velocity, distanceTolerance, angleTolerance);
   }
 
-  public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double speedFactor_) {
-    this(drivetrain_, targetPose_, speedFactor_, 0.1, 0.1);
-  }
-
   public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double distanceTolerance, double angleTolerance) {
     this(drivetrain_, targetPose_, 1.2, distanceTolerance, angleTolerance);
+  }
+
+  
+  
+  public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double speedFactor_, boolean driveThroughPoint) {
+    this(drivetrain_, targetPose_, speedFactor_, speedFactor_ * 3.5, 0.1, 0.1, false);
+  }
+
+  public AbsoluteDriveCommand(Drivetrain drivetrain_, Pose2d targetPose_, double speedFactor_) {
+    this(drivetrain_, targetPose_, speedFactor_, false);
   }
 
   // Called when the command is initially scheduled.
@@ -108,7 +124,11 @@ public class AbsoluteDriveCommand extends CommandBase {
     //   alpha * (1 - Math.exp(-2 * distance)) * (Math.max(0, -x_robot.dot(offsetVector)))
     // );
 
-    double targetVelocity = maxVelocity * Math.min(1.0, 0.2 + distance) * MathUtil.clamp(
+    double distanceFactor = Math.min(1.0, 0.2 + distance);
+    if (driveThroughPoint) {
+      distanceFactor = 1;
+    }
+    double targetVelocity = maxVelocity * distanceFactor * MathUtil.clamp(
       x_robot.dot(offsetVector),
       -1,1
     );
@@ -118,13 +138,20 @@ public class AbsoluteDriveCommand extends CommandBase {
       signFlip *= -1;
     }
 
-
+    double nearRotation = beta * (y_robot.dot(x_target));
+    double farRotation = gamma * (signFlip * y_robot.dot(offsetVector) - 0.4 * falloffDistance * (y_robot.dot(x_target)));
+    
+    double weighedRotation = 0;
+    if (driveThroughPoint) {
+      weighedRotation = farRotation;
+    } else {
+      weighedRotation = nearRotation * (1 - falloffDistance)
+      + farRotation * falloffDistance;      
+    }
     double targetRotation = 
-        maxAngularVelocity * MathUtil.clamp(
-        beta * (y_robot.dot(x_target)) * (1 - falloffDistance)
-          + gamma * (signFlip * y_robot.dot(offsetVector) - 0.4 * falloffDistance * (y_robot.dot(x_target))) * falloffDistance,
-        -1, 1
-    );
+      maxAngularVelocity * MathUtil.clamp(
+        weighedRotation,
+    -1, 1);
     
     SmartDashboard.putString("RelDrive/Status", "EXECUTING");
     SmartDashboard.putNumber("RelDrive/Vel", targetVelocity);
@@ -141,14 +168,24 @@ public class AbsoluteDriveCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    chassisSpeeds = new ChassisSpeeds();
-    drivetrain.setChassisSpeeds(chassisSpeeds);
+    if (!driveThroughPoint) {
+      chassisSpeeds = new ChassisSpeeds();
+      drivetrain.setChassisSpeeds(chassisSpeeds);        
+    }
     SmartDashboard.putString("RelDrive/Status", "ENDED");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (distance < distanceTolerance) && Math.abs(x_robot.dot(y_target)) < angleTolerance;
+    if (driveThroughPoint) {
+      /* If our only goal is to drive through the point, we'll probably be going somewhere else next
+      so it doesn't matter so much how close we get.
+      
+      Also, yes this distance should probably be another parameter but I don't think it's worth it.*/
+      return (distance < 1.0);
+    } else {
+      return (distance < distanceTolerance) && Math.abs(x_robot.dot(y_target)) < angleTolerance;      
+    }
   }
 }
