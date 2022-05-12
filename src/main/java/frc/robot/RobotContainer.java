@@ -132,7 +132,7 @@ public class RobotContainer {
             new AbsoluteDriveCommand(
               drivetrain, 
               new Pose2d(
-                0.0, 0.0, new Rotation2d(0.902)
+                1.47, 0.436, new Rotation2d(0.484)
               ),
               1.0, 5.5,
               0.1,
@@ -141,15 +141,15 @@ public class RobotContainer {
             new AbsoluteDriveCommand(
               drivetrain,
               new Pose2d(
-                1.23, 1.536, new Rotation2d(0.902)
+                2.547, 0.078, new Rotation2d(-0.65)
               ),
               1.0,
               0.1, 0.1
             )
           ),
-          new ShooterTargetCommand(shooter, 2.76),
+          //new ShooterTargetCommand(shooter, 1),
           new CollectCommand(collector, drivetrain)
-        ),
+       /* ),
         new AbsoluteDriveCommand(
           drivetrain, 
           new Pose2d(
@@ -162,6 +162,8 @@ public class RobotContainer {
         new FeederLaunchCommand(indexer, feeder, shooter),
         new WaitCommand(2.0),
         new ShooterSpinDownCommand(shooter)
+      )*/
+       )
       )
     );
 
