@@ -140,30 +140,6 @@ public class Bling extends SubsystemBase {
       clearLEDs();
     }
 
-    // if (!DriverStation.isEnabled()) {
-    //   if (OI.operatorController.getXButtonPressed()) {
-    //     ctr = -1;
-    //   } else if (OI.operatorController.getAButtonPressed()) {
-    //     ctr = Math.max(0, ctr);
-    //     ctr -= 4;
-    //   } else if (OI.operatorController.getBButton()) {
-    //     ctr = m_ledBuffer.getLength()-1;
-    //   }
-    // }
-
-    // ctr %= m_ledBuffer.getLength();
-    // setColorRGBAll(0, 0, 0);
-    // for (int i = 0; i < ctr; i++) {
-    //   m_ledBuffer.setRGB(
-    //     i,
-    //     (int)(255*Math.abs(Math.cos(timer.get()*(1.0+1.0*i/m_ledBuffer.getLength())))),
-    //     (int)(255*Math.abs(Math.cos(timer.get()*(1.2+1.0*i/m_ledBuffer.getLength())))),
-    //     (int)(255*Math.abs(Math.cos(timer.get()*(3.7+1.0*i/m_ledBuffer.getLength()))))
-    //   );
-    // }
-    // // rangeRGB(0, ctr + 1, 255, 0, 0);
-    // // m_ledBuffer.setRGB(
-    // // // ctr=(ctr+1)%920;
     m_led.setData(m_ledBuffer);
   }
 
