@@ -80,8 +80,6 @@ public class RobotContainer {
   HubTracking hubTracking = new HubTracking();
   
   CargoTracking cargoTracker = new CargoTracking();
-  
-  Localizer localizer = new Localizer(drivetrain, hubTracking);
 
   Dashboard dashboard = new Dashboard(drivetrain, collector, indexer, frontSonar, hubTracking, imu);
 
@@ -353,81 +351,6 @@ public class RobotContainer {
       )
     );
 
-    // autoChooser.addOption("Auto-4Ball",
-    //   new SequentialCommandGroup(
-    //     new ParallelDeadlineGroup(
-    //       new ParallelCommandGroup(
-    //         new AbsoluteDriveCommand(drivetrain,
-    //           new Pose2d(
-    //             1.727, 0.035, new Rotation2d(0.0146)
-    //           ), 1.5, 0.1, 0.1
-    //         )
-    //       ),
-    //       new IndexCommand(indexer, shooter),
-    //       new CollectCommand(collector, drivetrain),
-    //       new ShooterTargetCommand(shooter, 2.016)
-    //     ),
-    //     new ParallelDeadlineGroup(
-    //       new SequentialCommandGroup(
-    //         new InstantCommand(DashboardReadoutCommand::resetCounter),
-    //         new DashboardReadoutCommand("Firing first 2 cargo"),
-    //         new FeederLaunchCommand(indexer, feeder, shooter, 1.7),
-    //         new WaitCommand(0.2),
-    //         new InstantCommand(
-    //           ()->{
-    //             HubData u = new HubData();
-    //             hubTracking.sampleHubData(u);
-    //             System.out.println("RANGE:"+u.range+"O"+u.area);
-    //           }
-    //         ),
-    //         new DashboardReadoutCommand("Driving to 3rd ball"),
-    //         new AbsoluteDriveCommand(drivetrain,
-    //           new Pose2d(
-    //             5.509, 0.0215, new Rotation2d(0.1365)
-    //           ), 2.5, 7.0,
-    //           0.07, 0.1
-    //         )
-    //       ),
-    //       new CollectCommand(collector, drivetrain)
-    //     ),
-    //     new ParallelDeadlineGroup(
-    //       new SequentialCommandGroup(
-    //         new DashboardReadoutCommand("Index #1"),  
-    //         new IndexCommand(indexer, shooter).withTimeout(2.0),
-    //         new DashboardReadoutCommand("Load"),
-    //         new LoadCommand(indexer, feeder, shooter),
-    //         new DashboardReadoutCommand("Index #2"),
-    //         (new IndexCommand(indexer, shooter)).withTimeout(2.0)
-    //       ),
-    //       new ShooterTargetCommand(shooter, 3.176),
-    //       new HumanPlayerSignalCommand(bling),
-    //       new CollectCommand(collector, drivetrain)
-    //     ),
-    //     new DashboardReadoutCommand("Turning to face hub"),
-    //       // new ShooterRangeTargetCommand(shooter, hubTracking),
-    //     new WaitCommand(0.2),
-    //     new AbsoluteDriveCommand(drivetrain,
-    //       new Pose2d(
-    //         3.0495, -0.136, new Rotation2d(-0.1281)
-    //       ), 2.0, 5.5,
-    //       0.1, 0.02
-    //     ),
-    //     new WaitCommand(0.3),
-    //     new DashboardReadoutCommand("Firing second 2 cargo"),
-    //     new InstantCommand(
-    //       ()->{
-    //         HubData u = new HubData();
-    //         hubTracking.sampleHubData(u);
-    //         System.out.println("RANGE:"+u.range+"O"+u.area);
-    //       }
-    //     ),
-    //     new FeederLaunchCommand(indexer, feeder, shooter),
-    //     new WaitCommand(1.0),
-    //     new DashboardReadoutCommand("Done!"),
-    //     new ShooterSpinDownCommand(shooter)
-    //   )
-    // );
-
     autoChooser.addOption("Reading2Ball",
       new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -473,87 +396,6 @@ public class RobotContainer {
         new ShooterSpinDownCommand(shooter)
       )
     );
-        // new DashboardReadoutCommand("Turning to face 5th cargo"),
-        // new AbsoluteDriveCommand(drivetrain,
-        //   new Pose2d(
-        //     5.25, -1.25, new Rotation2d(2.49)
-        //   ), 0.1, 0.1
-        // ),
-        // new DashboardReadoutCommand("Drive"),
-        // new AbsoluteDriveCommand(drivetrain,
-        //   new Pose2d(
-        //     -1.785, 2.068, new Rotation2d(1.346)
-        //   ), 0.1, 0.1
-        // ),
-
-    // autoChooser.addOption("Load2",
-    //   new SequentialCommandGroup(
-    //     new ParallelDeadlineGroup(
-    //       new SequentialCommandGroup(
-    //         new DashboardReadoutCommand("Index #1"),              
-    //         new IndexCommand(indexer, shooter),
-    //         new DashboardReadoutCommand("Load"),
-    //         new LoadCommand(indexer, feeder, shooter),
-    //         new DashboardReadoutCommand("Index #2"),
-    //         (new IndexCommand(indexer, shooter)).withTimeout(4.0)
-    //       ),
-    //       new ShooterTargetCommand(shooter, 4.0),
-    //       // new ConditionalCommand(
-    //       //   new ShooterRangeTargetCommand(shooter, hubTracking),
-    //       //   new ShooterTargetCommand(shooter, 4.0),
-    //       //   hubTracking::isHubVisible
-    //       // ),
-    //       new CollectCommand(collector, drivetrain)
-    //     ),
-    //     new FeederLaunchCommand(indexer, feeder, shooter),
-    //     new WaitCommand(0.5),
-    //     new ShooterSpinDownCommand(shooter)
-    //   )
-    // );
-    // autoChooser.addOption("Turn90", 
-    //   new AbsoluteDriveCommand(drivetrain,
-    //     new Pose2d(
-    //       1.0, 1.0, new Rotation2d(Units.degreesToRadians(90.0))
-    //     ),
-    //     0.1, 0.1
-    //   )
-    // );
-    // autoChooser.addOption("AutoIndex", 
-    //   new ParallelCommandGroup(
-    //     new IndexCommand(indexer, shooter),
-    //     new CollectCommand(collector, drivetrain)
-    //   )
-    // );
-    // autoChooser.addOption("IndexLoad",
-    //   new SequentialCommandGroup(
-    //     new ParallelDeadlineGroup(
-    //       new IndexCommand(indexer, shooter),
-    //       new CollectCommand(collector, drivetrain)
-    //     ),
-    //     new LoadCommand(indexer, feeder, shooter)        
-    //   )
-    // );
-
-    // autoChooser.addOption("Launch",
-    //   new SequentialCommandGroup(
-    //     new ShooterTargetCommand(shooter, 2.0),
-    //     new FeederLaunchCommand(indexer, feeder, shooter)
-    //   )
-    // );
-
-    // autoChooser.addOption("IndexLoadLaunch",
-    //   new SequentialCommandGroup(
-    //     new ParallelDeadlineGroup(
-    //       new IndexCommand(indexer, shooter),
-    //       new CollectCommand(collector, drivetrain)
-    //     ),
-    //     new ParallelCommandGroup(
-    //       new LoadCommand(indexer, feeder, shooter),
-    //       new ShooterTargetCommand(shooter, 2.0)
-    //     ),
-    //     new FeederLaunchCommand(indexer, feeder, shooter)
-    //   )
-    // );
 
     SmartDashboard.putData("Init/Auto Selector", autoChooser);
     SmartDashboard.putNumber("Init/Auto Delay", 0);
@@ -582,21 +424,6 @@ public class RobotContainer {
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // new JoystickButton(OI.operatorController, XboxController.Button.kB.value).whileActiveContinuous(
-    //   new SequentialCommandGroup(
-    //     new ShooterSpinUpCommand(shooter, 550.0, Units.degreesToRadians(60.0)),
-    //     new ShooterFeedCommand(feeder, shooter, 2.5),
-    //     new ShooterSpinDownCommand(shooter)        
-    //   )
-    // );
-    // OI.getOperatorDPadDown().whileActiveContinuous(
-    //   new SequentialCommandGroup(
-    //     new ShooterTargetCommand(shooter, hubTracking, true, 1.0),
-    //     new WaitToLevel(feeder, shooter, 2.0),
-    //     new ShooterFeedCommand(feeder, shooter, 2.5),
-    //     new ShooterSpinDownCommand(shooter)
-    //   )
-    // );
     (new Trigger(()->(OI.operatorController.getRightTriggerAxis()>0.5))).whenActive(
       new InstantCommand(OI::toggleOperatorMode)
     );
@@ -685,35 +512,6 @@ public class RobotContainer {
     );
 
     SmartDashboard.putData(new HoodIndexCommand(shooter));
-
-    // new FeederLaunchCommand(indexer, feeder, shooter),
-        // new InstantCommand(feeder::zeroFeeder),
-        // new WaitCommand(0.5),
-        // new ShooterSpinDownCommand(shooter)
-    // OI.getOperatorDPadUp().whileActiveContinuous(
-    //   new SequentialCommandGroup(
-    //     new ShooterTargetCommand(shooter, hubTracking, true, 3.0),
-    //     new WaitToLevel(feeder, shooter, 2.0),
-    //     new ShooterFeedCommand(feeder, shooter, 2.5),
-    //     new ShooterSpinDownCommand(shooter)
-    //   )
-    // );
-    // OI.getOperatorDPadRight().whileActiveContinuous(
-    //   new SequentialCommandGroup(
-    //     new ShooterTargetCommand(shooter, hubTracking, true, 4.0),
-    //     new WaitToLevel(feeder, shooter, 2.0),
-    //     new ShooterFeedCommand(feeder, shooter, 2.5),
-    //     new ShooterSpinDownCommand(shooter)
-    //   )
-    // );
-    // (new JoystickButton(OI.operatorController,XboxController.Button.kStart.value)).whileHeld(
-    //   new SequentialCommandGroup(
-    //     new ShooterTargetCommand(shooter, hubTracking, true, 2.17),
-    //     new WaitToLevel(feeder, shooter, 2.0),
-    //     new ShooterFeedCommand(feeder, shooter, 2.5),
-    //     new ShooterSpinDownCommand(shooter)
-    //   )
-    // );
   }
 
   /**

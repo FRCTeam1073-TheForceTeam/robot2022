@@ -44,64 +44,6 @@ public class TeleopShooter extends CommandBase {
       shooter.setHoodPosition(SmartDashboard.getNumber("[T-Sh] Hood angle (rads)", 0));
       SmartDashboard.putBoolean("[T-Sh] Update", false);
     }
-
-    // if (OI.operatorController.getXButtonPressed()) {
-    //   shooter.setHoodPosition(Units.degreesToRadians(30.0));
-    // }
-    // if (OI.operatorController.getYButtonPressed()) {
-    //   shooter.setHoodPosition(Units.degreesToRadians(60.0));
-    // }
-    // if (OI.operatorController.getXButtonReleased()||OI.operatorController.getYButtonReleased()){
-    //   shooter.setHoodPosition(Units.degreesToRadians(0.0));      
-    // }
-
-
-    /*Just an arbitrary temporary number for the joystick because the old xbox
-    code here was causing an error with the new OI code from main*/
-    // if (OI.driverController.getRawButtonPressed(8)) {
-    //   shooter.setHoodPosition(hoodPosition1);
-    // }
-    //Temporary button number!
-    // else if (OI.driverController.getRawButtonPressed(7)) {
-    //   shooter.setHoodPosition(hoodPosition2);
-    // }
-
-    // double flywheelVelocity;
-    // double loaderVelocity;
-    // double hoodPosition;
-
-    // flywheelVelocity = SmartDashboard.getNumber("Flywheel Motor Velocity", 0);
-    // if (flywheelVelocity < -1) {
-    //   flywheelVelocity = -1;
-    // }
-    // if (flywheelVelocity > 1) {
-    //   flywheelVelocity = 1;
-    // }
-
-    // loaderVelocity = SmartDashboard.getNumber("Loader Motor Velocity", 0);
-    // if (loaderVelocity < -1) {
-    //   loaderVelocity = -1;
-    // }
-    // if (loaderVelocity > 1) {
-    //   loaderVelocity = 1;
-    // }
-
-    // hoodPosition = SmartDashboard.getNumber("Set Hood Position", 0);
-    // if (hoodPosition < -1) {
-    //   hoodPosition = -1;
-    // }
-    // if (hoodPosition >1) {
-    //   hoodPosition = 1;
-    // }
-
-    // System.out.println(flywheelVelocity);
-    // shooter.setFlywheelVelocity(flywheelVelocity);
-
-    // System.out.println(loaderVelocity);
-    // shooter.setLoaderVelocity(loaderVelocity);
-
-    // System.out.println(hoodPosition);
-    // shooter.setHoodPosition(hoodPosition);
   }
 
   // Called once the command ends or is interrupted.
