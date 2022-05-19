@@ -269,6 +269,91 @@ public class RobotContainer {
       )
     );
 
+    autoChooser.addOption("Auto-4Ball-align",
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new ParallelCommandGroup(
+            new AbsoluteDriveCommand(drivetrain,
+              new Pose2d(
+                Units.inchesToMeters(46.0), 0.0, new Rotation2d(Units.degreesToRadians(10.0))
+              ), 1.5, 0.1, 0.1
+            )
+          ),
+          new IndexCommand(indexer, shooter),
+          new CollectCommand(collector, drivetrain),
+          new InstantCommand(
+            ()->{
+              HubData u = new HubData();
+              hubTracking.sampleHubData(u);
+              System.out.println("RANGE:"+u.range+"O"+u.area);
+              new ShooterTargetCommand(shooter, u.range);
+            }
+          )
+        ),
+
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new InstantCommand(DashboardReadoutCommand::resetCounter),
+            new DashboardReadoutCommand("Firing first 2 cargo"),
+            new FeederLaunchCommand(indexer, feeder, shooter, 1.7),
+            new WaitCommand(0.2),
+            new InstantCommand(
+              ()->{
+                HubData u = new HubData();
+                hubTracking.sampleHubData(u);
+                System.out.println("RANGE:"+u.range+"O"+u.area);
+              }
+            ),
+            new DashboardReadoutCommand("Driving to 3rd ball"),
+            new AbsoluteDriveCommand(drivetrain,
+              new Pose2d(
+                5.222, -1.135, new Rotation2d(0.229)
+              ), 2.5, 8.0,
+              0.07, 0.1
+            )
+          ),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new DashboardReadoutCommand("Index #1"),  
+            new IndexCommand(indexer, shooter).withTimeout(2.0),
+            new DashboardReadoutCommand("Load"),
+            new LoadCommand(indexer, feeder, shooter),
+            new DashboardReadoutCommand("Index #2"),
+            (new IndexCommand(indexer, shooter)).withTimeout(2.0)
+          ),
+          new HumanPlayerSignalCommand(bling),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new DashboardReadoutCommand("Turning to face hub"),
+          // new ShooterRangeTargetCommand(shooter, hubTracking),
+        new WaitCommand(0.2),
+        new AbsoluteDriveCommand(drivetrain,
+          new Pose2d(
+            2.30, -1.20, new Rotation2d(-0.048)
+          ), 2.0, 5.5,
+          0.1, 0.02
+        ),
+        new AlignToHub(drivetrain, hubTracking).withTimeout(0.5),
+        new WaitCommand(0.3),
+        new DashboardReadoutCommand("Firing second 2 cargo"),
+        new InstantCommand(
+          ()->{
+            HubData u = new HubData();
+            hubTracking.sampleHubData(u);
+            System.out.println("RANGE:" + u.range + "; AZIMUTH: " + u.azimuth + "; AREA: " + u.area);
+            new ShooterTargetCommand(shooter, u.range);
+          }
+        ),
+        new WaitCommand(1.0),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(1.0),
+        new DashboardReadoutCommand("Done!"),
+        new ShooterSpinDownCommand(shooter)
+      )
+    );
+
     autoChooser.addOption("NEW-4Ball",
       new SequentialCommandGroup(
         new ParallelDeadlineGroup(
