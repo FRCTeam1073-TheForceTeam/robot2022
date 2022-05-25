@@ -163,6 +163,61 @@ public class RobotContainer {
       )
     );
 
+    /**
+     * TODO: fill in correct values
+     */
+
+    autoChooser.addOption("Defensive-2Ball",  
+      new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+            new AbsoluteDriveCommand(
+              drivetrain, 
+              new Pose2d(
+                0.0, 0.0, new Rotation2d(0.902)
+              ),
+              1.0, 5.5,
+              0.1,
+              0.06
+            ),
+            new AbsoluteDriveCommand(
+              drivetrain,
+              new Pose2d(
+                1.23, 1.536, new Rotation2d(0.902)
+              ),
+              1.0,
+              0.1, 0.1
+            )
+          ),
+          new ShooterTargetCommand(shooter, 2.76),
+          new CollectCommand(collector, drivetrain)
+        ),
+        new AbsoluteDriveCommand(
+          drivetrain, 
+          new Pose2d(
+            1.23, 1.536, new Rotation2d(0.605)
+          ),
+          1.0, 5.5,
+          0.1,
+          0.05
+        ),
+        new FeederLaunchCommand(indexer, feeder, shooter),
+        new WaitCommand(2.0),
+        new ShooterSpinDownCommand(shooter),
+        new AbsoluteDriveCommand(                            // Fill in values from here
+          drivetrain, 
+          new Pose2d(
+            0, 0, new Rotation2d(0)
+          ),
+          0, 0, 
+          0, 
+          0
+        ), 
+        new CollectCommand(collector, drivetrain),
+        new ShooterTargetCommand(shooter, 0)                 // To here
+      )
+    );
+
     autoChooser.addOption("NEW-2Ball",
       new SequentialCommandGroup(
         new ParallelDeadlineGroup(
