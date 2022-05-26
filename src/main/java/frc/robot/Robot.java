@@ -64,16 +64,16 @@ public class Robot extends TimedRobot
       if (counter % 10 == 0) {
         Pose2d pose=robotContainer.drivetrain.getPoseMeters();
         numReadouts++;
-        System.out.println(
-          String.format(
-            "ODOMETRY POINT READOUT #%d:\tTIME=%.2f SECONDS; XPOS=%.3f METERS; YPOS=%.3f METERS; ANGLE=%.4f RADIANS",
-            numReadouts,
-            timer.get(),
-            pose.getX(),
-            pose.getY(),
-            pose.getRotation().getRadians()
-          )
-        );
+        // System.out.println(
+        //   String.format(
+        //     "ODOMETRY POINT READOUT #%d:\tTIME=%.2f SECONDS; XPOS=%.3f METERS; YPOS=%.3f METERS; ANGLE=%.4f RADIANS",
+        //     numReadouts,
+        //     timer.get(),
+        //     pose.getX(),
+        //     pose.getY(),
+        //     pose.getRotation().getRadians()
+        //   )
+        // );
       }
     }
     AlignToHub.minVelocity = SmartDashboard.getNumber("AlignToHub/Min velocity", 0);

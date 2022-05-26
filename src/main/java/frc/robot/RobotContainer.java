@@ -289,21 +289,23 @@ public class RobotContainer {
               new ShooterTargetCommand(shooter, u.range);
             }
           )
+          // new FeederLaunchCommand(indexer, feeder, shooter, 1.7)
         ),
 
         new ParallelDeadlineGroup(
           new SequentialCommandGroup(
             new InstantCommand(DashboardReadoutCommand::resetCounter),
             new DashboardReadoutCommand("Firing first 2 cargo"),
+            // new InstantCommand(
+            //   ()->{
+            //     HubData u = new HubData();
+            //     hubTracking.sampleHubData(u);
+            //     System.out.println("RANGE:"+u.range+"O"+u.area);
+            //     new ShooterTargetCommand(shooter, 1.73);
+            //   }
+            // ),
             new FeederLaunchCommand(indexer, feeder, shooter, 1.7),
-            new WaitCommand(0.2),
-            new InstantCommand(
-              ()->{
-                HubData u = new HubData();
-                hubTracking.sampleHubData(u);
-                System.out.println("RANGE:"+u.range+"O"+u.area);
-              }
-            ),
+            new WaitCommand(1),
             new DashboardReadoutCommand("Driving to 3rd ball"),
             new AbsoluteDriveCommand(drivetrain,
               new Pose2d(
